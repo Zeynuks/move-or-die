@@ -1,14 +1,19 @@
 const Player = require('../Model/Player');
+const GameObject = require('../Model/GameObject');
 
 let players = {};
 let ipAddresses = {};
+let gameObjects = [
+    new GameObject(100, 500, 200, 20), // Пример объекта
+    new GameObject(400, 400, 200, 20)  // Другой объект
+];
 
 exports.initialize = (io) => {
     io.on('connection', (socket) => {
         const playerIp = socket.handshake.address;
 
         // Проверка, если игрок с этим IP уже подключен или комната заполнена
-        if (Object.keys(ipAddresses).length >= 2 && !ipAddresses[playerIp]) {
+        if (Object.keys(ipAddresses).length >= 4 && !ipAddresses[playerIp]) {
             socket.emit('roomFull');
             socket.disconnect();
             return;
@@ -22,7 +27,7 @@ exports.initialize = (io) => {
             ipAddresses[playerIp] = socket.id;
 
             // Отправляем текущие состояния всех игроков новому пользователю
-            socket.emit('initialize', players);
+            socket.emit('initialize', { players, gameObjects });
 
             // Сообщаем всем клиентам о новом игроке
             socket.broadcast.emit('newPlayer', { id: socket.id, x: players[socket.id].x, y: players[socket.id].y, size: players[socket.id].size });
@@ -37,17 +42,16 @@ exports.initialize = (io) => {
             ipAddresses[playerIp] = socket.id;
 
             // Отправляем текущие состояния всех игроков новому пользователю
-            socket.emit('initialize', players);
+            socket.emit('initialize', { players, gameObjects });
 
             // Сообщаем всем клиентам о новом игроке
             socket.broadcast.emit('newPlayer', { id: socket.id, x: players[socket.id].x, y: players[socket.id].y, size: players[socket.id].size });
         }
 
-        socket.on('move', (direction) => {
-            console.log('Движение:', direction);
+        socket.on('move', (data) => {
+            console.log('Движение:', data);
             if (players[socket.id]) {
-                players[socket.id].move(direction);
-                io.emit('move', { id: socket.id, x: players[socket.id].x, y: players[socket.id].y });
+                players[socket.id].setMove(data.direction, data.moving);
             }
         });
 
@@ -63,4 +67,14 @@ exports.initialize = (io) => {
             }, 10000);
         });
     });
+};
+
+exports.update = () => {
+    for (let id in players) {
+        players[id].applyPhysics();
+    }
+};
+
+exports.getState = () => {
+    return { players, gameObjects };
 };

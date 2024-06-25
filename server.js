@@ -19,3 +19,9 @@ gameController.initialize(io);
 server.listen(PORT, () => {
     console.log(`Сервер запущен на порту ${PORT}`);
 });
+
+// Периодическое обновление игры
+setInterval(() => {
+    gameController.update();
+    io.emit('update', gameController.getState());
+}, 1000 / 60); // 60 раз в секунду

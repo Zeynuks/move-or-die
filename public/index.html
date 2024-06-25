@@ -7,47 +7,25 @@
   <style>
     body {
       margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background-color: #f0f0f0;
-      font-family: Arial, sans-serif;
     }
-    #game-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    #game-title {
-      margin-bottom: 20px;
-      font-size: 24px;
-      color: #333;
-    }
-    #gameCanvas {
-      border: 2px solid #333;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    canvas {
+      display: block;
     }
     #error {
-      margin-top: 10px;
       color: red;
-      font-size: 16px;
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
   <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-<div id="game-container">
-  <div id="game-title">Multiplayer Phaser Game</div>
-  <div id="error"></div>
-</div>
+<div id="error"></div>
 
 <script>
   const socket = io();
   const errorDiv = document.getElementById('error');
-  const gameContainer = document.getElementById('game-container');
   let players = {};
+  let gameObjects = [];
 
   class MainScene extends Phaser.Scene {
     constructor() {
@@ -59,10 +37,12 @@
     }
 
     create() {
-      // Создание игроков
-      socket.on('initialize', (initialPlayers) => {
-        players = initialPlayers;
+      // Создание объектов игры
+      socket.on('initialize', (data) => {
+        players = data.players;
+        gameObjects = data.gameObjects;
         this.drawPlayers();
+        this.drawGameObjects();
       });
 
       socket.on('newPlayer', (player) => {
@@ -87,17 +67,31 @@
         errorDiv.textContent = 'Комната заполнена. Пожалуйста, попробуйте позже.';
       });
 
-      this.input.keyboard.on('keydown-W', () => { socket.emit('move', 'up'); });
-      this.input.keyboard.on('keydown-A', () => { socket.emit('move', 'left'); });
-      this.input.keyboard.on('keydown-S', () => { socket.emit('move', 'down'); });
-      this.input.keyboard.on('keydown-D', () => { socket.emit('move', 'right'); });
+      socket.on('update', (data) => {
+        players = data.players;
+        this.drawPlayers();
+      });
+
+      this.input.keyboard.on('keydown-W', () => { socket.emit('move', { direction: 'jump', moving: true }); });
+      this.input.keyboard.on('keyup-W', () => { socket.emit('move', { direction: 'jump', moving: false }); });
+      this.input.keyboard.on('keydown-A', () => { socket.emit('move', { direction: 'left', moving: true }); });
+      this.input.keyboard.on('keyup-A', () => { socket.emit('move', { direction: 'left', moving: false }); });
+      this.input.keyboard.on('keydown-D', () => { socket.emit('move', { direction: 'right', moving: true }); });
+      this.input.keyboard.on('keyup-D', () => { socket.emit('move', { direction: 'right', moving: false }); });
     }
 
     drawPlayers() {
       this.children.removeAll();
+      this.drawGameObjects(); // Перерисовываем объекты при каждом движении
       for (let id in players) {
         const player = players[id];
         this.add.rectangle(player.x, player.y, player.size, player.size, 0x0000ff).setOrigin(0);
+      }
+    }
+
+    drawGameObjects() {
+      for (let obj of gameObjects) {
+        this.add.rectangle(obj.x, obj.y, obj.width, obj.height, 0x00ff00).setOrigin(0);
       }
     }
   }
@@ -106,8 +100,14 @@
     type: Phaser.AUTO,
     width: 800,
     height: 600,
-    parent: 'game-container',
-    scene: MainScene
+    scene: MainScene,
+    physics: {
+      default: 'arcade',
+      arcade: {
+        gravity: { y: 300 },
+        debug: false
+      }
+    }
   };
 
   const game = new Phaser.Game(config);
