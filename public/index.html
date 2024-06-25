@@ -3,92 +3,114 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Canvas Game</title>
+  <title>Phaser Game</title>
   <style>
-    canvas {
-      border: 1px solid black;
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+      font-family: Arial, sans-serif;
+    }
+    #game-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #game-title {
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #333;
+    }
+    #gameCanvas {
+      border: 2px solid #333;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
     #error {
+      margin-top: 10px;
       color: red;
+      font-size: 16px;
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-<h1>Canvas Game</h1>
-<canvas id="gameCanvas" width="500" height="500"></canvas>
-<div id="error"></div>
+<div id="game-container">
+  <div id="game-title">Multiplayer Phaser Game</div>
+  <div id="error"></div>
+</div>
 
-<script src="/socket.io/socket.io.js"></script>
 <script>
   const socket = io();
-
-  const canvas = document.getElementById('gameCanvas');
-  const context = canvas.getContext('2d');
   const errorDiv = document.getElementById('error');
-
+  const gameContainer = document.getElementById('game-container');
   let players = {};
 
-  // Функция отрисовки квадратов
-  function drawSquares() {
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    for (let id in players) {
-      const player = players[id];
-      context.fillStyle = 'blue';
-      context.fillRect(player.x, player.y, player.size, player.size);
+  class MainScene extends Phaser.Scene {
+    constructor() {
+      super({ key: 'MainScene' });
+    }
+
+    preload() {
+      // Загрузка ресурсов, если необходимо
+    }
+
+    create() {
+      // Создание игроков
+      socket.on('initialize', (initialPlayers) => {
+        players = initialPlayers;
+        this.drawPlayers();
+      });
+
+      socket.on('newPlayer', (player) => {
+        players[player.id] = { x: player.x, y: player.y, size: player.size };
+        this.drawPlayers();
+      });
+
+      socket.on('move', (data) => {
+        if (players[data.id]) {
+          players[data.id].x = data.x;
+          players[data.id].y = data.y;
+          this.drawPlayers();
+        }
+      });
+
+      socket.on('removePlayer', (id) => {
+        delete players[id];
+        this.drawPlayers();
+      });
+
+      socket.on('roomFull', () => {
+        errorDiv.textContent = 'Комната заполнена. Пожалуйста, попробуйте позже.';
+      });
+
+      this.input.keyboard.on('keydown-W', () => { socket.emit('move', 'up'); });
+      this.input.keyboard.on('keydown-A', () => { socket.emit('move', 'left'); });
+      this.input.keyboard.on('keydown-S', () => { socket.emit('move', 'down'); });
+      this.input.keyboard.on('keydown-D', () => { socket.emit('move', 'right'); });
+    }
+
+    drawPlayers() {
+      this.children.removeAll();
+      for (let id in players) {
+        const player = players[id];
+        this.add.rectangle(player.x, player.y, player.size, player.size, 0x0000ff).setOrigin(0);
+      }
     }
   }
 
-  // Инициализация состояния игроков
-  socket.on('initialize', (initialPlayers) => {
-    players = initialPlayers;
-    drawSquares();
-  });
+  const config = {
+    type: Phaser.AUTO,
+    width: 800,
+    height: 600,
+    parent: 'game-container',
+    scene: MainScene
+  };
 
-  // Добавление нового игрока
-  socket.on('newPlayer', (player) => {
-    players[player.id] = { x: player.x, y: player.y, size: player.size };
-    drawSquares();
-  });
-
-  // Обновление движения игроков
-  socket.on('move', (data) => {
-    if (players[data.id]) {
-      players[data.id].x = data.x;
-      players[data.id].y = data.y;
-      drawSquares();
-    }
-  });
-
-  // Удаление игрока
-  socket.on('removePlayer', (id) => {
-    delete players[id];
-    drawSquares();
-  });
-
-  // Обработка ошибки заполненной комнаты
-  socket.on('roomFull', () => {
-    errorDiv.textContent = 'Комната заполнена. Пожалуйста, попробуйте позже.';
-  });
-
-  // Обработка нажатий клавиш
-  document.addEventListener('keydown', (event) => {
-    const key = event.key.toLowerCase();
-    let direction = null;
-
-    if (key === 'w') {
-      direction = 'up';
-    } else if (key === 'a') {
-      direction = 'left';
-    } else if (key === 's') {
-      direction = 'down';
-    } else if (key === 'd') {
-      direction = 'right';
-    }
-
-    if (direction) {
-      socket.emit('move', direction);
-    }
-  });
+  const game = new Phaser.Game(config);
 </script>
 </body>
 </html>
