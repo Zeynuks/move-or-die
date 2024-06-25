@@ -4,6 +4,8 @@ class Player {
         this.x = Math.floor(Math.random() * 480);
         this.y = 0;
         this.size = 20;
+        this.width = 20; // *** ADD width & height
+        this.height = 20;
         this.lastActive = Date.now();
         this.velocityY = 0;
         this.velocityX = 0;
@@ -24,7 +26,7 @@ class Player {
         this.lastActive = Date.now();
     }
 
-    applyPhysics(gameObjects) {
+    applyPhysics(gameObjects, allPlayers) { // *** ADD param allPlayers
         const gravity = 0.5;
         const friction = 0.8;
         const acceleration = 0.5;
@@ -63,6 +65,16 @@ class Player {
             let collision = this.checkCollision(obj);
             if (collision) {
                 this.resolveCollision(obj, collision);
+            }
+        }
+
+        // *** ADD Проверка коллизий с игроками           
+        for (let player of allPlayers) {
+            if (this.id !== player.id) {
+                let collision = this.checkCollision(player);
+                if (collision) {
+                    this.resolveCollision(player, collision);
+                }
             }
         }
 

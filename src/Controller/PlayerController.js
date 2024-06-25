@@ -55,9 +55,9 @@ exports.initialize = (io) => {
 };
 
 exports.update = () => {
-    const gameObjects = gameObjectController.getGameObjects();
+    const gameObjects = gameObjectController.getGameObjects();    
     for (let id in players) {
-        players[id].applyPhysics(gameObjects);
+        players[id].applyPhysics(gameObjects, Object.values(players)); // *** ADD arg Object.values(players)
     }
 };
 
