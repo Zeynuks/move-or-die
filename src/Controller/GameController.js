@@ -5,7 +5,8 @@ let players = {};
 let ipAddresses = {};
 let gameObjects = [
     new GameObject(100, 500, 200, 20), // Пример объекта
-    new GameObject(400, 400, 200, 20)  // Другой объект
+    new GameObject(400, 400, 200, 20),  // Другой объект
+    new GameObject(300, 300, 50, 50)    // Ещё один объект
 ];
 
 exports.initialize = (io) => {
@@ -13,7 +14,7 @@ exports.initialize = (io) => {
         const playerIp = socket.handshake.address;
 
         // Проверка, если игрок с этим IP уже подключен или комната заполнена
-        if (Object.keys(ipAddresses).length >= 4 && !ipAddresses[playerIp]) {
+        if (Object.keys(ipAddresses).length >= 2 && !ipAddresses[playerIp]) {
             socket.emit('roomFull');
             socket.disconnect();
             return;

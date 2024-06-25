@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Phaser Game</title>
+  <title>Canvas Game</title>
   <style>
     body {
       margin: 0;
@@ -15,102 +15,98 @@
       color: red;
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
   <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
 <div id="error"></div>
+<canvas id="gameCanvas" width="800" height="600"></canvas>
 
 <script>
   const socket = io();
   const errorDiv = document.getElementById('error');
+  const canvas = document.getElementById('gameCanvas');
+  const context = canvas.getContext('2d');
   let players = {};
   let gameObjects = [];
 
-  class MainScene extends Phaser.Scene {
-    constructor() {
-      super({ key: 'MainScene' });
-    }
-
-    preload() {
-      // Загрузка ресурсов, если необходимо
-    }
-
-    create() {
-      // Создание объектов игры
-      socket.on('initialize', (data) => {
-        players = data.players;
-        gameObjects = data.gameObjects;
-        this.drawPlayers();
-        this.drawGameObjects();
-      });
-
-      socket.on('newPlayer', (player) => {
-        players[player.id] = { x: player.x, y: player.y, size: player.size };
-        this.drawPlayers();
-      });
-
-      socket.on('move', (data) => {
-        if (players[data.id]) {
-          players[data.id].x = data.x;
-          players[data.id].y = data.y;
-          this.drawPlayers();
-        }
-      });
-
-      socket.on('removePlayer', (id) => {
-        delete players[id];
-        this.drawPlayers();
-      });
-
-      socket.on('roomFull', () => {
-        errorDiv.textContent = 'Комната заполнена. Пожалуйста, попробуйте позже.';
-      });
-
-      socket.on('update', (data) => {
-        players = data.players;
-        this.drawPlayers();
-      });
-
-      this.input.keyboard.on('keydown-W', () => { socket.emit('move', { direction: 'jump', moving: true }); });
-      this.input.keyboard.on('keyup-W', () => { socket.emit('move', { direction: 'jump', moving: false }); });
-      this.input.keyboard.on('keydown-A', () => { socket.emit('move', { direction: 'left', moving: true }); });
-      this.input.keyboard.on('keyup-A', () => { socket.emit('move', { direction: 'left', moving: false }); });
-      this.input.keyboard.on('keydown-D', () => { socket.emit('move', { direction: 'right', moving: true }); });
-      this.input.keyboard.on('keyup-D', () => { socket.emit('move', { direction: 'right', moving: false }); });
-    }
-
-    drawPlayers() {
-      this.children.removeAll();
-      this.drawGameObjects(); // Перерисовываем объекты при каждом движении
-      for (let id in players) {
-        const player = players[id];
-        this.add.rectangle(player.x, player.y, player.size, player.size, 0x0000ff).setOrigin(0);
-      }
-    }
-
-    drawGameObjects() {
-      for (let obj of gameObjects) {
-        this.add.rectangle(obj.x, obj.y, obj.width, obj.height, 0x00ff00).setOrigin(0);
-      }
+  function drawPlayers() {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    drawGameObjects();
+    for (let id in players) {
+      const player = players[id];
+      context.fillStyle = 'blue';
+      context.fillRect(player.x, player.y, player.size, player.size);
     }
   }
 
-  const config = {
-    type: Phaser.AUTO,
-    width: 800,
-    height: 600,
-    scene: MainScene,
-    physics: {
-      default: 'arcade',
-      arcade: {
-        gravity: { y: 300 },
-        debug: false
-      }
+  function drawGameObjects() {
+    for (let obj of gameObjects) {
+      context.fillStyle = 'green';
+      context.fillRect(obj.x, obj.y, obj.width, obj.height);
     }
-  };
+  }
 
-  const game = new Phaser.Game(config);
+  socket.on('initialize', (data) => {
+    players = data.players;
+    gameObjects = data.gameObjects;
+    drawPlayers();
+  });
+
+  socket.on('newPlayer', (player) => {
+    players[player.id] = { x: player.x, y: player.y, size: player.size };
+    drawPlayers();
+  });
+
+  socket.on('move', (data) => {
+    if (players[data.id]) {
+      players[data.id].x = data.x;
+      players[data.id].y = data.y;
+      drawPlayers();
+    }
+  });
+
+  socket.on('removePlayer', (id) => {
+    delete players[id];
+    drawPlayers();
+  });
+
+  socket.on('roomFull', () => {
+    errorDiv.textContent = 'Комната заполнена. Пожалуйста, попробуйте позже.';
+  });
+
+  socket.on('update', (data) => {
+    players = data.players;
+    drawPlayers();
+  });
+
+  document.addEventListener('keydown', (event) => {
+    const key = event.key.toLowerCase();
+    if (key === 'w') {
+      socket.emit('move', { direction: 'jump', moving: true });
+    } else if (key === 'a') {
+      socket.emit('move', { direction: 'left', moving: true });
+    } else if (key === 'd') {
+      socket.emit('move', { direction: 'right', moving: true });
+    }
+  });
+
+  document.addEventListener('keyup', (event) => {
+    const key = event.key.toLowerCase();
+    if (key === 'w') {
+      socket.emit('move', { direction: 'jump', moving: false });
+    } else if (key === 'a') {
+      socket.emit('move', { direction: 'left', moving: false });
+    } else if (key === 'd') {
+      socket.emit('move', { direction: 'right', moving: false });
+    }
+  });
+
+  function gameLoop() {
+    drawPlayers();
+    requestAnimationFrame(gameLoop);
+  }
+
+  gameLoop();
 </script>
 </body>
 </html>
