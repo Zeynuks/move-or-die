@@ -1,91 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Canvas Game</title>
-    <style>
-        canvas {
-            border: 1px solid black;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canvas Game</title>
+  <style>
+    canvas {
+      border: 1px solid black;
+    }
+    #error {
+      color: red;
+    }
+  </style>
 </head>
 <body>
 <h1>Canvas Game</h1>
 <canvas id="gameCanvas" width="500" height="500"></canvas>
-<div id="error" style="color: red;"></div>
+<div id="error"></div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-    const socket = io();
+  const socket = io();
 
-    const canvas = document.getElementById('gameCanvas');
-    const context = canvas.getContext('2d');
-    const errorDiv = document.getElementById('error');
+  const canvas = document.getElementById('gameCanvas');
+  const context = canvas.getContext('2d');
+  const errorDiv = document.getElementById('error');
 
-    let players = {};
+  let players = {};
 
-    // Функция отрисовки квадратов
-    function drawSquares() {
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        for (let id in players) {
-            const player = players[id];
-            context.fillStyle = 'blue';
-            context.fillRect(player.x, player.y, player.size, player.size);
-        }
+  // Функция отрисовки квадратов
+  function drawSquares() {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    for (let id in players) {
+      const player = players[id];
+      context.fillStyle = 'blue';
+      context.fillRect(player.x, player.y, player.size, player.size);
+    }
+  }
+
+  // Инициализация состояния игроков
+  socket.on('initialize', (initialPlayers) => {
+    players = initialPlayers;
+    drawSquares();
+  });
+
+  // Добавление нового игрока
+  socket.on('newPlayer', (player) => {
+    players[player.id] = { x: player.x, y: player.y, size: player.size };
+    drawSquares();
+  });
+
+  // Обновление движения игроков
+  socket.on('move', (data) => {
+    if (players[data.id]) {
+      players[data.id].x = data.x;
+      players[data.id].y = data.y;
+      drawSquares();
+    }
+  });
+
+  // Удаление игрока
+  socket.on('removePlayer', (id) => {
+    delete players[id];
+    drawSquares();
+  });
+
+  // Обработка ошибки заполненной комнаты
+  socket.on('roomFull', () => {
+    errorDiv.textContent = 'Комната заполнена. Пожалуйста, попробуйте позже.';
+  });
+
+  // Обработка нажатий клавиш
+  document.addEventListener('keydown', (event) => {
+    const key = event.key.toLowerCase();
+    let direction = null;
+
+    if (key === 'w') {
+      direction = 'up';
+    } else if (key === 'a') {
+      direction = 'left';
+    } else if (key === 's') {
+      direction = 'down';
+    } else if (key === 'd') {
+      direction = 'right';
     }
 
-    // Инициализация состояния игроков
-    socket.on('initialize', (initialPlayers) => {
-        players = initialPlayers;
-        drawSquares();
-    });
-
-    // Добавление нового игрока
-    socket.on('newPlayer', (player) => {
-        players[player.id] = { x: player.x, y: player.y, size: player.size };
-        drawSquares();
-    });
-
-    // Обновление движения игроков
-    socket.on('move', (data) => {
-        if (players[data.id]) {
-            players[data.id].x = data.x;
-            players[data.id].y = data.y;
-            drawSquares();
-        }
-    });
-
-    // Удаление игрока
-    socket.on('removePlayer', (id) => {
-        delete players[id];
-        drawSquares();
-    });
-
-    // Обработка ошибки заполненной комнаты
-    socket.on('roomFull', () => {
-        errorDiv.textContent = 'Комната заполнена. Пожалуйста, попробуйте позже.';
-    });
-
-    // Обработка нажатий клавиш
-    document.addEventListener('keydown', (event) => {
-        const key = event.key.toLowerCase();
-        let direction = null;
-
-        if (key === 'w') {
-            direction = 'up';
-        } else if (key === 'a') {
-            direction = 'left';
-        } else if (key === 's') {
-            direction = 'down';
-        } else if (key === 'd') {
-            direction = 'right';
-        }
-
-        if (direction) {
-            socket.emit('move', direction);
-        }
-    });
+    if (direction) {
+      socket.emit('move', direction);
+    }
+  });
 </script>
 </body>
 </html>
