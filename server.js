@@ -23,4 +23,4 @@ server.listen(PORT, () => {
 setInterval(() => {
     gameController.update();
     io.emit('update', gameController.getState());
-}, 1000 / 60); // 60 раз в секунду
+}, 1000 / 80); // 80 раз в секунду

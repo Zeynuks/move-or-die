@@ -1,66 +1,45 @@
-const Player = require('../Model/Player');
-const gameObjectController = require('./GameObjectController');
-const MAX_PLAYERS = 3;
-let players = {};
-let ipAddresses = {};
+// src/Controller/PlayerController.js
+
+const playerService = require('../Service/PlayerService');
+const gameObjectService = require('../Service/GameObjectService');
+const gridService = require('../Service/GridService');
 
 exports.initialize = (io) => {
     io.on('connection', (socket) => {
-        const playerIp = socket.handshake.address;
+        const result = playerService.initializePlayer(socket);
 
-        if (Object.keys(ipAddresses).length >= MAX_PLAYERS && !ipAddresses[playerIp]) {
-            socket.emit('roomFull');
-            socket.disconnect();
-            return;
-        }
+        if (result === false) return;
 
-        console.log('Новый пользователь подключился:', socket.id, 'с IP:', playerIp);
+        const { new: isNewPlayer, player, oldSocketId } = result;
 
-        if (!ipAddresses[playerIp]) {
-            players[socket.id] = new Player(socket.id);
-            ipAddresses[playerIp] = socket.id;
+        socket.emit('initialize', { players: playerService.getPlayers(), gameObjects: gameObjectService.getGameObjects() });
 
-            socket.emit('initialize', { players, gameObjects: gameObjectController.getGameObjects() });
-            socket.broadcast.emit('newPlayer', { id: socket.id, x: players[socket.id].x, y: players[socket.id].y, size: players[socket.id].size });
+        if (isNewPlayer) {
+            socket.broadcast.emit('newPlayer', { id: socket.id, x: player.x, y: player.y, size: player.size });
         } else {
-            const oldSocketId = ipAddresses[playerIp];
-            players[socket.id] = players[oldSocketId];
-            delete players[oldSocketId];
             io.emit('removePlayer', oldSocketId);
-
-            ipAddresses[playerIp] = socket.id;
-            socket.emit('initialize', { players, gameObjects: gameObjectController.getGameObjects() });
-            socket.broadcast.emit('newPlayer', { id: socket.id, x: players[socket.id].x, y: players[socket.id].y, size: players[socket.id].size });
+            socket.broadcast.emit('newPlayer', { id: socket.id, x: player.x, y: player.y, size: player.size });
         }
 
         socket.on('move', (data) => {
-            console.log('Движение:', data);
-            if (players[socket.id]) {
-                players[socket.id].setMove(data.direction, data.moving);
-            }
+            playerService.handleMove(socket, data);
         });
 
         socket.on('disconnect', () => {
-            console.log('Пользователь отключился:', socket.id);
-            setTimeout(() => {
-                if (players[socket.id] && Date.now() - players[socket.id].lastActive > 10000) {
-                    const playerIp = socket.handshake.address;
-                    delete players[socket.id];
-                    delete ipAddresses[playerIp];
-                    io.emit('removePlayer', socket.id);
-                }
-            }, 10000);
+            const removedPlayerId = playerService.handleDisconnect(socket);
+            if (removedPlayerId) {
+                io.emit('removePlayer', removedPlayerId);
+            }
         });
     });
 };
 
 exports.update = () => {
-    const gameObjects = gameObjectController.getGameObjects();
-    for (let id in players) {
-        players[id].applyPhysics(gameObjects);
-    }
+    // Получаем сетку игровых объектов напрямую из сервиса
+    const gameObjectsGrid = gameObjectService.getGameObjectsGrid(gridService.gridSize);
+    playerService.updatePlayers(gridService, gameObjectsGrid);
 };
 
 exports.getPlayers = () => {
-    return players;
+    return playerService.getPlayers();
 };

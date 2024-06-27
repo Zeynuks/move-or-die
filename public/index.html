@@ -2,112 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Canvas Game</title>
-  <style>
-    body {
-      margin: 0;
-      background-color: black;
-    }
-    canvas {
-      display: block;
-    }
-    #error {
-      color: red;
-    }
-  </style>
+  <title>Game</title>
   <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-<div id="error"></div>
-<canvas id="gameCanvas" width="800" height="600"></canvas>
-
-<script>
-  const socket = io();
-  const errorDiv = document.getElementById('error');
-  const canvas = document.getElementById('gameCanvas');
-  const context = canvas.getContext('2d');
-  let players = {};
-  let gameObjects = [];
-
-  function drawPlayers() {
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    drawGameObjects();
-    for (let id in players) {
-      const player = players[id];
-      context.fillStyle = 'blue';
-      context.fillRect(player.x, player.y, player.size, player.size);
-    }
-  }
-
-  function drawGameObjects() {
-    for (let obj of gameObjects) {
-      context.fillStyle = 'green';
-      context.fillRect(obj.x, obj.y, obj.width, obj.height);
-    }
-  }
-
-  socket.on('initialize', (data) => {
-    players = data.players;
-    gameObjects = data.gameObjects;
-    drawPlayers();
-  });
-
-  socket.on('newPlayer', (player) => {
-    players[player.id] = { x: player.x, y: player.y, size: player.size };
-    drawPlayers();
-  });
-
-  socket.on('move', (data) => {
-    if (players[data.id]) {
-      players[data.id].x = data.x;
-      players[data.id].y = data.y;
-      drawPlayers();
-    }
-  });
-
-  socket.on('removePlayer', (id) => {
-    delete players[id];
-    drawPlayers();
-  });
-
-  socket.on('roomFull', () => {
-    errorDiv.textContent = 'Комната заполнена. Пожалуйста, попробуйте позже.';
-  });
-
-  socket.on('update', (data) => {
-    players = data.players;
-    drawPlayers();
-  });
-
-  document.addEventListener('keydown', (event) => {
-    const key = event.key.toLowerCase();
-    if (key === 'w') {
-      socket.emit('move', { direction: 'jump', moving: true });
-    } else if (key === 'a') {
-      socket.emit('move', { direction: 'left', moving: true });
-    } else if (key === 'd') {
-      socket.emit('move', { direction: 'right', moving: true });
-    }
-  });
-
-  document.addEventListener('keyup', (event) => {
-    const key = event.key.toLowerCase();
-    if (key === 'w') {
-      socket.emit('move', { direction: 'jump', moving: false });
-    } else if (key === 'a') {
-      socket.emit('move', { direction: 'left', moving: false });
-    } else if (key === 'd') {
-      socket.emit('move', { direction: 'right', moving: false });
-    }
-  });
-
-  function gameLoop() {
-    drawPlayers();
-    requestAnimationFrame(gameLoop);
-  }
-
-  gameLoop();
-</script>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <div id="error"></div>
+  <script src="index.js"></script>
 </body>
 </html>

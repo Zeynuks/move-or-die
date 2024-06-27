@@ -1,11 +1,17 @@
-const GameObject = require('../Model/GameObject');
+// src/Controller/GameObjectController.js
 
-let gameObjects = [
-    new GameObject(100, 500, 200, 20),
-    new GameObject(400, 400, 200, 20),
-    new GameObject(300, 300, 50, 50)
-];
+const gameObjectService = require('../Service/GameObjectService');
+
+
 
 exports.getGameObjects = () => {
-    return gameObjects;
+    return gameObjectService.getGameObjects();
+};
+
+exports.getGameObjectsGrid = () => {
+    return gameObjectService.getGameObjectsGrid(Number(gridSize));
+};
+
+exports.updateGameObjects = () => {
+    gameObjectService.updateGameObjects();
 };
