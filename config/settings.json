@@ -1,0 +1,6 @@
+{
+  "gravity": 0.5,
+  "jumpForce": -10,
+  "groundLevel": 550,
+  "playerSpeed": 5
+}

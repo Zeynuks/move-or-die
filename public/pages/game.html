@@ -1,0 +1,19 @@
+<!-- development.yaml-game/public/pages/game.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Game Room</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+    <link rel="stylesheet" href="/styles/game.css">
+</head>
+<body class="page">
+<h1 class="page__title">Welcome to the Game Room</h1>
+<p id="roomName" class="game__room-name"></p>
+<p id="userName" class="game__user-name"></p>
+<canvas id="gameCanvas" class="game__canvas"></canvas>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/scripts/game.js"></script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+/* development.yaml-game/public/styles/game.css */
+body.page {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.page__title {
+    margin: 10px;
+    color: #333;
+}
+
+.game__room-name, .game__user-name {
+    margin: 5px;
+    color: #555;
+}
+
+canvas {
+    border: 2px solid #000000;
+    width: 80vw;
+    height: 50vw;
+}
+/* Добавьте это в ваш файл styles/room.css */
+.notification {
+    visibility: hidden;
+    min-width: 250px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 30px;
+    font-size: 17px;
+    transform: translateX(-50%);
+}
+
+.notification.show {
+    visibility: visible;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@keyframes fadein {
+    from { bottom: 0; opacity: 0; }
+    to { bottom: 30px; opacity: 1; }
+}
+
+@keyframes fadeout {
+    from { bottom: 30px; opacity: 1; }
+    to { bottom: 0; opacity: 0; }
+}
+

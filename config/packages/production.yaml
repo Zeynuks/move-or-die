@@ -1,0 +1,20 @@
+server:
+  port: 3000
+  host: "localhost"
+socket:
+  path: "/socket.io"
+paths:
+  public: "./public"
+routes:
+  - method: GET
+    path: "/"
+    file: "index.html"
+  - method: GET
+    path: "/room"
+    file: "pages/room.html"
+  - method: GET
+    path: "/game"
+    file: "pages/game.html"
+  - method: GET
+    path: "/enter-name"
+    file: "pages/enter-name.html"
