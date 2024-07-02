@@ -8,9 +8,7 @@ const config = require('./config/preload');
 
 // Подключение контроллеров и репозитория комнат
 const RoomRepository = require("./src/Repository/RoomRepository");
-const RoomController = require('./src/Controller/RoomController');
-const PlayerController = require('./src/Controller/PlayerController');
-const GameController = require('./src/Controller/GameController');
+const RoomManager = require('./src/Manager/RoomManager');
 // Загрузка переменных окружения из .env файла
 dotenv.config();
 
@@ -25,11 +23,10 @@ const io = socketIo(server, {
 
 // Создание экземпляра репозитория комнат
 const roomRepository = new RoomRepository(io);
+let roomNames = []; //*** ADD
 
-// Создание экземпляров контроллеров
-const roomController = new RoomController(io, roomRepository);
-const playerController = new PlayerController(io, roomRepository);
-const gameController = new GameController(io, roomRepository);
+// Создание экземпляра диспетчера комнат
+const roomManager = new RoomManager(io, roomRepository);
 
 // Определение порта и хоста сервера
 const PORT = process.env.PORT || config.server.port;
@@ -57,7 +54,7 @@ app.get('/get-info', (req, res) => {
             }
         }
     }
-    res.send({ ip: localIp, port: PORT });
+    res.send({ip: localIp, port: PORT});
 });
 
 // Функция для получения IP-адреса клиента
@@ -81,7 +78,8 @@ io.on('connection', (socket) => {
             socket.emit('error', 'User name cannot be null or undefined');
             return;
         }
-        roomController.createRoom(socket, roomName, userName);
+        roomManager.createRoom(socket, roomName, userName);
+        roomNames.push(roomName);
     });
 
     // Обработка события присоединения к комнате
@@ -91,17 +89,22 @@ io.on('connection', (socket) => {
             socket.emit('error', 'User name cannot be null or undefined');
             return;
         }
-        roomController.joinRoom(socket, roomName, userName);
+        roomManager.joinRoom(socket, roomName, userName);
     });
 
     // Обработка события готовности игрока
     socket.on('playerReady', (roomName) => {
-        playerController.isReady(socket, roomName);
+        roomManager.playerReady(socket, roomName);
+    });
+
+    //** ADD gameMove
+    socket.on('playerMove', (roomName, moveData) => {
+        roomManager.handleMove(roomName, socket.ip, moveData);
     });
 
     // Обработка игровых событий
     socket.on('gameEvent', (roomName, eventData, callback) => {
-        gameController.update(roomName, eventData);
+        roomManager.update(roomName, eventData);
         // Подтверждение получения данных
         if (callback) callback();
     });
@@ -110,14 +113,23 @@ io.on('connection', (socket) => {
     // socket.on('disconnect', () => {
     //     playerController.disconnect(socket);
     // });
-
-
 });
 
 // Запуск сервера
 server.listen(PORT, () => console.log(`Server running on ${PORT}`));
 
+setTimeout(() => {
+    setInterval(() => {
+        if (roomNames.length) {
+            roomNames.forEach((roomName) => {
+                roomManager.rooms[roomName].gameController.updateState(roomName);
+            })
+        }
+    }, 1000 / 60)
+}, 10000)
+
+
 // Обработка сигнала завершения процесса для закрытия всех комнат
 process.on('SIGINT', () => {
-    roomController.closeAllRooms();
+    roomManager.closeAllRooms();
 });

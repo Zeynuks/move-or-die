@@ -3,11 +3,11 @@ const RoomService = require("../Service/RoomService");
 const PlayerService = require("../Service/PlayerService");
 
 class RoomController {
-    constructor(io, roomRepository) {
+    constructor(io, roomRepository, services) {
         this.io = io;
-        this.roomService = new RoomService(roomRepository);
-        this.gameService = new GameService();
-        this.playerService = new PlayerService(roomRepository);
+        this.roomService = services.roomService;
+        this.gameService = services.gameService;
+        this.playerService = services.playerService;
     }
 
     createRoom(socket, roomName, userName) {
@@ -17,7 +17,7 @@ class RoomController {
                 socket.emit('error', 'Error creating room');
                 return;
             }
-            this.playerService.addPlayerToRoom(roomName, userName, socket.ip,(err) => {
+            this.playerService.addPlayerToRoom(roomName, userName, socket.ip, (err) => {
                 if (err) {
                     console.error('Error adding player to room:', err);
                     socket.emit('error', 'Error adding player to room');
@@ -88,7 +88,7 @@ class RoomController {
                                 console.error('Error getting users in room:', err);
                                 return;
                             }
-                            console.log(users)
+                            console.log('joinRoom users- ', users);
                             this.io.to(roomName).emit('updateRoom', users, room.creator_ip);
                         });
                     });

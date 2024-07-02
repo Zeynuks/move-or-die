@@ -20,13 +20,37 @@ class GameService {
     //     }
     // }
 
-    handleGameEvent(roomName, clientIp, eventData) {
+    handleMovePlayer(roomName, clientIp, moveData) {
         const room = this.gameState[roomName];
         if (!room) return;
 
+        room.players.forEach(player => {
+            if (player.id === clientIp) { // *** CHANGE player.ip to player.id
+                // Обновление состояния игрока на основе eventData
+                this.playerService.setMove(player, moveData.direction, moveData.moving);
+            }
+        });
+    }
+
+    updatePlayersPosition(roomName) {
+        const room = this.gameState[roomName];
+        if(!room) return;
+
+        room.players.forEach(player => {
+            this.playerService.applyPhysics(player);
+        });
+    }
+
+    getPlayersInRoom(roomName) {
+        return this.gameState[roomName].players
+    }
+
+    handleGameEvent(roomName, clientIp, eventData) {
+        const room = this.gameState[roomName];
+        if (!room) return;
         // Обработка событий: обновление состояния игроков
         room.players.forEach(player => {
-            if (player.ip === clientIp) {
+            if (player.id === clientIp) { //*** CHANGE player.ip to player.id
                 // Обновление состояния игрока на основе eventData
                 player.x = eventData.x;
                 player.y = eventData.y;
@@ -37,7 +61,7 @@ class GameService {
         return room;
     }
 
-    addPlayerToGame(roomName, socketId, userName, clientIp) {
+    addPlayerToGame(roomName, userName, clientIp) { //*** REMOVE socketId
         if (!this.gameState[roomName]) {
             this.gameState[roomName] = {
                 players: [],
@@ -47,7 +71,7 @@ class GameService {
             };
         }
         const game = this.gameState[roomName];
-        let player = this.playerService.newPlayer(clientIp, userName, 0, 0, 50, 'blue');
+        let player = this.playerService.newPlayer(clientIp, userName, 100, 100, 50, 'blue');
         game.players.push(player);
     }
 

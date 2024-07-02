@@ -3,11 +3,11 @@ const RoomService = require("../Service/RoomService");
 const GameService = require("../Service/GameService");
 
 class PlayerController {
-    constructor(io, roomRepository) {
+    constructor(io, roomRepository, services) {
         this.io = io;
-        this.roomService = new RoomService(roomRepository);
-        this.gameService = new GameService();
-        this.playerService = new PlayerService(roomRepository);
+        this.roomService = services.roomService;
+        this.gameService = services.gameService;
+        this.playerService = services.playerService;
     }
 
     isReady(socket, roomName) {
