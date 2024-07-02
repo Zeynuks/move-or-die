@@ -2,9 +2,11 @@
 const GameService = require("../Service/GameService");
 
 class GameController {
-    constructor(io) {
+    constructor(io, roomRepository, services) {
         this.io = io;
-        this.gameService = new GameService();
+        this.roomService = services.roomService;
+        this.gameService = services.gameService;
+        this.playerService = services.playerService;
     }
 
     update(roomName, eventData) {

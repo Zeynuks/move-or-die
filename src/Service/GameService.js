@@ -7,19 +7,6 @@ class GameService {
         this.playerService = new PlayerService(roomRepository);
     }
 
-    // startGame(socket, roomName, callback) {
-    //     const game = this.gameState[roomName];
-    //     if (game) {
-    //         game.startTime = Date.now();
-    //         game.timer = setTimeout(() => {
-    //             this.endGame(roomName);
-    //         }, game.duration);
-    //         callback(null, roomName);
-    //     } else {
-    //         callback(new Error('Game not found'));
-    //     }
-    // }
-
     handleGameEvent(roomName, clientIp, eventData) {
         const room = this.gameState[roomName];
         if (!room) return;
