@@ -3,6 +3,7 @@ class Block {
         this._x = x;
         this._y = y;
         this._size = size;
+        this._color = 'grey';
         this._skin = skin;
         this._collision = collision;
         this._visible = visible;
@@ -25,6 +26,10 @@ class Block {
         return this._skin;
     }
 
+    get color() {
+        return this._color;
+    }
+
     get collision() {
         return this._collision;
     }
@@ -37,11 +42,11 @@ class Block {
         return this._action;
     }
 
-    set x(value) {
+    set x (value) {
         this._x = value;
     }
 
-    set y(value) {
+    set y (value) {
         this._y = value;
     }
 
@@ -51,6 +56,10 @@ class Block {
 
     set skin(value) {
         this._skin = value;
+    }
+
+    set color(value) {
+        this._color = value;
     }
 
     set collision(value) {
@@ -65,4 +74,5 @@ class Block {
         this._action = value;
     }
 }
+
 module.exports = Block;

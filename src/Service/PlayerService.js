@@ -1,12 +1,13 @@
 const Player = require("../Entity/Player");
+let colorArray = ['red', 'blue', 'green', 'orange', 'purple'];
 
 class PlayerService {
     constructor(roomRepository) {
         this.roomRepository = roomRepository;
     }
 
-    newPlayer(clientIp, userName, x, y, size, color) {
-        return new Player(clientIp, userName, x, y, size, color);
+    newPlayer(clientIp, userName, x, y, size) {
+        return new Player(clientIp, userName, x, y, size);
     }
 
     addPlayerToRoom(roomName, userName, userIp, callback) {
@@ -36,6 +37,18 @@ class PlayerService {
 
     isUserInRoom(roomName, userIp, callback) {
         this.roomRepository.isUserInRoom(roomName, userIp, callback);
+    }
+
+    randomColor() {
+        if (colorArray.length != 0) {
+            let colorInd = Math.floor(Math.random() * colorArray.length);
+            let color = colorArray[colorInd]; 
+            colorArray.splice(colorInd, 1);
+            return color;
+        } else {
+            return 'grey';
+        }
+        
     }
 
 }

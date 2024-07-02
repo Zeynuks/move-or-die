@@ -7,18 +7,18 @@ class GameService {
         this.playerService = new PlayerService(roomRepository);
     }
 
-    // startGame(socket, roomName, callback) {
-    //     const game = this.gameState[roomName];
-    //     if (game) {
-    //         game.startTime = Date.now();
-    //         game.timer = setTimeout(() => {
-    //             this.endGame(roomName);
-    //         }, game.duration);
-    //         callback(null, roomName);
-    //     } else {
-    //         callback(new Error('Game not found'));
-    //     }
-    // }
+    startGame(socket, roomName, callback) {
+        const game = this.gameState[roomName];
+        if (game) {
+            game.startTime = Date.now();
+            game.timer = setTimeout(() => {
+                this.endGame(roomName);
+            }, game.duration);
+            callback(null, roomName);
+        } else {
+            callback(new Error('Game not found'));
+        }
+    }
 
     handleGameEvent(roomName, clientIp, eventData) {
         const room = this.gameState[roomName];
@@ -46,45 +46,50 @@ class GameService {
                 timer: null
             };
         }
+        //console.log(this.gameState)
         const game = this.gameState[roomName];
-        let player = this.playerService.newPlayer(clientIp, userName, 0, 0, 50, 'blue');
+        let player = this.playerService.newPlayer(clientIp, userName, 0, 0, 50);
+        player.color = this.playerService.randomColor();
+        console.log(player.color)
         game.players.push(player);
     }
 
-    // setPlayerReady(roomName, socketIp, callback) {
-    //     const game = this.gameState[roomName];
-    //     if (game) {
-    //         const player = game.players.find(player => player.ip === socketIp);
-    //         if (player) {
-    //             player.ready = true;
-    //             const allReady = game.players.every(player => player.ready);
-    //         } else {
-    //             callback(new Error('Player not found'));
-    //         }
-    //     } else {
-    //         callback(new Error('Game not found'));
-    //     }
-    // }
-    //
-    // removePlayerFromGame(roomName, socketIp, callback) {
-    //     const game = this.gameState[roomName];
-    //     if (game) {
-    //         game.players = game.players.filter(player => player.id !== socketIp); // Изменено
-    //         callback(null, game);
-    //     } else {
-    //         callback(new Error('Game not found'));
-    //     }
-    // }
+    setPlayerReady(roomName, socketIp, callback) {
+        //console.log(roomName)
+        console.log(this.gameState)
+        const game = this.gameState[roomName];
+        if (game) {
+            const player = game.players.find(player => player.ip === socketIp);
+            if (player) {
+                player.ready = true;
+                const allReady = game.players.every(player => player.ready);
+            } else {
+                callback(new Error('Player not found'));
+            }
+        } else {
+            callback(new Error('Game not found'));
+        }
+    }
+    
+    removePlayerFromGame(roomName, socketIp, callback) {
+        const game = this.gameState[roomName];
+        if (game) {
+            game.players = game.players.filter(player => player.id !== socketIp); // Изменено
+            callback(null, game);
+        } else {
+            callback(new Error('Game not found'));
+        }
+    }
 
-    // endGame(roomName) {
-    //     const game = this.gameState[roomName];
-    //     if (game) {
-    //         this.io.to(roomName).emit('gameEnded', game);
-    //         // Дополнительная логика завершения игры, например, сохранение результатов
-    //         clearTimeout(game.timer);
-    //         delete this.gameState[roomName];
-    //     }
-    // }
+    endGame(roomName) {
+        const game = this.gameState[roomName];
+        if (game) {
+            this.io.to(roomName).emit('gameEnded', game);
+            // Дополнительная логика завершения игры, например, сохранение результатов
+            clearTimeout(game.timer);
+            delete this.gameState[roomName];
+        }
+    }
 }
 
 module.exports = GameService;

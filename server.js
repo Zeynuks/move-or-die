@@ -8,9 +8,7 @@ const config = require('./config/preload');
 
 // Подключение контроллеров и репозитория комнат
 const RoomRepository = require("./src/Repository/RoomRepository");
-const RoomController = require('./src/Controller/RoomController');
-const PlayerController = require('./src/Controller/PlayerController');
-const GameController = require('./src/Controller/GameController');
+const RoomManager = require('./src/Manager/RoomManager');
 // Загрузка переменных окружения из .env файла
 dotenv.config();
 
@@ -26,10 +24,8 @@ const io = socketIo(server, {
 // Создание экземпляра репозитория комнат
 const roomRepository = new RoomRepository(io);
 
-// Создание экземпляров контроллеров
-const roomController = new RoomController(io, roomRepository);
-const playerController = new PlayerController(io, roomRepository);
-const gameController = new GameController(io, roomRepository);
+// Создание экземпляра диспетчера комнат
+const roomManager = new RoomManager(io, roomRepository);
 
 // Определение порта и хоста сервера
 const PORT = process.env.PORT || config.server.port;
@@ -60,6 +56,7 @@ app.get('/get-info', (req, res) => {
     res.send({ ip: localIp, port: PORT });
 });
 
+
 // Функция для получения IP-адреса клиента
 const getClientIp = (socket) => {
     const ip = socket.handshake.headers['x-forwarded-for'] || socket.handshake.address;
@@ -81,7 +78,7 @@ io.on('connection', (socket) => {
             socket.emit('error', 'User name cannot be null or undefined');
             return;
         }
-        roomController.createRoom(socket, roomName, userName);
+        roomManager.createRoom(socket, roomName, userName);
     });
 
     // Обработка события присоединения к комнате
@@ -91,25 +88,29 @@ io.on('connection', (socket) => {
             socket.emit('error', 'User name cannot be null or undefined');
             return;
         }
-        roomController.joinRoom(socket, roomName, userName);
+        roomManager.joinRoom(socket, roomName, userName);
     });
 
     // Обработка события готовности игрока
     socket.on('playerReady', (roomName) => {
-        playerController.isReady(socket, roomName);
+        roomManager.playerReady(socket, roomName);
+    });
+
+    socket.on('preload', (roomName) => {
+        roomManager.preloadLevel(roomName);
     });
 
     // Обработка игровых событий
     socket.on('gameEvent', (roomName, eventData, callback) => {
-        gameController.update(roomName, eventData);
+        roomManager.gameEvent(socket, roomName, eventData);
         // Подтверждение получения данных
         if (callback) callback();
     });
 
-    // // Обработка события отключения игрока
-    // socket.on('disconnect', () => {
-    //     playerController.disconnect(socket);
-    // });
+    // Обработка события отключения игрока
+    socket.on('disconnect', () => {
+        roomManager.disconnect(socket);
+    });
 
 
 });
@@ -119,5 +120,5 @@ server.listen(PORT, () => console.log(`Server running on ${PORT}`));
 
 // Обработка сигнала завершения процесса для закрытия всех комнат
 process.on('SIGINT', () => {
-    roomController.closeAllRooms();
+    roomManager.closeAllRooms();
 });
