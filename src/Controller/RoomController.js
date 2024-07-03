@@ -1,13 +1,9 @@
-const GameService = require("../Service/GameService");
-const RoomService = require("../Service/RoomService");
-const PlayerService = require("../Service/PlayerService");
-
 class RoomController {
-    constructor(io, roomRepository) {
+    constructor(io, roomRepository, services) {
         this.io = io;
-        this.roomService = new RoomService(roomRepository);
-        this.gameService = new GameService();
-        this.playerService = new PlayerService(roomRepository);
+        this.roomService = services.roomService;
+        this.gameService = services.gameService;
+        this.playerService = services.playerService;
     }
 
     createRoom(socket, roomName, userName) {
@@ -57,7 +53,9 @@ class RoomController {
                 }
 
                 const userCount = result[0].userCount;
-                if (userCount >= 4) {
+
+                if (userCount >= 1) {
+                    console.log(`User count: ${userCount}`);
                     socket.emit('roomFull');
                     return;
                 }
