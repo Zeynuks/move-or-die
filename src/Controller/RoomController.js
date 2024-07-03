@@ -55,14 +55,14 @@ class RoomController {
                         socket.emit('joinedRoom', roomName);
                         return;
                     }
-
-                    this.playerService.addPlayerToRoom(roomName, userName, socket.ip, (err) => {
+                    let player = this.playerService.newPlayer(socket.ip, userName, 0, 0, 50, 'blue');
+                    this.playerService.addPlayerToRoom(roomName, player, (err) => {
                         if (err) {
                             console.error('Error adding player to room:', err);
                             socket.emit('error', 'Error adding player to room');
                             return;
                         }
-                        this.gameService.addPlayerToGame(roomName, userName, socket.ip); // Initialize game state
+                        this.gameService.addPlayerToGame(roomName, player); // Initialize game state
                         socket.join(roomName);
                         socket.emit('joinedRoom', roomName);
                         this.playerService.getUsersInRoom(roomName, (err, users) => {

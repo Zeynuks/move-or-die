@@ -3,7 +3,7 @@ const PlayerService = require("./PlayerService");
 class GameService {
     constructor(io, roomRepository) {
         this.io = io;
-        this.gameState = {}; // Хранение состояния игры для каждой комнаты
+        this.gameState = {};
         this.playerService = new PlayerService(roomRepository);
     }
 
@@ -24,34 +24,35 @@ class GameService {
         return room;
     }
 
-    addPlayerToGame(roomName, socketId, userName, clientIp) {
+    addPlayerToGame(roomName, player) {
         if (!this.gameState[roomName]) {
             this.gameState[roomName] = {
-                players: [],
+                players: {},
                 startTime: null,
                 duration: 60000, // Продолжительность игры в миллисекундах (например, 1 минута)
                 timer: null
             };
         }
-        const game = this.gameState[roomName];
-        let player = this.playerService.newPlayer(clientIp, userName, 0, 0, 50, 'blue');
-        game.players.push(player);
+        this.gameState[roomName].players[player.id] = {
+            info: player,
+            ready: false
+        };
     }
 
-    // setPlayerReady(roomName, socketIp, callback) {
-    //     const game = this.gameState[roomName];
-    //     if (game) {
-    //         const player = game.players.find(player => player.ip === socketIp);
-    //         if (player) {
-    //             player.ready = true;
-    //             const allReady = game.players.every(player => player.ready);
-    //         } else {
-    //             callback(new Error('Player not found'));
-    //         }
-    //     } else {
-    //         callback(new Error('Game not found'));
-    //     }
-    // }
+    setPlayerReady(roomName, socketIp, callback) {
+        let game = this.gameState[roomName];
+        if (game) {
+            if (game.players[socketIp]) {
+                game.players[socketIp].ready = true;
+                const allReady = Object.values(game.players).every(player => player.ready);
+                callback(null, allReady);
+            } else {
+                callback(new Error('Player not found'));
+            }
+        } else {
+            callback(new Error('Game not found'));
+        }
+    }
     //
     // removePlayerFromGame(roomName, socketIp, callback) {
     //     const game = this.gameState[roomName];
