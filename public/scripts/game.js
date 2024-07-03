@@ -1,5 +1,5 @@
 // development.yaml-game/public/scripts/game.js
-const socket = io();
+const socket = io('/game');
 
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
