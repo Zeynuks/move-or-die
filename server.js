@@ -65,8 +65,11 @@ const getClientIp = (socket) => {
     return ip;
 };
 
-// Обработка событий Socket.IO
-io.on('connection', (socket) => {
+const defaultNamespace = io.of('/');
+const roomNamespace = io.of('/room');
+const gameNamespace = io.of('/game');
+
+defaultNamespace.on('connection', (socket) => {
     // Получение и сохранение IP-адреса клиента
     socket.ip = getClientIp(socket);
 
@@ -79,6 +82,10 @@ io.on('connection', (socket) => {
         }
         roomManager.createRoom(socket, roomName, userName);
     });
+});
+roomNamespace.on('connection', (socket) => {
+    // Получение и сохранение IP-адреса клиента
+    socket.ip = getClientIp(socket);
 
     // Обработка события присоединения к комнате
     socket.on('joinRoom', (roomName, userName, callback) => {
@@ -95,22 +102,22 @@ io.on('connection', (socket) => {
         roomManager.playerReady(socket, roomName);
     });
 
+    // Обработка события отключения игрока
+    socket.on('disconnect', () => {
+        roomManager.disconnect(socket);
+    });
+});
 
-
+gameNamespace.on('connection', (socket) => {
+    // Получение и сохранение IP-адреса клиента
+    socket.ip = getClientIp(socket);
     // Обработка игровых событий
     socket.on('gameEvent', (roomName, eventData, callback) => {
         roomManager.gameEvent(socket, roomName, eventData);
         // Подтверждение получения данных
         if (callback) callback();
     });
-
-    // Обработка события отключения игрока
-    socket.on('disconnect', () => {
-        roomManager.disconnect(socket);
-    });
-
 });
-
 // Запуск сервера
 server.listen(PORT, () => console.log(`Server running on ${PORT}`));
 
