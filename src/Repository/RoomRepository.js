@@ -44,7 +44,6 @@ class RoomRepository {
 
     findRoomByUserIp(userIp, callback) {
         this.connection.query('SELECT * FROM room_user WHERE user_ip = ?', [userIp], callback);
-        console.log(userIp)
     }
 
     removeUserFromRoom(userIp, callback) {
@@ -70,7 +69,7 @@ class RoomRepository {
     isUserInRoom(roomName, userIp, callback) {
         this.connection.query('SELECT * FROM room_user WHERE room_name = ? AND user_ip = ?', [roomName, userIp], (err, results) => {
             if (err) return callback(err);
-            callback(null, results.length > 0);
+                callback(null, results.length > 0);
         });
     }
 }

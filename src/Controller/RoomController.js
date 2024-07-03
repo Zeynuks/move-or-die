@@ -1,7 +1,3 @@
-const GameService = require("../Service/GameService");
-const RoomService = require("../Service/RoomService");
-const PlayerService = require("../Service/PlayerService");
-
 class RoomController {
     constructor(io, roomRepository, services) {
         this.io = io;
@@ -17,23 +13,7 @@ class RoomController {
                 socket.emit('error', 'Error creating room');
                 return;
             }
-            this.playerService.addPlayerToRoom(roomName, userName, socket.ip, (err) => {
-                if (err) {
-                    console.error('Error adding player to room:', err);
-                    socket.emit('error', 'Error adding player to room');
-                    return;
-                }
-                this.gameService.addPlayerToGame(roomName, userName, socket.ip); // Initialize game state
-                socket.join(roomName);
-                socket.emit('roomCreated', roomName);
-                this.playerService.getUsersInRoom(roomName, (err, users) => {
-                    if (err) {
-                        console.error('Error getting users in room:', err);
-                        return;
-                    }
-                    this.io.to(roomName).emit('updateRoom', users, socket.ip);
-                });
-            });
+            socket.emit('roomCreated', roomName);
         });
     }
 
@@ -57,7 +37,9 @@ class RoomController {
                 }
 
                 const userCount = result[0].userCount;
+
                 if (userCount >= 4) {
+                    console.log(`User count: ${userCount}`);
                     socket.emit('roomFull');
                     return;
                 }
@@ -88,8 +70,7 @@ class RoomController {
                                 console.error('Error getting users in room:', err);
                                 return;
                             }
-                            console.log('joinRoom users- ', users);
-                            this.io.to(roomName).emit('updateRoom', users, room.creator_ip);
+                            this.io.of('/room').to(roomName).emit('updateRoom', users, room.creator_ip);
                         });
                     });
                 });

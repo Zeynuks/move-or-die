@@ -1,7 +1,3 @@
-const PlayerService = require('../Service/PlayerService');
-const RoomService = require("../Service/RoomService");
-const GameService = require("../Service/GameService");
-
 class PlayerController {
     constructor(io, roomRepository, services) {
         this.io = io;

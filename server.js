@@ -54,7 +54,7 @@ app.get('/get-info', (req, res) => {
             }
         }
     }
-    res.send({ip: localIp, port: PORT});
+    res.send({ ip: localIp, port: PORT });
 });
 
 // Функция для получения IP-адреса клиента
