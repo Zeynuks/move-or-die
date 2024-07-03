@@ -4,7 +4,7 @@ const socket = io('/game');
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const roomName = urlParams.get('room');
-
+    const userName = urlParams.get('name');
     if (roomName) {
         document.getElementById('roomName').innerText = `Room: ${roomName}`;
 
@@ -17,9 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let lastUpdateTime = Date.now();
         let lastServerUpdateTime = Date.now();
 
-
-
+        socket.emit('joinRoom', roomName, userName);
         // Добавь логику для синхронизации игры через Socket.io
+
     } else {
         window.location.href = '/';
     }

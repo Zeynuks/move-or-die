@@ -18,8 +18,8 @@ class PlayerService {
         this.roomRepository.addUserToRoom(roomUser, callback);
     }
 
-    removePlayerFromRoom(userIp, callback) {
-        this.roomRepository.removeUserFromRoom(userIp, callback);
+    removePlayerFromRoom(roomName, userIp, callback) {
+        this.roomRepository.removeUserFromRoom(roomName, userIp, callback);
     }
 
     countUsersInRoom(roomName, callback) {

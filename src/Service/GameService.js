@@ -1,10 +1,7 @@
-const PlayerService = require("./PlayerService");
-
 class GameService {
-    constructor(io, roomRepository) {
+    constructor(io) {
         this.io = io;
         this.gameState = {};
-        this.playerService = new PlayerService(roomRepository);
     }
 
     handleGameEvent(roomName, clientIp, eventData) {
@@ -52,6 +49,10 @@ class GameService {
         } else {
             callback(new Error('Game not found'));
         }
+    }
+
+    removePlayerFromGame(roomName, socketIp) {
+        delete this.gameState[roomName].players[socketIp];
     }
     //
     // removePlayerFromGame(roomName, socketIp, callback) {

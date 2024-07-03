@@ -56,7 +56,7 @@ class RoomManager {
 
     disconnect(socket) {
         for (let roomName in this.rooms) {
-            this.rooms[roomName].playerController.disconnect(socket);
+            this.rooms[roomName].roomController.disconnect(socket);
         }
     }
 
