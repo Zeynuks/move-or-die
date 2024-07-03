@@ -1,4 +1,3 @@
-// development.yaml-game/public/scripts/client.js
 const socket = io();
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -21,45 +20,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     };
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const roomName = urlParams.get('room');
-
     createRoomBtn.addEventListener('click', () => {
         const username = nameInput.value;
         if (username) {
-            if (roomName) {
-                // Присоединение к существующей комнате
-                socket.emit('joinRoom', roomName, username);
-                socket.on('joinedRoom', (roomName) => {
-                    window.location.href = `/room?room=${roomName}&name=${username}`;
-                });
-            } else {
-                // Создание новой комнаты
-                const newRoomName = Math.random().toString(36).substring(7); // Генерация случайного имени комнаты
-                socket.emit('createRoom', newRoomName, username);
-                socket.on('roomCreated', (roomName) => {
-                    window.location.href = `/room?room=${roomName}&name=${username}`;
-                });
-            }
+            const newRoomName = Math.random().toString(36).substring(7); // Генерация случайного имени комнаты
+            socket.emit('createRoom', newRoomName, username);
+            socket.on('roomCreated', (roomName) => {
+                window.location.href = `/room?room=${roomName}&name=${username}`;
+            });
         } else {
             showNotification('Please enter your name');
         }
-    });
-
-    socket.on('roomFull', () => {
-        showNotification('Room is full');
-    });
-
-    socket.on('roomNotFound', () => {
-        showNotification('Room not found');
     });
 
     socket.on('error', (message) => {
         showNotification(message);
     });
 
-    if (roomName) {
-        nameInput.placeholder = 'Enter your name to join the room';
-        createRoomBtn.innerText = 'Join Room';
-    }
 });

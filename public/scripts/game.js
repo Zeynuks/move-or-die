@@ -1,5 +1,5 @@
 // development.yaml-game/public/scripts/game.js
-const socket = io();
+const socket = io('/game');
 let players = {};
 let blocks = [];
 let previousPlayers = {};
@@ -9,6 +9,8 @@ let lastServerUpdateTime = Date.now();
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const roomName = urlParams.get('room');
+    const userName = urlParams.get('name');
+    console.log(userName);
 
     if (roomName) {
         document.getElementById('roomName').innerText = `Room: ${roomName}`;
@@ -19,8 +21,11 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.width = 1400;
         canvas.height = 800;
 
+        socket.emit('joinRoom', roomName, userName);
+
         socket.on('levelMap', (data) => {
             blocks = data;
+            console.log('hi')
             drawMap();
         });
 

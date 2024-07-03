@@ -1,20 +1,19 @@
 const Player = require("../Entity/Player");
-let colorArray = ['red', 'blue', 'green', 'orange', 'purple'];
 
 class PlayerService {
     constructor(roomRepository) {
         this.roomRepository = roomRepository;
     }
 
-    newPlayer(clientIp, userName, x, y, size) {
-        return new Player(clientIp, userName, x, y, size);
+    newPlayer(clientIp, userName, x, y, size, color) {
+        return new Player(clientIp, userName, x, y, size, color);
     }
 
-    addPlayerToRoom(roomName, userName, userIp, callback) {
+    addPlayerToRoom(roomName, player, callback) {
         const roomUser = {
             room_name: roomName,
-            user_name: userName,
-            user_ip: userIp,
+            user_name: player.username,
+            user_ip: player.id,
         };
         this.roomRepository.addUserToRoom(roomUser, callback);
     }

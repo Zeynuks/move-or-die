@@ -1,4 +1,4 @@
-const socket = io();
+const socket = io('/room');
 
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -59,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('updateRoom', (users, creator) => {
+        console.log(users, creator)
         playersList.innerHTML = '';
         users.forEach(user => {
             const li = document.createElement('li');
@@ -77,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('gameStarted', () => {
-        window.location.href = `/game?room=${roomName}`;
+        window.location.href = `/game?room=${roomName}&name=${userName}`;
     });
 
     copyLinkBtn.addEventListener('click', () => {

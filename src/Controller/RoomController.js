@@ -13,23 +13,7 @@ class RoomController {
                 socket.emit('error', 'Error creating room');
                 return;
             }
-            this.playerService.addPlayerToRoom(roomName, userName, socket.ip,(err) => {
-                if (err) {
-                    console.error('Error adding player to room:', err);
-                    socket.emit('error', 'Error adding player to room');
-                    return;
-                }
-                this.gameService.addPlayerToGame(roomName, userName, socket.ip); // Initialize game state
-                socket.join(roomName);
-                socket.emit('roomCreated', roomName);
-                this.playerService.getUsersInRoom(roomName, (err, users) => {
-                    if (err) {
-                        console.error('Error getting users in room:', err);
-                        return;
-                    }
-                    this.io.to(roomName).emit('updateRoom', users, socket.ip);
-                });
-            });
+            socket.emit('roomCreated', roomName);
         });
     }
 
@@ -54,7 +38,7 @@ class RoomController {
 
                 const userCount = result[0].userCount;
 
-                if (userCount >= 1) {
+                if (userCount >= 4) {
                     console.log(`User count: ${userCount}`);
                     socket.emit('roomFull');
                     return;
@@ -71,14 +55,14 @@ class RoomController {
                         socket.emit('joinedRoom', roomName);
                         return;
                     }
-
-                    this.playerService.addPlayerToRoom(roomName, userName, socket.ip, (err) => {
+                    let player = this.playerService.newPlayer(socket.ip, userName, 0, 0, 50, 'blue');
+                    this.playerService.addPlayerToRoom(roomName, player, (err) => {
                         if (err) {
                             console.error('Error adding player to room:', err);
                             socket.emit('error', 'Error adding player to room');
                             return;
                         }
-                        this.gameService.addPlayerToGame(roomName, userName, socket.ip); // Initialize game state
+                        this.gameService.addPlayerToGame(roomName, player); // Initialize game state
                         socket.join(roomName);
                         socket.emit('joinedRoom', roomName);
                         this.playerService.getUsersInRoom(roomName, (err, users) => {
@@ -86,8 +70,7 @@ class RoomController {
                                 console.error('Error getting users in room:', err);
                                 return;
                             }
-                            console.log(users)
-                            this.io.to(roomName).emit('updateRoom', users, room.creator_ip);
+                            this.io.of('/room').to(roomName).emit('updateRoom', users, room.creator_ip);
                         });
                     });
                 });

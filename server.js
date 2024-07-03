@@ -56,7 +56,6 @@ app.get('/get-info', (req, res) => {
     res.send({ ip: localIp, port: PORT });
 });
 
-
 // Функция для получения IP-адреса клиента
 const getClientIp = (socket) => {
     const ip = socket.handshake.headers['x-forwarded-for'] || socket.handshake.address;
@@ -66,8 +65,11 @@ const getClientIp = (socket) => {
     return ip;
 };
 
-// Обработка событий Socket.IO
-io.on('connection', (socket) => {
+const defaultNamespace = io.of('/');
+const roomNamespace = io.of('/room');
+const gameNamespace = io.of('/game');
+
+defaultNamespace.on('connection', (socket) => {
     // Получение и сохранение IP-адреса клиента
     socket.ip = getClientIp(socket);
 
@@ -80,9 +82,13 @@ io.on('connection', (socket) => {
         }
         roomManager.createRoom(socket, roomName, userName);
     });
+});
+roomNamespace.on('connection', (socket) => {
+    // Получение и сохранение IP-адреса клиента
+    socket.ip = getClientIp(socket);
 
     // Обработка события присоединения к комнате
-    socket.on('joinRoom', (roomName, userName) => {
+    socket.on('joinRoom', (roomName, userName, callback) => {
         if (!userName) {
             console.error('Error: userName is null or undefined.');
             socket.emit('error', 'User name cannot be null or undefined');
@@ -96,7 +102,28 @@ io.on('connection', (socket) => {
         roomManager.playerReady(socket, roomName);
     });
 
+    // Обработка события отключения игрока
+    socket.on('disconnect', () => {
+        roomManager.disconnect(socket);
+    });
+});
+
+gameNamespace.on('connection', (socket) => {
+    // Получение и сохранение IP-адреса клиента
+    socket.ip = getClientIp(socket);
+
+    socket.on('joinRoom', (roomName, userName, callback) => {
+        if (!userName) {
+            console.error('Error: userName is null or undefined.');
+            socket.emit('error', 'User name cannot be null or undefined');
+            return;
+        }
+        roomManager.joinRoom(socket, roomName, userName);
+    });
+
+    //
     socket.on('preload', (roomName) => {
+        console.log('hi')
         roomManager.preloadLevel(roomName);
     });
 
@@ -111,10 +138,7 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         roomManager.disconnect(socket);
     });
-
-
 });
-
 // Запуск сервера
 server.listen(PORT, () => console.log(`Server running on ${PORT}`));
 
