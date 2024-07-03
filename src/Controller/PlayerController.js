@@ -79,6 +79,8 @@ class PlayerController {
                                         return;
                                     }
 
+                                    socket.leave(roomName);
+
                                     if (room.creator_ip === userIp) {
                                         const newCreator = users[0].user_ip;
                                         this.roomService.updateRoomCreator(roomName, newCreator, (err) => {

@@ -25,9 +25,9 @@ class GameController {
 
     updateState(roomName) {
         this.updatePlayers(roomName);
-        const players = this.gameService.getPlayersInRoom(roomName);
-        this.io.of('/game').to(roomName).emit('gameStateUpdate', players);
-        // this.io.emit('gameStateUpdate', players);
+        const playersData = this.gameService.getPlayersData(roomName);
+        this.io.of('/game').to(roomName).emit('gameStateUpdate', playersData);
+        // this.io.of('/game').emit('gameStateUpdate', players);
     }
 }
 

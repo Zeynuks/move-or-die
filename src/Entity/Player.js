@@ -9,13 +9,12 @@ class Player {
         this._collision = collision;
         this._visible = visible;
         this._statement = statement;
-        this._velocityX = 0;
-        this._velocityY = 0;
-        this._isGrounded = false;
-        this._moveRight = false;
-        this._moveLeft = false;
         this._lastActive = Date.now();
+        this._movement = { x: 0, y: 0};
+        this._onGround = true;
+        this._vy = 0;
     }
+
     get id() {
         return this._id;
     }
@@ -52,28 +51,20 @@ class Player {
         return this._statement;
     }
 
-    get velocityX() {
-        return this._velocityX;
-    }
-
-    get velocityY() {
-        return this._velocityY;
-    }
-
-    get isGrounded() {
-        return this._isGrounded;
-    }
-
-    get moveLeft() {
-        return this._moveLeft;
-    }
-
-    get moveRight() {
-        return this._moveRight;
-    }
-
     get lastActive() {
         return this._lastActive;
+    }
+
+    get movement() {
+        return this._movement;
+    }
+
+    get onGround() {
+        return this._onGround;
+    }
+
+    get vy() {
+        return this._vy;
     }
 
     set id(value) {
@@ -112,37 +103,20 @@ class Player {
         this._statement = value;
     }
 
-    set velocityX(value) {
-        this._velocityX = value;
-    }
-
-    set velocityY(value) {
-        this._velocityY = value;
-    }
-
-    set isGrounded(value) {
-        this._isGrounded = value;
-    }
-
-    set moveLeft(value) {
-        this._moveLeft = value;
-    }
-
-    set moveRight(value) {
-       this._moveRight = value;
-    }
-
     set lastActive(value) {
         this._lastActive = value;
     }
 
-    move(dx, dy) {
-        this._x += dx;
-        this._y += dy;
+    set movement(value) {
+        this._movement = value;
     }
 
-    jump(dy) {
-        this._y += dy;
+    set onGround(value) {
+        this._onGround = value;
+    }
+
+    set vy(value) {
+        this._vy = value;
     }
 }
 

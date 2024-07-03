@@ -54,7 +54,7 @@ app.get('/get-info', (req, res) => {
             }
         }
     }
-    res.send({ ip: localIp, port: PORT });
+    res.send({ip: localIp, port: PORT});
 });
 
 // Функция для получения IP-адреса клиента
@@ -112,13 +112,22 @@ roomNamespace.on('connection', (socket) => {
 });
 
 gameNamespace.on('connection', (socket) => {
-    console.log('connection game namespaces');
     // Получение и сохранение IP-адреса клиента
     socket.ip = getClientIp(socket);
+
+    // Обработка события присоединения к комнате
+    socket.on('joinRoom', (roomName, userName, callback) => {
+        if (!userName) {
+            console.error('Error: userName is null or undefined.');
+            socket.emit('error', 'User name cannot be null or undefined');
+            return;
+        }
+        roomManager.joinRoom(socket, roomName, userName);
+    });
+
     //*** ADD обработка движений игрока
-    socket.on('playerMove', (roomName, moveData, callback) => {
+    socket.on('playerMovement', (roomName, moveData) => {
         roomManager.handleMove(roomName, socket.ip, moveData);
-        if (callback) callback();
     });
     // Обработка игровых событий
     socket.on('gameEvent', (roomName, eventData, callback) => {
@@ -126,20 +135,24 @@ gameNamespace.on('connection', (socket) => {
         // Подтверждение получения данных
         if (callback) callback();
     });
+
+    // Обработка события отключения игрока
+    socket.on('disconnect', () => {
+        roomManager.disconnect(socket);
+    });
 });
 
 // Запуск сервера
 server.listen(PORT, () => console.log(`Server running on ${PORT}`));
 
-setTimeout(() => {
-    setInterval(() => {
-        if (roomNames.length > 0) {
-            roomNames.forEach((roomName) => {
-                roomManager.rooms[roomName].gameController.updateState(roomName);
-            })
-        }
-    }, 3000)
-}, 5000);
+
+setInterval(() => {
+    if (roomNames.length > 0) {
+        roomNames.forEach((roomName) => {
+            roomManager.rooms[roomName].gameController.updateState(roomName);
+        })
+    }
+}, 1000 / 60)
 
 
 // Обработка сигнала завершения процесса для закрытия всех комнат

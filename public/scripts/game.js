@@ -4,6 +4,7 @@ const socket = io('/game');
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const roomName = urlParams.get('room');
+    const userName = urlParams.get('name');
 
     if (roomName) {
         document.getElementById('roomName').innerText = `Room: ${roomName}`;
@@ -14,27 +15,26 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.width = 1400;
         canvas.height = 800;
 
-        context.fillStyle = 'blue';
-        context.fillRect(100, 100, 100, 100);
-
-        let players = [];
-        let previousPlayers = [];
+        let players = {};
+        let previousPlayers = {};
         let lastUpdateTime = Date.now();
         let lastServerUpdateTime = Date.now();
+
+        socket.emit('joinRoom', roomName, userName);
 
         // Функция интерполяции для плавного перехода между состояниями
         function interpolatePlayer(previous, current, t) {
             return {
-                x: previous._x + (current._x - previous._x) * t,
-                y: previous._y + (current._y - previous._y) * t
+                x: previous.x + (current.x - previous.x) * t,
+                y: previous.y + (current.y - previous.y) * t
             };
         }
 
         // Функция экстраполяции для предсказания будущего состояния
         function extrapolatePlayer(current, t) {
             return {
-                x: current._x + current._velocityX * t,
-                y: current._y + current._velocityY * t
+                x: current.x + current.movement.x * t,
+                y: current.y + current.vy * t
             };
         }
 
@@ -47,9 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Рисуем игровые объекты
             // drawGameObjects();
             // Проходимся по каждому игроку и рисуем его
-            for (let id = 0; id < players.length; id++) {
+            for (let id in players) {
                 const previous = previousPlayers[id];
                 const current = players[id];
+
                 if (previous && current) {
                     let position;
                     // Используем интерполяцию, если прошло мало времени с последнего обновления
@@ -60,49 +61,48 @@ document.addEventListener('DOMContentLoaded', () => {
                         position = extrapolatePlayer(current, t - 1);
                     }
 
-                    context.fillStyle = players[id]._color; // Устанавливаем цвет для игрока {В дальнейшем будет открисовываться скин игрока}
-                    context.fillRect(position.x, position.y, players[id]._size, players[id]._size); // Рисуем игрока как квадрат
+                    context.fillStyle = players[id].color; // Устанавливаем цвет для игрока {В дальнейшем будет открисовываться скин игрока}
+                    context.fillRect(position.x, position.y, players[id].size, players[id].size); // Рисуем игрока как квадрат
                 }
 
             }
         }
 
-        // Обработчик события 'keydown' для отправки событий движения на сервер
-        document.addEventListener('keyup', (event) => {
-            const keyCode = event.keyCode; // Получаем код нажатой клавиши
-            if (keyCode === 87) { // Код клавиши 'W'
-                socket.emit('playerMove', roomName, {direction: 'jump', moving: false}); // Сообщаем о прекращении прыжка
-            } else if (keyCode === 65) { // Код клавиши 'A'
-                socket.emit('playerMove', roomName, {direction: 'left', moving: false}); // Сообщаем о прекращении движения влево
-            } else if (keyCode === 68) { // Код клавиши 'D'
-                socket.emit('playerMove', roomName, {direction: 'right', moving: false}); // Сообщаем о прекращении движения вправо
-            }
+        const keys = {};
+
+        // Обработка нажатий клавиш для управления движением
+        window.addEventListener('keydown', (event) => {
+            keys[event.key] = true;
+            sendMovement();
         });
 
-        // Обработчик события 'keyup' для отправки событий остановки движения на сервер
-        document.addEventListener('keydown', (event) => {
-            const keyCode = event.keyCode; // Получаем код нажатой клавиши
-            if (keyCode === 87) { // Код клавиши 'W'
-                socket.emit('playerMove', roomName, {direction: 'jump', moving: true}); // Сообщаем о прыжке
-            } else if (keyCode === 65) { // Код клавиши 'A'
-                socket.emit('playerMove', roomName, {direction: 'left', moving: true}); // Сообщаем о движении влево
-            } else if (keyCode === 68) { // Код клавиши 'D'
-                socket.emit('playerMove', roomName, {direction: 'right', moving: true}); // Сообщаем о движении вправо
-            }
+        window.addEventListener('keyup', (event) => {
+            delete keys[event.key];
+            sendMovement();
         });
 
-        socket.on('gameStateUpdate', (data) => {
-            console.log('game.js gameStateUpdate')
+        // Отправка данных о движении на сервер
+        function sendMovement() {
+            const movementData = { x: 0, y: 0, jump: false };
+            if (keys['ArrowUp']) movementData.jump = true;
+            if (keys['ArrowDown']) movementData.y += 5;
+            if (keys['ArrowLeft']) movementData.x -= 5;
+            if (keys['ArrowRight']) movementData.x += 5;
+
+            socket.emit('playerMovement', roomName, movementData);
+        }
+
+        socket.on('gameStateUpdate', (playersData) => {
             previousPlayers = players;
-            players = data;
+            players = playersData;
             lastServerUpdateTime = Date.now();
         })
 
         function gameLoop() {
-            if (players.length > 0) {
-
+            if (Object.keys(players).length !== 0) {
                 drawPlayers(); // Рисуем всех игроков
             }
+
             requestAnimationFrame(gameLoop); // Планируем следующий кадр игрового цикла
         }
 

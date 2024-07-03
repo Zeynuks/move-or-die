@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('gameStarted', () => {
-        window.location.href = `/game?room=${roomName}`;
+        window.location.href = `/game?room=${roomName}user=${userName}`;
     });
 
     copyLinkBtn.addEventListener('click', () => {
