@@ -1,4 +1,4 @@
-const socket = io();
+const socket = io('/room');
 
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);

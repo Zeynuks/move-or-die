@@ -66,8 +66,11 @@ const getClientIp = (socket) => {
     return ip;
 };
 
-// Обработка событий Socket.IO
-io.on('connection', (socket) => {
+const defaultNamespace = io.of('/');
+const roomNamespace = io.of('/room');
+const gameNamespace = io.of('/game');
+
+defaultNamespace.on('connection', (socket) => {
     // Получение и сохранение IP-адреса клиента
     socket.ip = getClientIp(socket);
 
@@ -79,11 +82,16 @@ io.on('connection', (socket) => {
             return;
         }
         roomManager.createRoom(socket, roomName, userName);
-        roomNames.push(roomName);
+        roomNames.push(roomName); //*** ADD roomNames arr push
     });
+});
+
+roomNamespace.on('connection', (socket) => {
+    // Получение и сохранение IP-адреса клиента
+    socket.ip = getClientIp(socket);
 
     // Обработка события присоединения к комнате
-    socket.on('joinRoom', (roomName, userName) => {
+    socket.on('joinRoom', (roomName, userName, callback) => {
         if (!userName) {
             console.error('Error: userName is null or undefined.');
             socket.emit('error', 'User name cannot be null or undefined');
@@ -97,22 +105,27 @@ io.on('connection', (socket) => {
         roomManager.playerReady(socket, roomName);
     });
 
-    //** ADD gameMove
-    socket.on('playerMove', (roomName, moveData) => {
-        roomManager.handleMove(roomName, socket.ip, moveData);
+    // Обработка события отключения игрока
+    socket.on('disconnect', () => {
+        roomManager.disconnect(socket);
     });
+});
 
+gameNamespace.on('connection', (socket) => {
+    console.log('connection game namespaces');
+    // Получение и сохранение IP-адреса клиента
+    socket.ip = getClientIp(socket);
+    //*** ADD обработка движений игрока
+    socket.on('playerMove', (roomName, moveData, callback) => {
+        roomManager.handleMove(roomName, socket.ip, moveData);
+        if (callback) callback();
+    });
     // Обработка игровых событий
     socket.on('gameEvent', (roomName, eventData, callback) => {
-        roomManager.update(roomName, eventData);
+        roomManager.gameEvent(socket, roomName, eventData);
         // Подтверждение получения данных
         if (callback) callback();
     });
-
-    // // Обработка события отключения игрока
-    // socket.on('disconnect', () => {
-    //     playerController.disconnect(socket);
-    // });
 });
 
 // Запуск сервера
@@ -120,13 +133,13 @@ server.listen(PORT, () => console.log(`Server running on ${PORT}`));
 
 setTimeout(() => {
     setInterval(() => {
-        if (roomNames.length) {
+        if (roomNames.length > 0) {
             roomNames.forEach((roomName) => {
                 roomManager.rooms[roomName].gameController.updateState(roomName);
             })
         }
-    }, 1000 / 60)
-}, 10000)
+    }, 3000)
+}, 5000);
 
 
 // Обработка сигнала завершения процесса для закрытия всех комнат
