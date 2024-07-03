@@ -58,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     });
 
+    //добавление чела в список
     socket.on('updateRoom', (users, creator) => {
         playersList.innerHTML = '';
         users.forEach(user => {
