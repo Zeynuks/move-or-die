@@ -70,8 +70,7 @@ class RoomController {
                                 console.error('Error getting users in room:', err);
                                 return;
                             }
-                            console.log()
-                            this.io.to(roomName).emit('updateRoom', users, room.creator_ip);
+                            this.io.of('/room').to(roomName).emit('updateRoom', users, room.creator_ip);
                         });
                     });
                 });
