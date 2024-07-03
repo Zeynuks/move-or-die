@@ -59,7 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('updateRoom', (users, creator) => {
-        console.log(users, creator)
         playersList.innerHTML = '';
         users.forEach(user => {
             const li = document.createElement('li');
