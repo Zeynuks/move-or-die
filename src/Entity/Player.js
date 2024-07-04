@@ -1,5 +1,5 @@
 class Player {
-    constructor(id, username, x, y, size, color, collision = true, visible = true, statement = true) {
+    constructor(id, username, x, y, size, color = 'grey', collision = true, visible = true, statement = true) {
         this._id = id;
         this._username = username;
         this._x = x;

@@ -22,8 +22,8 @@ body.page {
 
 canvas {
     border: 2px solid #000000;
-    width: 80vw;
-    height: 50vw;
+    width: 60vw;
+    height: calc(4 / 7 * 60vw);
 }
 /* Добавьте это в ваш файл styles/room.css */
 .notification {

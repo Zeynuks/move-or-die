@@ -38,6 +38,18 @@ class PlayerService {
         this.roomRepository.isUserInRoom(roomName, userIp, callback);
     }
 
+    randomColor() {
+        if (colorArray.length != 0) {
+            let colorInd = Math.floor(Math.random() * colorArray.length);
+            let color = colorArray[colorInd]; 
+            colorArray.splice(colorInd, 1);
+            return color;
+        } else {
+            return 'grey';
+        }
+        
+    }
+
 }
 
 module.exports = PlayerService;

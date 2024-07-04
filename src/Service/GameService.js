@@ -1,9 +1,10 @@
+const PlayerService = require("./PlayerService");
+
 class GameService {
-    constructor(io) {
+    constructor(io, roomRepository) {
         this.io = io;
         this.gameState = {};
     }
-
     handleGameEvent(roomName, clientIp, eventData) {
         const room = this.gameState[roomName];
         if (!room) return;
