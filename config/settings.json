@@ -2,5 +2,8 @@
   "gravity": 0.5,
   "jumpForce": -10,
   "groundLevel": 550,
-  "playerSpeed": 5
+  "playerSpeed": 5,
+  "size": 50,
+  "width": 1400,
+  "height": 800
 }

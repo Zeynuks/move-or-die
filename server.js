@@ -91,7 +91,7 @@ roomNamespace.on('connection', (socket) => {
     socket.ip = getClientIp(socket);
 
     // Обработка события присоединения к комнате
-    socket.on('joinRoom', (roomName, userName, callback) => {
+    socket.on('joinRoom', (roomName, userName) => {
         if (!userName) {
             console.error('Error: userName is null or undefined.');
             socket.emit('error', 'User name cannot be null or undefined');
@@ -115,7 +115,6 @@ gameNamespace.on('connection', (socket) => {
     // Получение и сохранение IP-адреса клиента
     socket.ip = getClientIp(socket);
 
-    // Обработка события присоединения к комнате
     socket.on('joinRoom', (roomName, userName, callback) => {
         if (!userName) {
             console.error('Error: userName is null or undefined.');
@@ -125,10 +124,17 @@ gameNamespace.on('connection', (socket) => {
         roomManager.joinRoom(socket, roomName, userName);
     });
 
+    //
+    socket.on('preload', (roomName) => {
+        console.log('hi')
+        roomManager.preloadLevel(roomName);
+    });
+
     //*** ADD обработка движений игрока
     socket.on('playerMovement', (roomName, moveData) => {
         roomManager.handleMove(roomName, socket.ip, moveData);
     });
+
     // Обработка игровых событий
     socket.on('gameEvent', (roomName, eventData, callback) => {
         roomManager.gameEvent(socket, roomName, eventData);

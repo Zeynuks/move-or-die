@@ -7,19 +7,6 @@ class GameService {
         this.playerService = new PlayerService(roomRepository);
     }
 
-    // startGame(socket, roomName, callback) {
-    //     const game = this.gameState[roomName];
-    //     if (game) {
-    //         game.startTime = Date.now();
-    //         game.timer = setTimeout(() => {
-    //             this.endGame(roomName);
-    //         }, game.duration);
-    //         callback(null, roomName);
-    //     } else {
-    //         callback(new Error('Game not found'));
-    //     }
-    // }
-
     handleMovePlayer(roomName, clientIp, moveData) {
         const room = this.gameState[roomName];
         if (!room) return;
@@ -62,6 +49,7 @@ class GameService {
     handleGameEvent(roomName, clientIp, eventData) {
         const room = this.gameState[roomName];
         if (!room) return;
+
         // Обработка событий: обновление состояния игроков
         room.players.forEach(player => {
             if (player.id === clientIp) { //*** CHANGE player.ip to player.id
@@ -91,20 +79,24 @@ class GameService {
         }
     }
 
-    // setPlayerReady(roomName, socketIp, callback) {
-    //     const game = this.gameState[roomName];
-    //     if (game) {
-    //         const player = game.players.find(player => player.ip === socketIp);
-    //         if (player) {
-    //             player.ready = true;
-    //             const allReady = game.players.every(player => player.ready);
-    //         } else {
-    //             callback(new Error('Player not found'));
-    //         }
-    //     } else {
-    //         callback(new Error('Game not found'));
-    //     }
-    // }
+    setPlayerReady(roomName, socketIp, callback) {
+        let game = this.gameState[roomName];
+        if (game) {
+            if (game.players[socketIp]) {
+                game.players[socketIp].ready = true;
+                const allReady = Object.values(game.players).every(player => player.ready);
+                callback(null, allReady);
+            } else {
+                callback(new Error('Player not found'));
+            }
+        } else {
+            callback(new Error('Game not found'));
+        }
+    }
+
+    removePlayerFromGame(roomName, socketIp) {
+        delete this.gameState[roomName].players[socketIp];
+    }
     //
     // removePlayerFromGame(roomName, socketIp, callback) {
     //     const game = this.gameState[roomName];

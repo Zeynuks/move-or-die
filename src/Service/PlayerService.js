@@ -15,17 +15,17 @@ class PlayerService {
         return new Player(clientIp, userName, x, y, size, color);
     }
 
-    addPlayerToRoom(roomName, userName, userIp, callback) {
+    addPlayerToRoom(roomName, player, callback) {
         const roomUser = {
             room_name: roomName,
-            user_name: userName,
-            user_ip: userIp,
+            user_name: player.username,
+            user_ip: player.id,
         };
         this.roomRepository.addUserToRoom(roomUser, callback);
     }
 
-    removePlayerFromRoom(userIp, callback) {
-        this.roomRepository.removeUserFromRoom(userIp, callback);
+    removePlayerFromRoom(roomName, userIp, callback) {
+        this.roomRepository.removeUserFromRoom(roomName, userIp, callback);
     }
 
     countUsersInRoom(roomName, callback) {
@@ -76,6 +76,18 @@ class PlayerService {
         player.lastActive = Date.now(); // Обновление времени последней активности
     }
 
+    randomColor() {
+        if (colorArray.length != 0) {
+            let colorInd = Math.floor(Math.random() * colorArray.length);
+            let color = colorArray[colorInd];
+            colorArray.splice(colorInd, 1);
+            return color;
+        } else {
+            return 'grey';
+        }
+    }
+
 }
+
 
 module.exports = PlayerService;

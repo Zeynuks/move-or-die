@@ -1,3 +1,4 @@
+// development.yaml-game/public/scripts/client.js
 const socket = io();
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -20,6 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     };
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomName = urlParams.get('room');
+
     createRoomBtn.addEventListener('click', () => {
         const username = nameInput.value;
         if (username) {
@@ -33,8 +37,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    socket.on('roomFull', () => {
+        showNotification('Room is full');
+    });
+
+    socket.on('roomNotFound', () => {
+        showNotification('Room not found');
+    });
+
     socket.on('error', (message) => {
         showNotification(message);
     });
 
+    if (roomName) {
+        nameInput.placeholder = 'Enter your name to join the room';
+        createRoomBtn.innerText = 'Join Room';
+    }
 });

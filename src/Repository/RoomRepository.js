@@ -46,8 +46,8 @@ class RoomRepository {
         this.connection.query('SELECT * FROM room_user WHERE user_ip = ?', [userIp], callback);
     }
 
-    removeUserFromRoom(userIp, callback) {
-        this.connection.query('DELETE FROM room_user WHERE user_ip = ?', [userIp], callback);
+    removeUserFromRoom(roomName, userIp, callback) {
+        this.connection.query('DELETE FROM room_user WHERE room_name = ? AND user_ip = ?', [roomName, userIp], callback);
     }
 
     countUsersInRoom(roomName, callback) {

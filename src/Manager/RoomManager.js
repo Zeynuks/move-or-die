@@ -4,7 +4,7 @@ const GameController = require('../Controller/GameController');
 const GameService = require("../Service/GameService");
 const RoomService = require("../Service/RoomService");
 const PlayerService = require("../Service/PlayerService");
-
+const LevelController = require("../Controller/LevelController");
 
 class RoomManager {
     constructor(io, roomRepository) {
@@ -23,7 +23,8 @@ class RoomManager {
             this.rooms[roomName] = {
                 roomController: new RoomController(this.io, roomName, services),
                 playerController: new PlayerController(this.io, roomName, services),
-                gameController: new GameController(this.io, roomName, services)
+                gameController: new GameController(this.io, roomName, services),
+                levelController: new LevelController(this.io, roomName, services)
             };
         }
         this.rooms[roomName].roomController.createRoom(socket, roomName, userName);
@@ -56,7 +57,7 @@ class RoomManager {
 
     disconnect(socket) {
         for (let roomName in this.rooms) {
-            this.rooms[roomName].playerController.disconnect(socket);
+            this.rooms[roomName].roomController.disconnect(socket);
         }
     }
 
@@ -69,6 +70,13 @@ class RoomManager {
     handleMove(roomName, clientIp, moveData) {
         if (this.rooms[roomName]) {
             this.rooms[roomName].gameController.handleMove(roomName, clientIp, moveData);
+        }
+    }
+
+    async preloadLevel(roomName) {
+        if (this.rooms[roomName]) {
+            await this.rooms[roomName].levelController.getLevel(this.rooms[roomName].levelController.changeLevel());
+            this.rooms[roomName].levelController.sendLevelMap(roomName);
         }
     }
 }

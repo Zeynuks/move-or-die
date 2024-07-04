@@ -16,11 +16,33 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.height = 800;
 
         let players = {};
+        let blocks = [];
         let previousPlayers = {};
         let lastUpdateTime = Date.now();
         let lastServerUpdateTime = Date.now();
 
         socket.emit('joinRoom', roomName, userName);
+
+        socket.on('levelMap', (data) => {
+            blocks = data;
+            console.log('hi')
+            drawMap();
+        });
+
+        function preload(roomName) {
+            socket.emit('preload', roomName)
+        }
+
+        // Функция для рисования игровых объектов
+        function drawMap() {
+            console.log(blocks);
+            // Проходимся по каждому игровому объекту и рисуем его
+            for (let obj of blocks) {
+                //console.log(obj);
+                ctx.fillStyle = obj._color; // Устанавливаем цвет для объекта
+                ctx.fillRect(obj._x, obj._y, obj._size, obj._size); // Рисуем объект как квадрат
+            }
+        }
 
         // Функция интерполяции для плавного перехода между состояниями
         function interpolatePlayer(previous, current, t) {
@@ -105,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             requestAnimationFrame(gameLoop); // Планируем следующий кадр игрового цикла
         }
-
+        preload(roomName);
         gameLoop();
 
         // Добавь логику для синхронизации игры через Socket.io

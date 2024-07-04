@@ -1,5 +1,5 @@
 const socket = io('/room');
-
+const gameSocket = io('/game');
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const roomName = urlParams.get('room');
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('gameStarted', () => {
-        window.location.href = `/game?room=${roomName}user=${userName}`;
+        window.location.href = `/game?room=${roomName}&name=${userName}`;
     });
 
     copyLinkBtn.addEventListener('click', () => {
