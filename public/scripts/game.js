@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         socket.on('levelMap', (data) => {
             blocks = data;
-            console.log('hi')
             drawMap();
         });
 
@@ -35,12 +34,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Функция для рисования игровых объектов
         function drawMap() {
-            console.log(blocks);
             // Проходимся по каждому игровому объекту и рисуем его
             for (let obj of blocks) {
                 //console.log(obj);
-                ctx.fillStyle = obj._color; // Устанавливаем цвет для объекта
-                ctx.fillRect(obj._x, obj._y, obj._size, obj._size); // Рисуем объект как квадрат
+                context.fillStyle = obj._color; // Устанавливаем цвет для объекта
+                context.fillRect(obj._x, obj._y, obj._size, obj._size); // Рисуем объект как квадрат
             }
         }
 
@@ -67,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Очищаем весь canvas
             context.clearRect(0, 0, canvas.width, canvas.height);
             // Рисуем игровые объекты
-            // drawGameObjects();
+            drawMap();
             // Проходимся по каждому игроку и рисуем его
             for (let id in players) {
                 const previous = previousPlayers[id];

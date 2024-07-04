@@ -64,7 +64,7 @@ class RoomController {
                             socket.emit('error', 'Error adding player to room');
                             return;
                         }
-                        this.gameService.addPlayerToGame(roomName, this.players[socket.ip]);
+                        this.gameService.addPlayerToGame(roomName, userName, socket.ip);
                         socket.join(roomName);
                         socket.emit('joinedRoom', roomName);
                         this.playerService.getUsersInRoom(roomName, (err, users) => {

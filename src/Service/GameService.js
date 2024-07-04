@@ -12,6 +12,7 @@ class GameService {
         if (!room) return;
 
         room.players.forEach(player => {
+            console.log('player = ', player, 'END.')
             if (player.id === clientIp) { // *** CHANGE player.ip to player.id
                 // Обновление состояния игрока на основе eventData
                 this.playerService.setMove(player, moveData);
