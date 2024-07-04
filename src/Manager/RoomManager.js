@@ -67,9 +67,10 @@ class RoomManager {
         }
     }
 
-    preloadLevel(roomName) {
+    async preloadLevel(roomName) {
         if (this.rooms[roomName]) {
-            this.rooms[roomName].levelController.getLevel(this.rooms[roomName].levelController.changeLevel());
+            await this.rooms[roomName].levelController.getLevel(this.rooms[roomName].levelController.changeLevel());
+            this.rooms[roomName].levelController.sendLevelMap(roomName);
         }
     }
 }
