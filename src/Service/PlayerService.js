@@ -5,15 +5,36 @@ const GRAVITY = 0.5; // Сила гравитации, чтобы игроки �
 const JUMP_FORCE = -13; // Сила прыжка, отрицательное значение для движения вверх
 const GROUND_LEVEL = CANVAS_HEIGHT - 50; // Уровень земли, чтобы игроки не уходили ниже этой линии
 const GRID_SIZE = 50;
-
+let colorArray = ['red', 'blue', 'green', 'orange', 'purple'];
 
 class PlayerService {
     constructor(roomRepository) {
         this.roomRepository = roomRepository;
+        this.gameState = {};
     }
 
     newPlayer(clientIp, userName, x, y, size, color) {
         return new Player(clientIp, userName, x, y, size, color);
+    }
+
+    addPlayerToGame(roomName, userName, clientIp) { //*** REMOVE socketId
+        if (!this.gameState[roomName]) {
+            this.gameState[roomName] = {
+                players: [],
+                startTime: null,
+                duration: 60000, // Продолжительность игры в миллисекундах (например, 1 минута)
+                timer: null
+            };
+        }
+        const game = this.gameState[roomName];
+        if (!game.players.find(item => item.id === clientIp)) {   //*** ADD костыль от дублирования игроков при заходе на game.js или обновлении страницы
+            let player = this.newPlayer(clientIp, userName, 100, 200, 50, this.randomColor());
+            game.players.push(player);
+        }
+    }
+
+    removePlayerFromGame(roomName, socketIp) {
+        delete this.gameState[roomName].players[socketIp];
     }
 
     addPlayerToRoom(roomName, player, callback) {
@@ -45,6 +66,18 @@ class PlayerService {
         this.roomRepository.isUserInRoom(roomName, userIp, callback);
     }
 
+    handleMovePlayer(roomName, clientIp, moveData) {
+        const room = this.gameState[roomName];
+        if (!room) return;
+
+        room.players.forEach(player => {
+            if (player.id === clientIp) { // *** CHANGE player.ip to player.id
+                // Обновление состояния игрока на основе eventData
+                this.setMove(player, moveData);
+            }
+        });
+    }
+
     setMove(player, movementData) {
         player.movement = movementData;
         if (movementData.jump && player.onGround) {
@@ -55,7 +88,17 @@ class PlayerService {
         player.lastActive = Date.now(); // Обновление времени последней активности
     }
 
-    applyPhysics(player, gameObjectsGrid) {
+    updatePlayersPosition(roomName, gameObjectsGrid) {
+        const room = this.gameState[roomName];
+        if (!room) return;
+
+        room.players.forEach(player => {
+            this.applyPhysics(player);
+            this.collidWithObjects(player, gameObjectsGrid);
+        });
+    }
+
+    applyPhysics(player) {
         // Обновление позиции по горизонтали
         player.x += player.movement.x;
 
@@ -63,18 +106,16 @@ class PlayerService {
         player.vy += GRAVITY;
         player.y += player.vy;
 
-        this.collidWithObjects(player, gameObjectsGrid);
-
-        // Обработка столкновений с землей
-        if (player.y >= GROUND_LEVEL) {
-            player.y = GROUND_LEVEL;
-            player.vy = 0;
-            player.onGround = true;
-        }
-
-        // Ограничение по краям экрана
-        if (player.x < 0) player.x = 0;
-        if (player.x > CANVAS_WIDTH - player.size) player.x = CANVAS_WIDTH - player.size; // Ширина canvas - ширина игрока (50px)
+        // // Обработка столкновений с землей
+        // if (player.y >= GROUND_LEVEL) {
+        //     player.y = GROUND_LEVEL;
+        //     player.vy = 0;
+        //     player.onGround = true;
+        // }
+        //
+        // // Ограничение по краям экрана
+        // if (player.x < 0) player.x = 0;
+        // if (player.x > CANVAS_WIDTH - player.size) player.x = CANVAS_WIDTH - player.size; // Ширина canvas - ширина игрока (50px)
 
         player.lastActive = Date.now(); // Обновление времени последней активности
     }
@@ -95,7 +136,14 @@ class PlayerService {
             [gridY + 1, gridX + 1]
         ];
 
-        // Раскраска блоков
+        this.paintBlock(player, cellsToCheck, gameObjectsGrid); // Раскраска блоков
+
+        // Проверка коллизий с объектами в указанных ячейках
+        this.checkCellsCollision(player, cellsToCheck, gameObjectsGrid);
+    }
+
+    // Раскраска блоков
+    paintBlock(player, cellsToCheck, gameObjectsGrid) {
         for (let [y, x] of cellsToCheck) {
             if (gameObjectsGrid[y] && gameObjectsGrid[y][x]) {
                 for (let obj of gameObjectsGrid[y][x]) {
@@ -106,8 +154,9 @@ class PlayerService {
                 }
             }
         }
+    }
 
-        // Проверка коллизий с объектами в указанных ячейках
+    checkCellsCollision(player, cellsToCheck, gameObjectsGrid) {
         for (let [y, x] of cellsToCheck) {
             if (gameObjectsGrid[y] && gameObjectsGrid[y][x]) {
                 for (let obj of gameObjectsGrid[y][x]) {
@@ -155,6 +204,24 @@ class PlayerService {
             player.movement.x = 0;
         }
         obj.color = player.color;
+    }
+
+    getPlayersData(roomName) {
+        if (Object.keys(this.gameState).length !== 0 && this.gameState[roomName].players.length > 0) {
+            const playersArray = this.gameState[roomName].players;
+            let players = {};
+            playersArray.forEach((player) => {
+                players[player.id] = {
+                    x: player.x,
+                    y: player.y,
+                    movement: player.movement,
+                    vy: player.vy,
+                    size: player.size,
+                    color: player.color
+                };
+            });
+            return players;
+        }
     }
 
     randomColor() {

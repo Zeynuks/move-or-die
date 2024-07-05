@@ -15,17 +15,9 @@ class GameController {
     //     }
     // }
 
-    handleMove(roomName, clientIp, moveData) {
-        this.gameService.handleMovePlayer(roomName, clientIp, moveData);
-    }
-
-    updatePlayers(roomName, gameObjectsGrid) {
-        this.gameService.updatePlayersPosition(roomName, gameObjectsGrid);
-    }
-
     updateState(roomName, gameObjectsGrid) {
-        this.updatePlayers(roomName, gameObjectsGrid);
-        const playersData = this.gameService.getPlayersData(roomName);
+        this.playerService.updatePlayersPosition(roomName, gameObjectsGrid);
+        const playersData = this.playerService.getPlayersData(roomName);
         this.io.of('/game').to(roomName).emit('gameStateUpdate', playersData);
         // this.io.of('/game').emit('gameStateUpdate', players);
     }

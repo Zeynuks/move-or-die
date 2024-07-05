@@ -80,11 +80,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Используем экстраполяцию, если прошло много времени
                         position = extrapolatePlayer(current, t - 1);
                     }
-
+                    console.log(position.x, position.y);
                     context.fillStyle = players[id].color; // Устанавливаем цвет для игрока {В дальнейшем будет открисовываться скин игрока}
                     context.fillRect(position.x, position.y, players[id].size, players[id].size); // Рисуем игрока как квадрат
                 }
-
             }
         }
 

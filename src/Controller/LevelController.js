@@ -1,7 +1,8 @@
 // src/Controller/LevelController.js
 
 const levelColorService = require('../Service/LevelColorService');
-const LEVEL_ARRAY = ['ColorLevel']
+const fallingBlocksService = require('../Service/FallingBlocksService');
+const LEVEL_ARRAY = ['ColorLevel', 'FallingBlocks']
 
 class LevelController {
     constructor(io, roomRepository, services) {
@@ -15,25 +16,30 @@ class LevelController {
 
     changeLevel() {
         this.levelId = Math.floor(Math.random() * LEVEL_ARRAY.length);
+        console.log('LEVEL:     ', LEVEL_ARRAY[this.levelId])
         return this.levelId;
     }
 
     async getLevel(levelId) {
-        switch (levelId) {
-        case 0:
-            await levelColorService.downloadLevelMap()
-            this.levelMap = levelColorService.getLevelMap();
-            //console.log(this.levelMap)
-            break;
-        default:
-            break;
+        switch (0) {
+            case 0:
+                this.levelMap = [];
+                await levelColorService.downloadLevelMap();
+                this.levelMap = levelColorService.getLevelMap();
+                break;
+            case 1:
+                this.levelMap = [];
+                console.log('this')
+                await fallingBlocksService.downloadLevelMap();
+                this.levelMap = fallingBlocksService.getLevelMap();
+                break;
+            default:
+                break;
         }
     }
 
     sendLevelMap(roomName) {
         this.io.of('/game').emit('levelMap', this.levelMap)
-        //this.io.of('/game').emit('levelMap', this.levelMap)
-        //this.io.emit('hello')
     }
 
     getMapGrid(gridSize) {
@@ -48,8 +54,15 @@ class LevelController {
         return grid;
     }
 
-    update() {
-
+    updateLevel() {
+        switch (0) {
+            case 0:
+                levelColorService.countColoredBlocks();
+                levelColorService.getColoredBlocks();
+                break;
+            default:
+                break;
+        }
     }
 }
 

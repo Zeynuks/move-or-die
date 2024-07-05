@@ -7,46 +7,6 @@ class GameService {
         this.playerService = new PlayerService(roomRepository);
     }
 
-    handleMovePlayer(roomName, clientIp, moveData) {
-        const room = this.gameState[roomName];
-        if (!room) return;
-
-        room.players.forEach(player => {
-            console.log('player = ', player, 'END.')
-            if (player.id === clientIp) { // *** CHANGE player.ip to player.id
-                // Обновление состояния игрока на основе eventData
-                this.playerService.setMove(player, moveData);
-            }
-        });
-    }
-
-    updatePlayersPosition(roomName, gameObjectsGrid) {
-        const room = this.gameState[roomName];
-        if (!room) return;
-
-        room.players.forEach(player => {
-            this.playerService.applyPhysics(player, gameObjectsGrid);
-        });
-    }
-
-    getPlayersData(roomName) {
-        if (Object.keys(this.gameState).length !== 0 && this.gameState[roomName].players.length > 0) {
-            const playersArray = this.gameState[roomName].players;
-            let players = {};
-            playersArray.forEach((player) => {
-                players[player.id] = {
-                    x: player.x,
-                    y: player.y,
-                    movement: player.movement,
-                    vy: player.vy,
-                    size: player.size,
-                    color: player.color
-                };
-            });
-            return players;
-        }
-    }
-
     handleGameEvent(roomName, clientIp, eventData) {
         const room = this.gameState[roomName];
         if (!room) return;
@@ -64,22 +24,6 @@ class GameService {
         return room;
     }
 
-    addPlayerToGame(roomName, userName, clientIp) { //*** REMOVE socketId
-        if (!this.gameState[roomName]) {
-            this.gameState[roomName] = {
-                players: [],
-                startTime: null,
-                duration: 60000, // Продолжительность игры в миллисекундах (например, 1 минута)
-                timer: null
-            };
-        }
-        const game = this.gameState[roomName];
-        if (!game.players.find(item => item.id === clientIp)) {   //*** ADD костыль от дублирования игроков при заходе на game.js или обновлении страницы
-            let player = this.playerService.newPlayer(clientIp, userName, 100, 100, 50, 'blue');
-            game.players.push(player);
-        }
-    }
-
     setPlayerReady(roomName, socketIp, callback) {
         let game = this.gameState[roomName];
         if (game) {
@@ -95,9 +39,6 @@ class GameService {
         }
     }
 
-    removePlayerFromGame(roomName, socketIp) {
-        delete this.gameState[roomName].players[socketIp];
-    }
     //
     // removePlayerFromGame(roomName, socketIp, callback) {
     //     const game = this.gameState[roomName];

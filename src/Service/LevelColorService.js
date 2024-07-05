@@ -1,79 +1,57 @@
 // src/Service/LevelColorService.js
 
-const playerService = require('./PlayerService');
-const MapService = require('./MapService');
+const Block = require('../Entity/Block');
+const MapRepository = require("../Repository/MapRepository");
 let coordArray = [[6, 4], [23, 4], [4, 15], [25, 15]]
 
 class LevelColorService {
     constructor() {
         this.levelMap = [];
         this.levelName = 'ColorLevel';
-        this.redBlocks = 0;
-        this.blueBlocks = 0;
-        this.greenBlocks = 0;
-        this.orangeBlocks = 0;
-        this.purpleBlocks = 0;
-        this.mapService = MapService;
-        //this.players = playerService.getPlayers();
+        this.mapRepository = new MapRepository();
+        this.size = 50;
+        this.coloredblocks = {};
     }
-
-    // setPlayersCoordinates() {
-    //     let coordInd = Math.floor(Math.random() * coordArray.length);
-    //     let coord = coordArray[coordInd];
-    //     console.log(playerService.getPlayers());
-    //     coordArray.splice(coordInd, 1);
-    //     for (let player in this.players) {
-    //         player.setCoordinates(coord[0] * mapService.getSize(), coord[1] * mapService.getSize());
-    //         console.log(coord[0] * mapService.getSize(), coord[1] * mapService.getSize())
-    //     }
-    // }
 
     async downloadLevelMap() {
         try {
-            this.levelMap = await this.mapService.downloadMap(this.levelName);
-            //console.log('Map: ', this.levelMap, ')))');
+            const map = await this.mapRepository.findMapByLevelName(this.levelName);
+            this._setMap(map);
+            console.log('Map downloaded');
+            return this.levelMap;
         } catch (error) {
             console.error('Ошибка:', error);
         }
     }
 
+    _setMap(map) {
+        this.levelMap = [];
+        for(let i = 0; i < map.length; i++){
+            let col = map[i];
+            for(let j = 0; j < col.length; j++) {
+                if (map[i][j] === 'X') {
+                    this.levelMap.push(new Block(j * this.size, i * this.size, this.size));
+                }
+            }
+        }
+    }
 
     getLevelMap(map) {
         return this.levelMap;
     }
 
     countColoredBlocks() {
-        this.redBlocks = 0;
-        this.blueBlocks = 0;
-        this.greenBlocks = 0;
-        this.orangeBlocks = 0;
-        this.purpleBlocks = 0;
-        this.levelMap.forEach(block => {
-            switch (block.getColor()) {
-                case 'red':
-                    this.redBlocks += 1;
-                    break;
-                case 'blue':
-                    this.blueBlocks += 1;
-                    break;
-                case 'green':
-                    this.greenBlocks += 1;
-                    break;
-                case 'orange':
-                    this.orangeBlocks += 1;
-                    break;
-                case 'purple':
-                    this.purpleBlocks += 1;
-                    break;
-                default:
-                    break;
-                }
-        });
+        let red = this.levelMap.filter(block => block._color === 'red').length;
+        let blue= this.levelMap.filter(block => block._color === 'blue').length;
+        let green = this.levelMap.filter(block => block._color === 'green').length;
+        let orange = this.levelMap.filter(block => block._color === 'orange').length;
+        let purple= this.levelMap.filter(block => block._color === 'purple').length;
+        console.log('red:', red, 'blue:', blue, 'green:', green, 'orange:', orange, 'purple:', purple)
+        this.coloredblocks = {red: red, blue: blue, green: green, orange: orange, purple: purple}
     }
 
     getColoredBlocks() {
-        //console.log('red: ', this.redBlocks, 'blue: ', this.blueBlocks, 'green: ', this.greenBlocks, 'orange: ', this.orangeBlocks, 'purple: ', this.purpleBlocks)
-        return {red: this.redBlocks, blue: this.blueBlocks, green: this.greenBlocks, orange: this.orangeBlocks, purple: this.purpleBlocks}
+        return this.coloredblocks;
     }
 }
 

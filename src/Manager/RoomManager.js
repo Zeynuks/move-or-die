@@ -69,14 +69,17 @@ class RoomManager {
 
     handleMove(roomName, clientIp, moveData) {
         if (this.rooms[roomName]) {
-            this.rooms[roomName].gameController.handleMove(roomName, clientIp, moveData);
+            this.rooms[roomName].playerController.handleMovePlayer(roomName, clientIp, moveData);
         }
     }
 
     updateState(roomName) {
         const gameObjectsGrid = this.rooms[roomName].levelController.getMapGrid(50);
-        this.rooms[roomName].gameController.updateState(roomName, gameObjectsGrid);
         this.rooms[roomName].levelController.sendLevelMap(roomName);
+        if (gameObjectsGrid.length === 0) return;
+        this.rooms[roomName].gameController.updateState(roomName, gameObjectsGrid);
+
+        this.rooms[roomName].levelController.updateLevel(roomName);
     }
 
     async preloadLevel(roomName) {

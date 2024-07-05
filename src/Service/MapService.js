@@ -25,6 +25,7 @@ class MapService {
                 if (results.length > 0) {
                     const levelMap = results[0].level_map;
                     this.map = levelMap;
+                    this.mapObjects = [];
                     this.setMap();
                     resolve(this.mapObjects); // Передаем результат в промис
                 } else {
@@ -45,22 +46,6 @@ class MapService {
             }
         }
         console.log('OK');
-    }
-
-    getMapGrid(gridSize) {
-        const grid = [];
-        this.mapObjects.forEach(obj => {
-            const gridX = Math.floor(obj.x / gridSize);
-            const gridY = Math.floor(obj.y / gridSize);
-            if (!grid[gridY]) grid[gridY] = [];
-            if (!grid[gridY][gridX]) grid[gridY][gridX] = [];
-            grid[gridY][gridX].push(obj);
-        });
-        return grid;
-    }
-
-    getMap() {
-        return this.mapObjects;
     }
 }
 
