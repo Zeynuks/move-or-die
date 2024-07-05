@@ -64,7 +64,7 @@ class RoomController {
                             socket.emit('error', 'Error adding player to room');
                             return;
                         }
-                        this.gameService.addPlayerToGame(roomName, userName, socket.ip);
+                        this.playerService.addPlayerToGame(roomName, userName, socket.ip);
                         socket.join(roomName);
                         socket.emit('joinedRoom', roomName);
                         this.playerService.getUsersInRoom(roomName, (err, users) => {
@@ -96,7 +96,7 @@ class RoomController {
                         console.error('Error removing player from room:', err);
                         return;
                     }
-                    this.gameService.removePlayerFromGame(roomName, socket.ip)
+                    this.playerService.removePlayerFromGame(roomName, socket.ip)
                     this.playerService.countUsersInRoom(roomName, (err, userCountResult) => {
                         if (err) {
                             console.error('Error counting users in room:', err);

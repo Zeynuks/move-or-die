@@ -6,6 +6,10 @@ class PlayerController {
         this.playerService = services.playerService;
     }
 
+    handleMovePlayer(roomName, clientIp, moveData) {
+        this.playerService.handleMovePlayer(roomName, clientIp, moveData);
+    }
+
     isReady(socket, roomName) {
         console.log(socket.ip, ' is ready')
         this.gameService.setPlayerReady(roomName, socket.ip, (err, allReady) => {

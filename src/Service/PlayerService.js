@@ -10,10 +10,31 @@ const GRID_SIZE = 50;
 class PlayerService {
     constructor(roomRepository) {
         this.roomRepository = roomRepository;
+        this.gameState = {};
     }
 
     newPlayer(clientIp, userName, x, y, size, color) {
         return new Player(clientIp, userName, x, y, size, color);
+    }
+
+    addPlayerToGame(roomName, userName, clientIp) { //*** REMOVE socketId
+        if (!this.gameState[roomName]) {
+            this.gameState[roomName] = {
+                players: [],
+                startTime: null,
+                duration: 60000, // Продолжительность игры в миллисекундах (например, 1 минута)
+                timer: null
+            };
+        }
+        const game = this.gameState[roomName];
+        if (!game.players.find(item => item.id === clientIp)) {   //*** ADD костыль от дублирования игроков при заходе на game.js или обновлении страницы
+            let player = this.newPlayer(clientIp, userName, 200, 200, 50, 'blue');
+            game.players.push(player);
+        }
+    }
+
+    removePlayerFromGame(roomName, socketIp) {
+        delete this.gameState[roomName].players[socketIp];
     }
 
     addPlayerToRoom(roomName, player, callback) {
@@ -45,6 +66,18 @@ class PlayerService {
         this.roomRepository.isUserInRoom(roomName, userIp, callback);
     }
 
+    handleMovePlayer(roomName, clientIp, moveData) {
+        const room = this.gameState[roomName];
+        if (!room) return;
+
+        room.players.forEach(player => {
+            if (player.id === clientIp) { // *** CHANGE player.ip to player.id
+                // Обновление состояния игрока на основе eventData
+                this.setMove(player, moveData);
+            }
+        });
+    }
+
     setMove(player, movementData) {
         player.movement = movementData;
         if (movementData.jump && player.onGround) {
@@ -53,6 +86,15 @@ class PlayerService {
         }
 
         player.lastActive = Date.now(); // Обновление времени последней активности
+    }
+
+    updatePlayersPosition(roomName, gameObjectsGrid) {
+        const room = this.gameState[roomName];
+        if (!room) return;
+
+        room.players.forEach(player => {
+            this.applyPhysics(player, gameObjectsGrid);
+        });
     }
 
     applyPhysics(player, gameObjectsGrid) {
@@ -95,7 +137,14 @@ class PlayerService {
             [gridY + 1, gridX + 1]
         ];
 
-        // Раскраска блоков
+        this.paintBlock(player, cellsToCheck, gameObjectsGrid); // Раскраска блоков
+
+        // Проверка коллизий с объектами в указанных ячейках
+        this.checkCellsCollision(player, cellsToCheck, gameObjectsGrid);
+    }
+
+    // Раскраска блоков
+    paintBlock(player, cellsToCheck, gameObjectsGrid) {
         for (let [y, x] of cellsToCheck) {
             if (gameObjectsGrid[y] && gameObjectsGrid[y][x]) {
                 for (let obj of gameObjectsGrid[y][x]) {
@@ -106,8 +155,9 @@ class PlayerService {
                 }
             }
         }
+    }
 
-        // Проверка коллизий с объектами в указанных ячейках
+    checkCellsCollision(player, cellsToCheck, gameObjectsGrid) {
         for (let [y, x] of cellsToCheck) {
             if (gameObjectsGrid[y] && gameObjectsGrid[y][x]) {
                 for (let obj of gameObjectsGrid[y][x]) {
@@ -155,6 +205,24 @@ class PlayerService {
             player.movement.x = 0;
         }
         obj.color = player.color;
+    }
+
+    getPlayersData(roomName) {
+        if (Object.keys(this.gameState).length !== 0 && this.gameState[roomName].players.length > 0) {
+            const playersArray = this.gameState[roomName].players;
+            let players = {};
+            playersArray.forEach((player) => {
+                players[player.id] = {
+                    x: player.x,
+                    y: player.y,
+                    movement: player.movement,
+                    vy: player.vy,
+                    size: player.size,
+                    color: player.color
+                };
+            });
+            return players;
+        }
     }
 
     randomColor() {
