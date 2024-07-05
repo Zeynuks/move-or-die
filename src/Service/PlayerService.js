@@ -2,7 +2,7 @@ const Player = require("../Entity/Player");
 const CANVAS_WIDTH = 1400;
 const CANVAS_HEIGHT = 800;
 const GRAVITY = 0.5; // Сила гравитации, чтобы игроки падали вниз
-const JUMP_FORCE = -10; // Сила прыжка, отрицательное значение для движения вверх
+const JUMP_FORCE = -13; // Сила прыжка, отрицательное значение для движения вверх
 const GROUND_LEVEL = CANVAS_HEIGHT - 50; // Уровень земли, чтобы игроки не уходили ниже этой линии
 const GRID_SIZE = 50;
 
@@ -55,7 +55,7 @@ class PlayerService {
         player.lastActive = Date.now(); // Обновление времени последней активности
     }
 
-    applyPhysics(player) {
+    applyPhysics(player, gameObjectsGrid) {
         // Обновление позиции по горизонтали
         player.x += player.movement.x;
 
@@ -140,19 +140,19 @@ class PlayerService {
     }
 
     resolveCollision(player, obj, collision) {
-        if (collision.top && player.velocityY > 0) { // Коллизия сверху
+        if (collision.top && player.vy > 0) { // Коллизия сверху
             player.y = obj.y - player.size;
-            player.velocityY = 0;
-            player.isGrounded = true;
-        } else if (collision.bottom && player.velocityY < 0) { // Коллизия снизу
+            player.vy = 0;
+            player.onGround = true;
+        } else if (collision.bottom && player.vy < 0) { // Коллизия снизу
             player.y = obj.y + obj.size;
-            player.velocityY = 0;
-        } else if (collision.left && player.velocityX > 0) { // Коллизия слева
+            player.vy = 0;
+        } else if (collision.left && player.movement.x > 0) { // Коллизия слева
             player.x = obj.x - player.size;
-            player.velocityX = 0;
-        } else if (collision.right && player.velocityX < 0) { // Коллизия справа
+            player.movement.x = 0;
+        } else if (collision.right && player.movement.x < 0) { // Коллизия справа
             player.x = obj.x + player.size;
-            player.velocityX = 0;
+            player.movement.x = 0;
         }
         obj.color = player.color;
     }

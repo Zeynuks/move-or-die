@@ -20,12 +20,12 @@ class GameService {
         });
     }
 
-    updatePlayersPosition(roomName) {
+    updatePlayersPosition(roomName, gameObjectsGrid) {
         const room = this.gameState[roomName];
         if (!room) return;
 
         room.players.forEach(player => {
-            this.playerService.applyPhysics(player);
+            this.playerService.applyPhysics(player, gameObjectsGrid);
         });
     }
 

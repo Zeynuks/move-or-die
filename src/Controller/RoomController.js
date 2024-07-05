@@ -57,7 +57,7 @@ class RoomController {
                         return;
                     }
 
-                    this.players[socket.ip] = this.playerService.newPlayer(socket.ip, userName, 0, 0, 50, 'blue');
+                    this.players[socket.ip] = this.playerService.newPlayer(socket.ip, userName, 100, 100, 50, 'blue');
                     this.playerService.addPlayerToRoom(roomName, this.players[socket.ip], (err) => {
                         if (err) {
                             console.error('Error adding player to room:', err);

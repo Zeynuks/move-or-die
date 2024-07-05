@@ -155,7 +155,7 @@ server.listen(PORT, () => console.log(`Server running on ${PORT}`));
 setInterval(() => {
     if (roomNames.length > 0) {
         roomNames.forEach((roomName) => {
-            roomManager.rooms[roomName].gameController.updateState(roomName);
+            roomManager.updateState(roomName);
         })
     }
 }, 1000 / 60)

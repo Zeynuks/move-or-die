@@ -2,8 +2,8 @@ class Player {
     constructor(id, username, x, y, size, color = 'grey', collision = true, visible = true, statement = true) {
         this._id = id;
         this._username = username;
-        this._x = 0;
-        this._y = 0;
+        this._x = 100;
+        this._y = 100;
         this._size = size;
         this._color = color;
         this._collision = collision;

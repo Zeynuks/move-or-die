@@ -73,6 +73,12 @@ class RoomManager {
         }
     }
 
+    updateState(roomName) {
+        const gameObjectsGrid = this.rooms[roomName].levelController.getMapGrid(50);
+        this.rooms[roomName].gameController.updateState(roomName, gameObjectsGrid);
+        this.rooms[roomName].levelController.sendLevelMap(roomName);
+    }
+
     async preloadLevel(roomName) {
         if (this.rooms[roomName]) {
             await this.rooms[roomName].levelController.getLevel(this.rooms[roomName].levelController.changeLevel());

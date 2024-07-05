@@ -36,6 +36,18 @@ class LevelController {
         //this.io.emit('hello')
     }
 
+    getMapGrid(gridSize) {
+        const grid = [];
+        this.levelMap.forEach(obj => {
+            const gridX = Math.floor(obj.x / gridSize);
+            const gridY = Math.floor(obj.y / gridSize);
+            if (!grid[gridY]) grid[gridY] = [];
+            if (!grid[gridY][gridX]) grid[gridY][gridX] = [];
+            grid[gridY][gridX].push(obj);
+        });
+        return grid;
+    }
+
     update() {
 
     }
