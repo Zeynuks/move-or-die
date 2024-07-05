@@ -93,11 +93,12 @@ class PlayerService {
         if (!room) return;
 
         room.players.forEach(player => {
-            this.applyPhysics(player, gameObjectsGrid);
+            this.applyPhysics(player);
+            this.collidWithObjects(player, gameObjectsGrid);
         });
     }
 
-    applyPhysics(player, gameObjectsGrid) {
+    applyPhysics(player) {
         // Обновление позиции по горизонтали
         player.x += player.movement.x;
 
@@ -105,18 +106,16 @@ class PlayerService {
         player.vy += GRAVITY;
         player.y += player.vy;
 
-        this.collidWithObjects(player, gameObjectsGrid);
-
-        // Обработка столкновений с землей
-        if (player.y >= GROUND_LEVEL) {
-            player.y = GROUND_LEVEL;
-            player.vy = 0;
-            player.onGround = true;
-        }
-
-        // Ограничение по краям экрана
-        if (player.x < 0) player.x = 0;
-        if (player.x > CANVAS_WIDTH - player.size) player.x = CANVAS_WIDTH - player.size; // Ширина canvas - ширина игрока (50px)
+        // // Обработка столкновений с землей
+        // if (player.y >= GROUND_LEVEL) {
+        //     player.y = GROUND_LEVEL;
+        //     player.vy = 0;
+        //     player.onGround = true;
+        // }
+        //
+        // // Ограничение по краям экрана
+        // if (player.x < 0) player.x = 0;
+        // if (player.x > CANVAS_WIDTH - player.size) player.x = CANVAS_WIDTH - player.size; // Ширина canvas - ширина игрока (50px)
 
         player.lastActive = Date.now(); // Обновление времени последней активности
     }

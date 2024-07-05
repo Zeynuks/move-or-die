@@ -84,7 +84,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     context.fillStyle = players[id].color; // Устанавливаем цвет для игрока {В дальнейшем будет открисовываться скин игрока}
                     context.fillRect(position.x, position.y, players[id].size, players[id].size); // Рисуем игрока как квадрат
                 }
-
             }
         }
 

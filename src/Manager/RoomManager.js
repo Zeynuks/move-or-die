@@ -76,6 +76,7 @@ class RoomManager {
     updateState(roomName) {
         const gameObjectsGrid = this.rooms[roomName].levelController.getMapGrid(50);
         this.rooms[roomName].levelController.sendLevelMap(roomName);
+        if (gameObjectsGrid.length === 0) return;
         this.rooms[roomName].gameController.updateState(roomName, gameObjectsGrid);
     }
 
