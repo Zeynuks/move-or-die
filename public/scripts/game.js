@@ -38,7 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.emit('joinRoom', roomName, userName);
 
-    socket.emit('startGame', roomName, userName);
+
+    socket.emit('preloadGame', roomName, userName);
 
     socket.on('levelMap', (data) => {
         blocks = data;
@@ -172,8 +173,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (keys['ArrowDown']) movementData.y += 5;
         if (keys['ArrowLeft']) movementData.x -= 5;
         if (keys['ArrowRight']) movementData.x += 5;
-
-        socket.emit('playerMovement', roomName, movementData);
+        if (this.gameState === 'active'){
+            socket.emit('playerMovement', roomName, movementData);
+        }
     }
 
     socket.on('gameStateUpdate', (playersData) => {

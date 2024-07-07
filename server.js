@@ -96,7 +96,7 @@ io.on('connection', (socket) => {
         roomManager.playerReady(socket, roomName, userName);
     });
 
-    socket.on('startGame', (roomName, userName) => {
+    socket.on('preloadGame', (roomName, userName) => {
         roomManager.preloadGame(roomName, socket, userName);
     });
 
