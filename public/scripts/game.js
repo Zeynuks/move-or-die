@@ -173,9 +173,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (keys['ArrowDown']) movementData.y += 5;
         if (keys['ArrowLeft']) movementData.x -= 5;
         if (keys['ArrowRight']) movementData.x += 5;
-        if (this.gameState === 'active'){
+        console.log(movementData);
             socket.emit('playerMovement', roomName, movementData);
-        }
     }
 
     socket.on('gameStateUpdate', (playersData) => {

@@ -86,7 +86,7 @@ class RoomManager {
             await this.rooms[roomName].levelController.getLevel(this.rooms[roomName].levelController.changeLevel());
             await this.rooms[roomName].playerController.addPlayerToGame(socket, userName)
             this.rooms[roomName].levelController.sendLevelMap(roomName);
-            this.rooms[roomName].gameController.startTimer();
+            this.rooms[roomName].gameController.startGame();
         }
     }
 }

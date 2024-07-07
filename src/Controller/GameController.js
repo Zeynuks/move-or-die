@@ -19,22 +19,19 @@ class GameController {
     //     }
     // }
 
-    startTimer() {
-        console.log(this.gameState);
-        const startGame = () => {
+    startGame() {
+        const startTimer = () => {
             this.gameState = 'active';
-            console.log(this.gameState);
-            this.timer = setTimeout(endGame, this.gameTime);
+            this.timer = setTimeout(endTimer, this.gameTime);
         };
 
-        const endGame = function() {
+        const endTimer = function() {
             clearTimeout(this.timer);
             this.gameState = 'inactive';
-            console.log(this.gameState);
             console.log('Game over!');
         };
 
-        startGame();
+        startTimer();
         console.log(this.gameState);
     }
 
