@@ -1,76 +1,86 @@
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 const dotenv = require('dotenv');
 
 dotenv.config();
 
 class RoomRepository {
     constructor() {
-        this.connection = mysql.createConnection({
+        this.connection = mysql.createPool({
             host: process.env.DB_HOST,
             user: process.env.DB_USER,
             password: process.env.DB_PASSWORD,
             database: process.env.DB_NAME,
         });
-        this.connection.connect((err) => {
-            if (err) {
-                console.error('Error connecting to database:', err);
-            } else {
-                console.log('Connected to MySQL database');
-                this.connection.query('TRUNCATE TABLE room', (err) => {
-                    if (err) console.error('Error truncating room table:', err);
-                });
-                this.connection.query('TRUNCATE TABLE room_user', (err) => {
-                    if (err) console.error('Error truncating room_user table:', err);
-                });
-            }
-        });
+        this.initialize();
     }
 
-    disconnect(callback) {
-        this.connection.end(callback);
+    async initialize() {
+        try {
+            const connection = await this.connection.getConnection();
+            await connection.query('TRUNCATE TABLE room');
+            await connection.query('TRUNCATE TABLE room_user');
+            connection.release();
+        } catch (error) {
+            throw new Error('Ошибка инициализации базы данных: ' + error.message);
+        }
     }
 
-    createRoom(room, callback) {
-        this.connection.query('INSERT INTO room SET ?', room, callback);
+    async createRoom(room) {
+        try {
+            await this.connection.query('INSERT INTO room SET ?', room);
+        } catch (error) {
+            throw new Error('Ошибка создания комнаты: ' + error.message);
+        }
     }
 
-    addUserToRoom(roomUser, callback) {
-        this.connection.query('INSERT INTO room_user SET ?', roomUser, callback);
+    async updateRoomHost(roomName, newHostIp) {
+        try {
+            await this.connection.query('UPDATE room SET creator_ip = ? WHERE name = ?', [newHostIp, roomName]);
+        } catch (error) {
+            throw new Error('Ошибка обновления хоста комнаты: ' + error.message);
+        }
     }
 
-    findRoomByName(roomName, callback) {
-        this.connection.query('SELECT * FROM room WHERE name = ?', [roomName], callback);
+    async deleteRoomByName(roomName) {
+        try {
+            const [results] = await this.connection.query('DELETE FROM room WHERE name = ?', [roomName]);
+            return results;
+        } catch (error) {
+            throw new Error('Ошибка удаления комнаты: ' + error.message);
+        }
     }
 
-    findRoomByUserIp(userIp, callback) {
-        this.connection.query('SELECT * FROM room_user WHERE user_ip = ?', [userIp], callback);
+    async addUserToRoom(user) {
+        try {
+            await this.connection.query('INSERT INTO room_user SET ?', user);
+        } catch (error) {
+            throw new Error('Ошибка добавления пользователя в комнату: ' + error.message);
+        }
     }
 
-    removeUserFromRoom(roomName, userIp, callback) {
-        this.connection.query('DELETE FROM room_user WHERE room_name = ? AND user_ip = ?', [roomName, userIp], callback);
+    async getUsersInRoom(roomName) {
+        try {
+            const [users] = await this.connection.query('SELECT * FROM room_user WHERE room_name = ?', [roomName]);
+            return users;
+        } catch (error) {
+            throw new Error('Ошибка получения данных пользователей в комнате: ' + error.message);
+        }
     }
 
-    countUsersInRoom(roomName, callback) {
-        this.connection.query('SELECT COUNT(*) AS userCount FROM room_user WHERE room_name = ?', [roomName], callback);
+    async removeUserFromRoom(roomName, userIp) {
+        try {
+            await this.connection.query('DELETE FROM room_user WHERE room_name = ? AND user_ip = ?', [roomName, userIp]);
+        } catch (error) {
+            throw new Error('Ошибка удаления пользователя из комнаты: ' + error.message);
+        }
     }
 
-    getUsersInRoom(roomName, callback) {
-        this.connection.query('SELECT * FROM room_user WHERE room_name = ?', [roomName], callback);
-    }
-
-    updateRoomCreator(roomName, newCreatorIp, callback) {
-        this.connection.query('UPDATE room SET creator_ip = ? WHERE name = ?', [newCreatorIp, roomName], callback);
-    }
-
-    deleteRoomByName(roomName, callback) {
-        this.connection.query('DELETE FROM room WHERE name = ?', [roomName], callback);
-    }
-
-    isUserInRoom(roomName, userIp, callback) {
-        this.connection.query('SELECT * FROM room_user WHERE room_name = ? AND user_ip = ?', [roomName, userIp], (err, results) => {
-            if (err) return callback(err);
-                callback(null, results.length > 0);
-        });
+    async disconnect() {
+        try {
+            await this.connection.end();
+        } catch (error) {
+            throw new Error('Ошибка отключения от базы данных: ' + error.message);
+        }
     }
 }
 

@@ -70,6 +70,12 @@ body {
     transform: scale(0.95);
 }
 
+.button:disabled {
+    background-color: grey;
+    color: white;
+    cursor: not-allowed;
+}
+
 .notification {
     visibility: hidden;
     min-width: 250px;

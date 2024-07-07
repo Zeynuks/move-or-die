@@ -39,6 +39,9 @@ class LevelController {
     }
 
     sendLevelMap(roomName) {
+        this.io.emit('levelMap', this.levelMap)
+        //this.io.of('/game').emit('levelMap', this.levelMap)
+        //this.io.emit('hello')
         this.io.of('/game').emit('levelMap', this.levelMap)
     }
 

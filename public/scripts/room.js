@@ -1,5 +1,4 @@
-const socket = io('/room');
-const gameSocket = io('/game');
+const socket = io();
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const roomName = urlParams.get('room');
@@ -58,20 +57,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     });
 
-    socket.on('updateRoom', (users, creator) => {
+    socket.on('updateRoom', (users, creatorIp, playersReadyStates) => {
         playersList.innerHTML = '';
         users.forEach(user => {
             const li = document.createElement('li');
-            li.innerText = `${user.user_name} (${user.user_ip}) - ${user.ready ? 'Ready' : 'Not Ready'}`;
-            if (user.user_ip === creator) {
+            li.innerText = `${user.user_name} - ${playersReadyStates[user.user_name] ? 'Ready' : 'Not Ready'}`;
+            console.log(user.user_ip, creatorIp)
+            if (user.user_ip === creatorIp) {
                 li.innerText += ' (Host)';
             }
             playersList.appendChild(li);
         });
     });
 
+    socket.on('fullRoom', () => {
+        window.location.href = `/?name=${userName}`;
+    });
+
     readyBtn.addEventListener('click', () => {
-        socket.emit('playerReady', roomName);
+        socket.emit('playerReady', roomName, userName);
         readyBtn.disabled = true;
         showNotification('You are ready!', readyNotification);
     });
