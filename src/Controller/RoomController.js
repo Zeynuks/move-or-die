@@ -1,156 +1,81 @@
 class RoomController {
-    constructor(io, roomRepository, services) {
+    constructor(io, roomName, services) {
         this.io = io;
+        this.roomName = roomName;
+        this.roomHost = null;
         this.roomService = services.roomService;
         this.gameService = services.gameService;
         this.playerService = services.playerService;
-        this.players = {}
     }
 
-    createRoom(socket, roomName, userName) {
-        this.roomService.createRoom(roomName, userName, socket.ip, (err) => {
-            if (err) {
-                console.error('Error creating room:', err);
-                socket.emit('error', 'Error creating room');
-                return;
-            }
-            socket.emit('roomCreated', roomName);
-        });
+    async createRoom(socket, userName) {
+        try {
+            this.roomHost = socket.handshake.address;
+            await this.roomService.createRoom(this.roomName, userName, this.roomHost);
+            socket.emit('roomCreated', this.roomName);
+        } catch (err) {
+            socket.emit('error', 'Ошибка сощдания комнаты');
+        }
     }
 
-    joinRoom(socket, roomName, userName) {
-        this.roomService.findRoomByName(roomName, (err, room) => {
-            if (err) {
-                if (err.message === 'Room not found') {
-                    socket.emit('roomNotFound');
-                } else {
-                    console.error('Error finding room:', err);
-                    socket.emit('error', 'Error finding room');
-                }
-                return;
-            }
-
-            this.playerService.countUsersInRoom(roomName, (err, result) => {
-                if (err) {
-                    console.error('Error counting users in room:', err);
-                    socket.emit('error', 'Error counting users in room');
-                    return;
-                }
-
-                const userCount = result[0].userCount;
-
-                if (userCount >= 4) {
-                    console.log(`User count: ${userCount}`);
-                    socket.emit('roomFull');
-                    return;
-                }
-
-                this.playerService.isUserInRoom(roomName, socket.ip, (err, userInRoom) => {
-                    if (err) {
-                        console.error('Error checking if user is in room:', err);
-                        socket.emit('error', 'Error checking if user is in room');
-                        return;
-                    }
-
-                    if (userInRoom) {
-                        socket.emit('joinedRoom', roomName);
-                        return;
-                    }
-
-                    this.players[socket.ip] = this.playerService.newPlayer(socket.ip, userName, 100, 100, 50, 'blue');
-                    this.playerService.addPlayerToRoom(roomName, this.players[socket.ip], (err) => {
-                        if (err) {
-                            console.error('Error adding player to room:', err);
-                            socket.emit('error', 'Error adding player to room');
-                            return;
-                        }
-                        this.gameService.addPlayerToGame(roomName, userName, socket.ip);
-                        socket.join(roomName);
-                        socket.emit('joinedRoom', roomName);
-                        this.playerService.getUsersInRoom(roomName, (err, users) => {
-                            if (err) {
-                                console.error('Error getting users in room:', err);
-                                return;
-                            }
-                            this.io.of('/room').to(roomName).emit('updateRoom', users, room.creator_ip);
-                        });
-                    });
-                });
-            });
-        });
+    async joinRoom(socket, userName) {
+        try {
+            await this.checkRoomCapacity(socket, userName);
+            await this.roomService.joinRoom(this.roomName, userName, socket.handshake.address);
+            const users = await this.roomService.getUsersInRoom(this.roomName);
+            socket.join(this.roomName);
+            socket.emit('joinedRoom', this.roomName);
+            this.io.emit('updateRoom', users, this.roomHost, {});
+        } catch (err) {
+            socket.emit('error', 'Ошибка присоединения к комнате');
+        }
     }
 
-    disconnect(socket) {
-        this.playerService.findRoomByUserIp(socket.ip, (err, results) => {
-            if (err) {
-                console.error('Error finding room by user IP:', err);
-                return;
-            }
-
-            if (results.length > 0) {
-                const roomName = results[0].room_name;
-                const userIp = results[0].user_ip;
-
-                this.playerService.removePlayerFromRoom(roomName, socket.ip, (err) => {
-                    if (err) {
-                        console.error('Error removing player from room:', err);
-                        return;
-                    }
-                    this.gameService.removePlayerFromGame(roomName, socket.ip)
-                    this.playerService.countUsersInRoom(roomName, (err, userCountResult) => {
-                        if (err) {
-                            console.error('Error counting users in room:', err);
-                            return;
-                        }
-
-                        const userCount = userCountResult[0].userCount;
-
-                        if (userCount === 0) {
-                            this.roomService.handleRoomEmpty(roomName);
-                        } else {
-                            this.playerService.getUsersInRoom(roomName, (err, users) => {
-                                if (err) {
-                                    console.error('Error getting users in room:', err);
-                                    return;
-                                }
-
-                                this.roomService.findRoomByName(roomName, (err, room) => {
-                                    if (err) {
-                                        console.error('Error finding room:', err);
-                                        return;
-                                    }
-                                    socket.leave(roomName)
-                                    if (room.creator_ip === userIp) {
-                                        const newCreator = users[0].user_ip;
-                                        this.roomService.updateRoomCreator(roomName, newCreator, (err) => {
-                                            if (err) {
-                                                console.error('Error updating room creator:', err);
-                                                return;
-                                            }
-
-                                            this.io.of('/room').to(roomName).emit('updateRoom', users, newCreator);
-                                        });
-                                    } else {
-                                        this.io.of('/room').to(roomName).emit('updateRoom', users, room.creator_ip);
-                                    }
-                                });
-                            });
-                        }
-                    });
-                });
-            }
-        });
+    async checkRoomCapacity(socket, userName) {
+        const users = await this.roomService.getUsersInRoom(this.roomName);
+        if (await this.roomService.checkRoomCapacity(users)) {
+            socket.emit('fullRoom', userName);
+            throw new Error('Комната заполнена');
+        }
     }
 
-    closeAllRooms() {
-        this.roomService.disconnect((err) => {
-            if (err) {
-                console.error('Error disconnecting from database:', err);
-            }
+    async playerReady(socket, userName) {
+        try {
+            const playersReadyStates = await this.roomService.playerReady(userName);
+            const users = await this.roomService.getUsersInRoom(this.roomName);
+            this.io.emit('updateRoom', users, this.roomHost, playersReadyStates);
+            await this.isAllReady();
+        } catch (err) {
+            socket.emit('error', 'Ошибка смены статуса');
+        }
+    }
+
+    async isAllReady() {
+        if (await this.roomService.isAllReady()) {
+            this.io.emit('gameStarted');
+        } else {
+            throw new Error('Не удалось проверить статус игроков');
+        }
+    }
+
+    async disconnect(socket) {
+        try {
+            await this.roomService.userDisconnect(this.roomName, socket.handshake.address);
+            this.roomHost = await this.roomService.getRoomHost(this.roomName, this.roomHost, socket.handshake.address);
+            this.io.emit('userDisconnected', socket.handshake.address);
+        } catch (err) {
+            socket.emit('error', 'Ошибка отключения');
+        }
+    }
+
+    async closeAllRooms() {
+        try {
+            await this.roomService.disconnect();
             process.exit(0);
-        });
+        } catch (err) {
+            console.error('Ошибка отключения базы данных:', err);
+        }
     }
-
 }
 
 module.exports = RoomController;

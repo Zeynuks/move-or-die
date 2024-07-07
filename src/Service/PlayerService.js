@@ -16,35 +16,6 @@ class PlayerService {
         return new Player(clientIp, userName, x, y, size, color);
     }
 
-    addPlayerToRoom(roomName, player, callback) {
-        const roomUser = {
-            room_name: roomName,
-            user_name: player.username,
-            user_ip: player.id,
-        };
-        this.roomRepository.addUserToRoom(roomUser, callback);
-    }
-
-    removePlayerFromRoom(roomName, userIp, callback) {
-        this.roomRepository.removeUserFromRoom(roomName, userIp, callback);
-    }
-
-    countUsersInRoom(roomName, callback) {
-        this.roomRepository.countUsersInRoom(roomName, callback);
-    }
-
-    getUsersInRoom(roomName, callback) {
-        this.roomRepository.getUsersInRoom(roomName, callback);
-    }
-
-    findRoomByUserIp(userIp, callback) {
-        this.roomRepository.findRoomByUserIp(userIp, callback);
-    }
-
-    isUserInRoom(roomName, userIp, callback) {
-        this.roomRepository.isUserInRoom(roomName, userIp, callback);
-    }
-
     setMove(player, movementData) {
         player.movement = movementData;
         if (movementData.jump && player.onGround) {

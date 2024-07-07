@@ -2,6 +2,8 @@
 const socket = io();
 
 document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const userName = urlParams.get('name');
     const nameInput = document.getElementById('username');
     const createRoomBtn = document.getElementById('createRoomBtn');
 
@@ -21,8 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     };
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const roomName = urlParams.get('room');
+    if (userName) {
+        document.getElementById('username').value = decodeURIComponent(userName);
+    }
 
     createRoomBtn.addEventListener('click', () => {
         const username = nameInput.value;
@@ -37,20 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    socket.on('roomFull', () => {
-        showNotification('Room is full');
-    });
-
-    socket.on('roomNotFound', () => {
-        showNotification('Room not found');
-    });
-
     socket.on('error', (message) => {
         showNotification(message);
     });
-
-    if (roomName) {
-        nameInput.placeholder = 'Enter your name to join the room';
-        createRoomBtn.innerText = 'Join Room';
-    }
 });

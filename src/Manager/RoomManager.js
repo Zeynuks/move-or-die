@@ -21,26 +21,26 @@ class RoomManager {
                 playerService: new PlayerService(this.roomRepository)
             }
             this.rooms[roomName] = {
-                roomController: new RoomController(this.io, roomName, services),
-                playerController: new PlayerController(this.io, roomName, services),
-                gameController: new GameController(this.io, roomName, services),
-                levelController: new LevelController(this.io, roomName, services)
+                roomController: new RoomController(this.io.to(roomName), roomName, services),
+                playerController: new PlayerController(this.io.to(roomName), roomName, services),
+                gameController: new GameController(this.io.to(roomName), roomName, services),
+                levelController: new LevelController(this.io.to(roomName), roomName, services)
             };
         }
-        this.rooms[roomName].roomController.createRoom(socket, roomName, userName);
+        this.rooms[roomName].roomController.createRoom(socket, userName);
     }
 
     joinRoom(socket, roomName, userName) {
         if (this.rooms[roomName]) {
-            this.rooms[roomName].roomController.joinRoom(socket, roomName, userName);
+            this.rooms[roomName].roomController.joinRoom(socket, userName);
         } else {
             socket.emit('error', 'Room does not exist');
         }
     }
 
-    playerReady(socket, roomName) {
+    playerReady(socket, roomName, userName) {
         if (this.rooms[roomName]) {
-            this.rooms[roomName].playerController.isReady(socket, roomName);
+            this.rooms[roomName].roomController.playerReady(socket, userName);
         } else {
             socket.emit('error', 'Room does not exist');
         }
