@@ -87,7 +87,6 @@ class RoomService {
     async deleteRoomIfEmpty(roomName) {
         setTimeout(async () => {
             const users = await this.getUsersInRoom(roomName);
-            console.log(users)
             if (users.length === 0) {
                 await this.roomRepository.deleteRoomByName(roomName);
             }
