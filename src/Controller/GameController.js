@@ -15,11 +15,9 @@ class GameController {
     //     }
     // }
 
-    updateState(roomName, gameObjectsGrid) {
-        this.updatePlayers(roomName, gameObjectsGrid);
-        const playersData = this.gameService.getPlayersData(roomName);
+    updateState(roomName) {
+        const playersData = this.playerService.getPlayersData(roomName);
         this.io.to(roomName).emit('gameStateUpdate', playersData);
-        // this.io.of('/game').emit('gameStateUpdate', players);
     }
 }
 

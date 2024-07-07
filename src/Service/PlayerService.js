@@ -8,8 +8,7 @@ const GRID_SIZE = 50;
 let colorArray = [ 'blue', 'green', 'orange', 'purple'];
 
 class PlayerService {
-    constructor(roomRepository) {
-        this.roomRepository = roomRepository;
+    constructor() {
         this.gameState = {};
     }
 
