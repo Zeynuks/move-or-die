@@ -2,7 +2,8 @@ body {
     font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f0f0f0;
+    background-color: #0c1428;
+    color: white;
 }
 
 .page {
@@ -13,9 +14,18 @@ body {
     height: 100vh;
 }
 
+.page__logo {
+    position: absolute;
+    top: 60px;
+    left: 450px;
+    height: 160px;
+    width: 650px;
+    margin: 50px auto;
+}
+
 .page__title {
     font-size: 24px;
-    margin-bottom: 20px;
+    margin: 200px 0 20px;
 }
 
 .room__share, .room__creator {
@@ -24,7 +34,7 @@ body {
 }
 
 .room__link {
-    color: blue;
+    color: #c5c5ca;
     text-decoration: none;
     font-size: 18px;
 }

@@ -15,6 +15,18 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.width = 1400;
         canvas.height = 800;
 
+        let blue_block = new Image();
+        let orange_block = new Image();
+        let green_block = new Image();
+        let purple_block = new Image();
+
+        let blue_player = new Image();
+        let orange_player = new Image();
+        let green_player = new Image();
+        let purple_player = new Image();
+
+        let grey_block = new Image();
+
         let players = {};
         let blocks = [];
         let previousPlayers = {};
@@ -29,6 +41,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         function preload(roomName) {
+
+            blue_block.src = '../images/blue-block.png';
+            orange_block.src = '../images/yellow-block.png';
+            green_block.src = '../images/green-block.png';
+            purple_block.src = '../images/purple-block.png';
+            grey_block.src = '../images/grey-block.png';
+
+            blue_player.src = '../images/character_blue.png';
+            orange_player.src = '../images/character_orange.png';
+            green_player.src = '../images/character_green.png';
+            purple_player.src = '../images/character_red.png';
+
             socket.emit('preload', roomName)
         }
 
@@ -39,25 +63,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 //console.log(obj);
                 //context.fillStyle = obj._color; // Устанавливаем цвет для объекта
 
-                let block = new Image();              // "Создаём" изображение
                 switch (obj._color) {
                     case 'blue':
-                        block.src = '../images/blue-block.png';
+                        context.drawImage(blue_block, obj._x, obj._y, obj._size, obj._size);
                         break;
                     case 'orange':
-                        block.src = '../images/orange-block.png';
+                        context.drawImage(orange_block, obj._x, obj._y, obj._size, obj._size);
                         break;
                     case 'green':
-                        block.src = '../images/green-block.png';
+                        context.drawImage(green_block, obj._x, obj._y, obj._size, obj._size);
                         break;
                     case 'purple':
-                        block.src = '../images/purple-block.png';
+                        context.drawImage(purple_block, obj._x, obj._y, obj._size, obj._size);
+                        break;
+                    case 'grey':
+                        context.drawImage(grey_block, obj._x, obj._y, obj._size, obj._size);
                         break;
                 }
-                block.onload = function() {    // Событие onLoad, ждём момента пока загрузится изображение
-                    context.drawImage(block, obj._x, obj._y, obj._size, obj._size);
-                }
-                   // context.fillRect(obj._x, obj._y, obj._size, obj._size); // Рисуем объект как квадрат
+                //block.onload = function() {    // Событие onLoad, ждём момента пока загрузится изображение
+                    //context.drawImage(block, obj._x, obj._y, obj._size, obj._size);
+               // }
+                    //context.fillRect(obj._x, obj._y, obj._size, obj._size); // Рисуем объект как квадрат
             }
         }
 
@@ -84,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Очищаем весь canvas
             context.clearRect(0, 0, canvas.width, canvas.height);
             // Рисуем игровые объекты
-            drawMap();
+
             // Проходимся по каждому игроку и рисуем его
             for (let id in players) {
                 const previous = previousPlayers[id];
@@ -99,9 +125,26 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Используем экстраполяцию, если прошло много времени
                         position = extrapolatePlayer(current, t - 1);
                     }
-                    console.log(position.x, position.y);
+                    //console.log(position.x, position.y);
                     context.fillStyle = players[id].color; // Устанавливаем цвет для игрока {В дальнейшем будет открисовываться скин игрока}
-                    context.fillRect(position.x, position.y, players[id].size, players[id].size); // Рисуем игрока как квадрат
+                    //console.log(players[id].color)
+                    //context.fillRect(position.x, position.y, players[id].size, players[id].size); // Рисуем игрока как квадрат
+                    switch (players[id].color) {
+                        case 'blue':
+                            context.drawImage(blue_player, players[id].x, players[id].y, players[id].size, players[id].size);
+                            break;
+                        case 'orange':
+                            context.drawImage(orange_player, players[id].x, players[id].y, players[id].size, players[id].size);
+                            break;
+                        case 'green':
+                            context.drawImage(green_player, players[id].x, players[id].y, players[id].size, players[id].size);
+                            break;
+                        case 'purple':
+                            context.drawImage(purple_player, players[id].x, players[id].y, players[id].size, players[id].size);
+                            break;
+                    }
+
+                    drawMap();
                 }
             }
         }

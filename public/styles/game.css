@@ -1,24 +1,24 @@
 /* development.yaml-game/public/styles/game.css */
 body.page {
     font-family: 'Roboto', sans-serif;
-    /*background-color: #0c1428;*/
+    background-color: #21242a;
     margin: 0;
     padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    background-image: url("../images/back.png");
+    /*background-image: url("../images/back.png");*/
 }
 
 .page__title {
     margin: 10px;
-    color: #333;
+    color: #ffffff;
 }
 
 .game__room-name, .game__user-name {
     margin: 5px;
-    color: #555;
+    color: #ffffff;
 }
 
 canvas {
