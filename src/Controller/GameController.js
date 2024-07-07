@@ -4,7 +4,8 @@ class GameController {
     constructor(io, roomRepository, services) {
         this.io = io;
         this.gameTime = 60000;
-        this.gameState = {};
+        this.timer = null;
+        this.gameState = 'inactive';
         this.roomService = services.roomService;
         this.gameService = services.gameService;
         this.playerService = services.playerService;
@@ -18,19 +19,23 @@ class GameController {
     //     }
     // }
 
-    startTimer(roomName) {
+    startTimer() {
+        console.log(this.gameState);
         const startGame = () => {
             this.gameState = 'active';
-            this.timer = setTimeout(endGame.bind(this), this.gameTime);
+            console.log(this.gameState);
+            this.timer = setTimeout(endGame, this.gameTime);
         };
 
         const endGame = function() {
             clearTimeout(this.timer);
             this.gameState = 'inactive';
+            console.log(this.gameState);
             console.log('Game over!');
         };
 
         startGame();
+        console.log(this.gameState);
     }
 
         updateState(roomName, gameObjectsGrid) {
