@@ -96,15 +96,13 @@ io.on('connection', (socket) => {
         roomManager.playerReady(socket, roomName, userName);
     });
 
-    //
-    socket.on('preload', (roomName) => {
-        console.log('hi')
-        roomManager.preloadLevel(roomName);
+    socket.on('startGame', (roomName, userName) => {
+        roomManager.preloadGame(roomName, socket, userName);
     });
 
     //*** ADD обработка движений игрока
     socket.on('playerMovement', (roomName, moveData) => {
-        roomManager.handleMove(roomName, socket.ip, moveData);
+        roomManager.handleMove(socket, roomName, moveData);
     });
 
     // Обработка игровых событий

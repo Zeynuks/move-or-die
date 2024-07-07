@@ -38,6 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.emit('joinRoom', roomName, userName);
 
+    socket.emit('startGame', roomName, userName);
+
     socket.on('levelMap', (data) => {
         blocks = data;
         drawMap();
@@ -113,11 +115,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Очищаем весь canvas
         context.clearRect(0, 0, canvas.width, canvas.height);
         // Рисуем игровые объекты
-
         // Проходимся по каждому игроку и рисуем его
-        for (let id in players) {
-            const previous = previousPlayers[id];
-            const current = players[id];
+        Object.entries(players).forEach(([ip, player]) => {
+            const previous = previousPlayers[ip];
+            const current = player;
 
             if (previous && current) {
                 let position;
@@ -128,29 +129,28 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Используем экстраполяцию, если прошло много времени
                     position = extrapolatePlayer(current, t - 1);
                 }
-                //console.log(position.x, position.y);
-                context.fillStyle = players[id].color; // Устанавливаем цвет для игрока {В дальнейшем будет открисовываться скин игрока}
-                //console.log(players[id].color)
-                //context.fillRect(position.x, position.y, players[id].size, players[id].size); // Рисуем игрока как квадрат
-                switch (players[id].color) {
+
+                context.fillStyle = player.color; // Устанавливаем цвет для игрока {В дальнейшем будет открисовываться скин игрока}
+                switch (player.color) {
                     case 'blue':
-                        context.drawImage(blue_player, players[id].x, players[id].y, players[id].size, players[id].size);
+                        context.drawImage(blue_player, position.x, position.y, player.size, player.size);
                         break;
                     case 'orange':
-                        context.drawImage(orange_player, players[id].x, players[id].y, players[id].size, players[id].size);
+                        context.drawImage(orange_player, position.x, position.y, player.size, player.size);
                         break;
                     case 'green':
-                        context.drawImage(green_player, players[id].x, players[id].y, players[id].size, players[id].size);
+                        context.drawImage(green_player, position.x, position.y, player.size, player.size);
                         break;
                     case 'purple':
-                        context.drawImage(purple_player, players[id].x, players[id].y, players[id].size, players[id].size);
+                        context.drawImage(purple_player, position.x, position.y, player.size, player.size);
                         break;
                 }
 
                 drawMap();
             }
-        }
+        });
     }
+
 
     const keys = {};
 
@@ -179,6 +179,12 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('gameStateUpdate', (playersData) => {
         previousPlayers = players;
         players = playersData;
+        Object.entries(playersData).forEach(([ip, playerData]) => {
+            players[ip] = {};
+            for (let key in playerData) {
+                players[ip][key.slice(1)] = playerData[key];
+            }
+        });
         lastServerUpdateTime = Date.now();
     })
 

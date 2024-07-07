@@ -5,11 +5,11 @@ const GRAVITY = 0.5; // Сила гравитации, чтобы игроки �
 const JUMP_FORCE = -13; // Сила прыжка, отрицательное значение для движения вверх
 const GROUND_LEVEL = CANVAS_HEIGHT - 50; // Уровень земли, чтобы игроки не уходили ниже этой линии
 const GRID_SIZE = 50;
-let colorArray = [ 'blue', 'green', 'orange', 'purple'];
+let colorArray = ['blue', 'green', 'orange', 'purple'];
 
 class PlayerService {
     constructor() {
-        this.gameState = {};
+        this.players = {};
     }
 
     newPlayer(clientIp, userName, x, y, size, color) {
@@ -17,79 +17,46 @@ class PlayerService {
     }
 
     addPlayerToGame(roomName, userName, clientIp) { //*** REMOVE socketId
-        if (!this.gameState[roomName]) {
-            this.gameState[roomName] = {
-                players: [],
-                startTime: null,
-                duration: 60000, // Продолжительность игры в миллисекундах (например, 1 минута)
-                timer: null
-            };
-        }
-        const game = this.gameState[roomName];
-        if (!game.players.find(item => item.id === clientIp)) {   //*** ADD костыль от дублирования игроков при заходе на game.js или обновлении страницы
-            let player = this.newPlayer(clientIp, userName, 100, 200, 50, this.randomColor());
-            game.players.push(player);
-        }
+        this.players[clientIp] = this.newPlayer(clientIp, userName, 200, 200, 50, this.randomColor());
     }
 
-    handleMovePlayer(roomName, clientIp, moveData) {
-        const room = this.gameState[roomName];
-        if (!room) return;
-
-        room.players.forEach(player => {
-            if (player.id === clientIp) { // *** CHANGE player.ip to player.id
-                // Обновление состояния игрока на основе eventData
+    handleMovePlayer(moveData, clientIp) {
+        Object.values(this.players).forEach(player => {
+            if (player.ip === clientIp) {
                 this.setMove(player, moveData);
             }
         });
+        return this.players;
     }
 
     setMove(player, movementData) {
         player.movement = movementData;
         if (movementData.jump && player.onGround) {
-            player.vy = JUMP_FORCE; // Применение силы прыжка
-            player.onGround = false; // Игрок в воздухе
+            player.vy = JUMP_FORCE;
+            player.onGround = false;
         }
-
-        player.lastActive = Date.now(); // Обновление времени последней активности
     }
 
     updatePlayersPosition(roomName, gameObjectsGrid) {
-        const room = this.gameState[roomName];
-        if (!room) return;
-
-        room.players.forEach(player => {
+        Object.values(this.players).forEach(player => {
             this.applyPhysics(player);
-            this.collidWithObjects(player, gameObjectsGrid);
+            this.checkProximityWithObjects(player, gameObjectsGrid);
         });
     }
 
     applyPhysics(player) {
-        // Обновление позиции по горизонтали
         player.x += player.movement.x;
-
-        // Применение гравитации
         player.vy += GRAVITY;
         player.y += player.vy;
 
-        // // Обработка столкновений с землей
-        // if (player.y >= GROUND_LEVEL) {
-        //     player.y = GROUND_LEVEL;
-        //     player.vy = 0;
-        //     player.onGround = true;
-        // }
-        //
-        // // Ограничение по краям экрана
-        // if (player.x < 0) player.x = 0;
-        // if (player.x > CANVAS_WIDTH - player.size) player.x = CANVAS_WIDTH - player.size; // Ширина canvas - ширина игрока (50px)
-
-        player.lastActive = Date.now(); // Обновление времени последней активности
+        // Ограничение по краям экрана
+        if (player.x < 0) player.x = 0;
+        if (player.x > CANVAS_WIDTH - player.size) player.x = CANVAS_WIDTH - player.size; // Ширина canvas - ширина игрока (50px)
     }
 
-    collidWithObjects(player, gameObjectsGrid) {
+    checkProximityWithObjects(player, gameObjectsGrid) {
         const gridX = Math.floor(player.x / GRID_SIZE);
         const gridY = Math.floor(player.y / GRID_SIZE);
-
         const cellsToCheck = [
             [gridY, gridX],
             [gridY - 1, gridX],
@@ -101,21 +68,18 @@ class PlayerService {
             [gridY + 1, gridX - 1],
             [gridY + 1, gridX + 1]
         ];
-
-        this.paintBlock(player, cellsToCheck, gameObjectsGrid); // Раскраска блоков
-
-        // Проверка коллизий с объектами в указанных ячейках
+        this.paintBlock(player, cellsToCheck, gameObjectsGrid);
         this.checkCellsCollision(player, cellsToCheck, gameObjectsGrid);
     }
 
-    // Раскраска блоков
+    // Раскраска блоков при приближении
     paintBlock(player, cellsToCheck, gameObjectsGrid) {
         for (let [y, x] of cellsToCheck) {
             if (gameObjectsGrid[y] && gameObjectsGrid[y][x]) {
                 for (let obj of gameObjectsGrid[y][x]) {
-                    let collision = this.checkCollision(player, obj); // Проверка коллизии с объектом
-                    if (collision) {
-                        obj.color = player.color; // Разрешение коллизии
+                    let proximity = this.checkProximity(player, obj); // Проверка приближения к объекту
+                    if (proximity) {
+                        obj.color = player.color; // Изменение цвета объекта
                     }
                 }
             }
@@ -133,6 +97,16 @@ class PlayerService {
                 }
             }
         }
+    }
+
+    checkProximity(player, obj) {
+        const proximityDistance = 2; // Расстояние до объекта для изменения цвета
+        return (
+            player.x < obj.x + obj.size + proximityDistance &&
+            player.x + player.size > obj.x - proximityDistance &&
+            player.y < obj.y + obj.size + proximityDistance &&
+            player.y + player.size > obj.y - proximityDistance
+        );
     }
 
     checkCollision(player, obj) {
@@ -172,22 +146,8 @@ class PlayerService {
         obj.color = player.color;
     }
 
-    getPlayersData(roomName) {
-        if (Object.keys(this.gameState).length !== 0 && this.gameState[roomName].players.length > 0) {
-            const playersArray = this.gameState[roomName].players;
-            let players = {};
-            playersArray.forEach((player) => {
-                players[player.id] = {
-                    x: player.x,
-                    y: player.y,
-                    movement: player.movement,
-                    vy: player.vy,
-                    size: player.size,
-                    color: player.color
-                };
-            });
-            return players;
-        }
+    getPlayersData() {
+        return this.players;
     }
 
     randomColor() {
@@ -200,8 +160,6 @@ class PlayerService {
             return 'grey';
         }
     }
-
 }
-
 
 module.exports = PlayerService;

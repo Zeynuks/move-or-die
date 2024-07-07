@@ -67,9 +67,9 @@ class RoomManager {
         }
     }
 
-    handleMove(roomName, clientIp, moveData) {
+    handleMove(socket, roomName, moveData) {
         if (this.rooms[roomName]) {
-            this.rooms[roomName].playerController.handleMovePlayer(roomName, clientIp, moveData);
+            this.rooms[roomName].playerController.handleMovePlayer(moveData, socket);
         }
     }
 
@@ -78,13 +78,13 @@ class RoomManager {
         this.rooms[roomName].levelController.sendLevelMap(roomName);
         if (gameObjectsGrid.length === 0) return;
         this.rooms[roomName].gameController.updateState(roomName, gameObjectsGrid);
-
         this.rooms[roomName].levelController.updateLevel(roomName);
     }
 
-    async preloadLevel(roomName) {
+    async preloadGame(roomName, socket, userName) {
         if (this.rooms[roomName]) {
             await this.rooms[roomName].levelController.getLevel(this.rooms[roomName].levelController.changeLevel());
+            await this.rooms[roomName].playerController.addPlayerToGame(socket, userName)
             this.rooms[roomName].levelController.sendLevelMap(roomName);
         }
     }

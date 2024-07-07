@@ -1,6 +1,6 @@
 class Player {
-    constructor(id, username, x, y, size, color = 'grey', collision = true, visible = true, statement = true) {
-        this._id = id;
+    constructor(ip, username, x, y, size, color = 'grey', collision = true, visible = true, statement = true) {
+        this._ip = ip;
         this._username = username;
         this._x = x;
         this._y = y;
@@ -9,14 +9,13 @@ class Player {
         this._collision = collision;
         this._visible = visible;
         this._statement = statement;
-        this._lastActive = Date.now();
         this._movement = { x: 0, y: 0};
         this._onGround = true;
         this._vy = 0;
     }
 
-    get id() {
-        return this._id;
+    get ip() {
+        return this._ip;
     }
 
     get username() {
@@ -51,10 +50,6 @@ class Player {
         return this._statement;
     }
 
-    get lastActive() {
-        return this._lastActive;
-    }
-
     get movement() {
         return this._movement;
     }
@@ -67,8 +62,8 @@ class Player {
         return this._vy;
     }
 
-    set id(value) {
-        this._id = value;
+    set ip(value) {
+        this._ip = value;
     }
 
     set username(value) {
@@ -101,10 +96,6 @@ class Player {
 
     set statement(value) {
         this._statement = value;
-    }
-
-    set lastActive(value) {
-        this._lastActive = value;
     }
 
     set movement(value) {
