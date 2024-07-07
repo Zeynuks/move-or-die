@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enter Name</title>
-    <link rel="stylesheet" href="/styles/enter-name.css">
+    <title>Create room</title>
+    <link href="https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/StartMenu.css">
+    <script src="../scripts/StartMenu.js"></script>
 </head>
 <body class="page">
-<img class="page__logo" src="images/logo.png">
-<form id="nameForm" class="form">
-<div class="container">
-    <input type="hidden" id="roomName" name="roomName" value="">
+<div id="container">
     <div id="ghost-bubble" class="chat-bubble"></div>
-    <input type="text" id="userName" name="userName" class="form__input" placeholder="Enter name">
+    <input id="ghost-input" type="text" placeholder="Enter name">
     <div class="ghost">
         <div class="ghost__face">
             <div class="ghost__eyes">
@@ -29,9 +28,5 @@
         <div class="ghost__legs"></div>
     </div>
 </div>
-<button type="submit" class="form__button">Join Room</button>
-</form>
-<div id="notification" class="notification"></div>
-<script src="/scripts/enter-name.js"></script>
+<script src="/scripts/StartMenu.js"></script>
 </body>
-</html>

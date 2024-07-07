@@ -2,7 +2,7 @@
 
 const levelColorService = require('../Service/LevelColorService');
 const fallingBlocksService = require('../Service/FallingBlocksService');
-const LEVEL_ARRAY = ['ColorLevel', 'FallingBlocks']
+const LEVEL_ARRAY = ['ColorLevel']
 
 class LevelController {
     constructor(io, roomRepository, services) {
@@ -21,7 +21,7 @@ class LevelController {
     }
 
     async getLevel(levelId) {
-        switch (0) {
+        switch (levelId) {
             case 0:
                 this.levelMap = [];
                 await levelColorService.downloadLevelMap();

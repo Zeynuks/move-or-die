@@ -1,20 +1,36 @@
-<!-- development.yaml-game/public/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Game</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
-    <link rel="stylesheet" href="/styles/index.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create room</title>
+    <link href="https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="/styles/index.css">
+
 </head>
 <body class="page">
-<h1 class="page__title">Welcome to the Game</h1>
-<div class="form">
-    <input type="text" id="username" class="form__input" placeholder="Enter your name">
+    <img class="page__logo" src="images/logo.png">
+    <div class="container">
+        <div id="ghost-bubble" class="chat-bubble"></div>
+        <input id="username" type="text" class="form__input" placeholder="Enter name">
+        <div class="ghost">
+            <div class="ghost__face">
+                <div class="ghost__eyes">
+                    <div class="ghost__eyes-l"></div>
+                    <div class="ghost__eyes-r"></div>
+                </div>
+                <div class="ghost__mouth"></div>
+            </div>
+            <div class="ghost__torso"></div>
+            <div class="ghost__hands">
+                <div class="ghost__hands-l"></div>
+                <div class="ghost__hands-r"></div>
+            </div>
+            <div class="ghost__legs"></div>
+        </div>
+    </div>
     <button id="createRoomBtn" class="form__button">Create Room</button>
-</div>
-
-<script src="/socket.io/socket.io.js"></script>
-<script src="/scripts/client.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/scripts/client.js"></script>
+    <script src="/scripts/StartMenu.js"></script>
 </body>
-</html>

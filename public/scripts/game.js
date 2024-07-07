@@ -37,8 +37,27 @@ document.addEventListener('DOMContentLoaded', () => {
             // Проходимся по каждому игровому объекту и рисуем его
             for (let obj of blocks) {
                 //console.log(obj);
-                context.fillStyle = obj._color; // Устанавливаем цвет для объекта
-                context.fillRect(obj._x, obj._y, obj._size, obj._size); // Рисуем объект как квадрат
+                //context.fillStyle = obj._color; // Устанавливаем цвет для объекта
+
+                let block = new Image();              // "Создаём" изображение
+                switch (obj._color) {
+                    case 'blue':
+                        block.src = '../images/blue-block.png';
+                        break;
+                    case 'orange':
+                        block.src = '../images/orange-block.png';
+                        break;
+                    case 'green':
+                        block.src = '../images/green-block.png';
+                        break;
+                    case 'purple':
+                        block.src = '../images/purple-block.png';
+                        break;
+                }
+                block.onload = function() {    // Событие onLoad, ждём момента пока загрузится изображение
+                    context.drawImage(block, obj._x, obj._y, obj._size, obj._size);
+                }
+                   // context.fillRect(obj._x, obj._y, obj._size, obj._size); // Рисуем объект как квадрат
             }
         }
 

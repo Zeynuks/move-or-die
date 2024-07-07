@@ -5,7 +5,7 @@ const GRAVITY = 0.5; // Сила гравитации, чтобы игроки �
 const JUMP_FORCE = -13; // Сила прыжка, отрицательное значение для движения вверх
 const GROUND_LEVEL = CANVAS_HEIGHT - 50; // Уровень земли, чтобы игроки не уходили ниже этой линии
 const GRID_SIZE = 50;
-let colorArray = ['red', 'blue', 'green', 'orange', 'purple'];
+let colorArray = [ 'blue', 'green', 'orange', 'purple'];
 
 class PlayerService {
     constructor(roomRepository) {
