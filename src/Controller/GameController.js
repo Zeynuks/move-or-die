@@ -1,9 +1,10 @@
 const GameService = require("../Service/GameService");
 
 class GameController {
-    constructor(io, roomRepository, services) {
+    constructor(io, roomName, services) {
         this.io = io;
         this.gameTime = 10000;
+        this.roomName = roomName;
         this.timer = null;
         this.gameState = 'inactive';
         this.roomService = services.roomService;
@@ -28,6 +29,7 @@ class GameController {
         };
 
         const endTimer = () => {
+            this.io.emit('gameState', 'inactive');
             this.gameState = 'inactive';
             console.log('Game over!');
             console.log(this.gameState);
