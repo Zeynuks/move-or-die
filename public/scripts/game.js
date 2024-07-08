@@ -194,9 +194,9 @@ document.addEventListener('DOMContentLoaded', () => {
         })
 
 
-        let isDrawing = true;
+        let isDrawing = true; //флаг для разрешения рисования
 
-        socket.on('gameState', (state) => {
+        socket.on('gameState', (state) => { //если состояние игры "неактивно", то рисование запрещено 
             if (state === 'inactive') {
                 isDrawing = false;
             }
