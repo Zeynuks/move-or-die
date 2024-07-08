@@ -28,6 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let green_player = new Image();
     let purple_player = new Image();
 
+    let blue_score = document.getElementById('blue-score');
+    let orange_score = document.getElementById('yellow-score');
+    let green_score = document.getElementById('green-score');
+    let purple_score = document.getElementById('purple-score');
+
     let grey_block = new Image();
 
     let players = {};
@@ -46,8 +51,15 @@ document.addEventListener('DOMContentLoaded', () => {
         drawMap();
     });
 
-    function preload(roomName) {
+    socket.on('levelScore', (data) => {
+        //console.log(data.blue, data.orange, data.green, data.purple)
+        blue_score.textContent = data.blue;
+        orange_score.textContent = data.orange;
+        green_score.textContent = data.green;
+        purple_score.textContent = data.purple;
+    });
 
+    function preload(roomName) {
         blue_block.src = '../images/blue-block.png';
         orange_block.src = '../images/yellow-block.png';
         green_block.src = '../images/green-block.png';
@@ -66,9 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function drawMap() {
         // Проходимся по каждому игровому объекту и рисуем его
         for (let obj of blocks) {
-            //console.log(obj);
-            //context.fillStyle = obj._color; // Устанавливаем цвет для объекта
-
             switch (obj._color) {
                 case 'blue':
                     context.drawImage(blue_block, obj._x, obj._y, obj._size, obj._size);
@@ -86,10 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     context.drawImage(grey_block, obj._x, obj._y, obj._size, obj._size);
                     break;
             }
-            //block.onload = function() {    // Событие onLoad, ждём момента пока загрузится изображение
-            //context.drawImage(block, obj._x, obj._y, obj._size, obj._size);
-            // }
-            //context.fillRect(obj._x, obj._y, obj._size, obj._size); // Рисуем объект как квадрат
         }
     }
 

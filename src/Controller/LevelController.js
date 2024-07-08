@@ -58,10 +58,10 @@ class LevelController {
     }
 
     updateLevel() {
-        switch (0) {
+        switch (this.levelId) {
             case 0:
                 levelColorService.countColoredBlocks();
-                levelColorService.getColoredBlocks();
+                this.io.emit('levelScore', levelColorService.getColoredBlocks())
                 break;
             default:
                 break;
