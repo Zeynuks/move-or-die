@@ -37,10 +37,28 @@ class PlayerService {
         }
     }
 
+    decreasePlayersHealth() {
+        Object.values(this.players).forEach(player => {
+            if (player.health > 0) {
+                player.health -= 1;
+            } else {
+                console.log('Игрок', player.username, ' умер!')
+            }
+        });
+    }
+
+    increasePlayersHealth(player, prevX) {
+        if (player.x !== prevX && player.health < 95) {
+            player.health += 5;
+        }
+    }
+
     updatePlayersPosition(roomName, gameObjectsGrid) {
         Object.values(this.players).forEach(player => {
+            const prevX = player.x;
             this.applyPhysics(player);
             this.checkProximityWithObjects(player, gameObjectsGrid);
+            this.increasePlayersHealth(player, prevX);
         });
     }
 

@@ -21,13 +21,44 @@ body.page {
     color: #ffffff;
 }
 
-canvas {
+.game__canvas {
     border: 2px solid #000000;
     width: 60vw;
     background-image: url("../images/game.png");
     background-size: cover;
     height: calc(4 / 7 * 60vw);
 }
+
+.health__canvas {
+    border: 2px solid #000000;
+    width: 60vw;
+    background-image: url("../images/game.png");
+    background-size: cover;
+    height: calc(1 / 30 * 60vw);
+}
+
+.page__container {
+    display: flex;
+}
+
+.page__score-box {
+    margin-left: 20px;
+    width: 20vw;
+    height: calc(4 / 7 * 60vw);
+    border: 2px solid #ffffff;
+}
+
+.page__score-list-elem {
+    color: #ffffff;
+    list-style: none;
+    text-align: left;
+    font-size: 24px;
+}
+
+.page__score-list-elem p {
+    display: inline;
+}
+
 /* Добавьте это в ваш файл styles/room.css */
 .notification {
     visibility: hidden;

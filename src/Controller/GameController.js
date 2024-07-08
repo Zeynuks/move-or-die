@@ -5,6 +5,7 @@ class GameController {
         this.io = io;
         this.gameTime = 60000;
         this.timer = null;
+        this.timerHealth = null;
         this.gameState = 'inactive';
         this.roomService = services.roomService;
         this.gameService = services.gameService;
@@ -23,23 +24,27 @@ class GameController {
         const startTimer = () => {
             this.gameState = 'active';
             this.timer = setTimeout(endTimer, this.gameTime);
+            this.timerHealth = setInterval(() => {
+                this.playerService.decreasePlayersHealth()
+            }, 100)
         };
 
-        const endTimer = function() {
-            clearTimeout(this.timer);
+        const endTimer = () => {
             this.gameState = 'inactive';
+            clearInterval(this.timerHealth);
             console.log('Game over!');
+            console.log(this.gameState)
         };
-
         startTimer();
-        console.log(this.gameState);
     }
 
-        updateState(roomName, gameObjectsGrid) {
-        this.playerService.updatePlayersPosition(roomName, gameObjectsGrid);
-        const playersData = this.playerService.getPlayersData();
-        this.io.to(roomName).emit('gameStateUpdate', playersData);
-        // this.io.of('/game').emit('gameStateUpdate', players);
+    updateState(roomName, gameObjectsGrid) {
+        if (this.gameState === 'active') {
+            this.playerService.updatePlayersPosition(roomName, gameObjectsGrid);
+            const playersData = this.playerService.getPlayersData();
+            this.io.to(roomName).emit('gameStateUpdate', playersData);
+            // this.io.of('/game').emit('gameStateUpdate', players);
+        }
     }
 }
 

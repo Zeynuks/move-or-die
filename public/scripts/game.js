@@ -18,6 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.width = 1400;
     canvas.height = 800;
 
+    const canvasHealth = document.getElementById('healthCanvas');
+    const contextHealth = canvasHealth.getContext('2d');
+
     let blue_block = new Image();
     let orange_block = new Image();
     let green_block = new Image();
@@ -27,6 +30,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let orange_player = new Image();
     let green_player = new Image();
     let purple_player = new Image();
+
+    let blue_score = document.getElementById('blue-score');
+    let orange_score = document.getElementById('yellow-score');
+    let green_score = document.getElementById('green-score');
+    let purple_score = document.getElementById('purple-score');
 
     let grey_block = new Image();
 
@@ -38,7 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.emit('joinRoom', roomName, userName);
 
-
     socket.emit('preloadGame', roomName, userName);
 
     socket.on('levelMap', (data) => {
@@ -46,8 +53,15 @@ document.addEventListener('DOMContentLoaded', () => {
         drawMap();
     });
 
-    function preload(roomName) {
+    socket.on('levelScore', (data) => {
+        //console.log(data.blue, data.orange, data.green, data.purple)
+        blue_score.textContent = data.blue;
+        orange_score.textContent = data.orange;
+        green_score.textContent = data.green;
+        purple_score.textContent = data.purple;
+    });
 
+    function preload(roomName) {
         blue_block.src = '../images/blue-block.png';
         orange_block.src = '../images/yellow-block.png';
         green_block.src = '../images/green-block.png';
@@ -66,9 +80,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function drawMap() {
         // Проходимся по каждому игровому объекту и рисуем его
         for (let obj of blocks) {
-            //console.log(obj);
-            //context.fillStyle = obj._color; // Устанавливаем цвет для объекта
-
             switch (obj._color) {
                 case 'blue':
                     context.drawImage(blue_block, obj._x, obj._y, obj._size, obj._size);
@@ -86,10 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     context.drawImage(grey_block, obj._x, obj._y, obj._size, obj._size);
                     break;
             }
-            //block.onload = function() {    // Событие onLoad, ждём момента пока загрузится изображение
-            //context.drawImage(block, obj._x, obj._y, obj._size, obj._size);
-            // }
-            //context.fillRect(obj._x, obj._y, obj._size, obj._size); // Рисуем объект как квадрат
         }
     }
 
@@ -115,8 +122,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const t = (now - lastServerUpdateTime) / (1000 / 60);
         // Очищаем весь canvas
         context.clearRect(0, 0, canvas.width, canvas.height);
+        contextHealth.clearRect(0, 0, canvas.width, canvas.height);
         // Рисуем игровые объекты
         // Проходимся по каждому игроку и рисуем его
+        let playerNum = 0;
         Object.entries(players).forEach(([ip, player]) => {
             const previous = previousPlayers[ip];
             const current = player;
@@ -147,6 +156,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         break;
                 }
 
+                if (player.health > 0) {
+                    contextHealth.fillStyle = player.color;
+                    contextHealth.fillRect(playerNum * 55 + 10, 30, player.health / 2, 80);
+                } else {
+                    contextHealth.fillStyle = 'grey';
+                    contextHealth.fillRect(playerNum * 55 + 10, 30, 50, 80);
+                }
+                playerNum++;
+
                 drawMap();
             }
         });
@@ -173,8 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (keys['ArrowDown']) movementData.y += 5;
         if (keys['ArrowLeft']) movementData.x -= 5;
         if (keys['ArrowRight']) movementData.x += 5;
-        console.log(movementData);
-            socket.emit('playerMovement', roomName, movementData);
+        socket.emit('playerMovement', roomName, movementData);
     }
 
     socket.on('gameStateUpdate', (playersData) => {

@@ -78,7 +78,9 @@ class RoomManager {
         this.rooms[roomName].levelController.sendLevelMap(roomName);
         if (gameObjectsGrid.length === 0) return;
         this.rooms[roomName].gameController.updateState(roomName, gameObjectsGrid);
-        this.rooms[roomName].levelController.updateLevel(roomName);
+        if (this.rooms[roomName].gameController.gameState === 'active') {
+            this.rooms[roomName].levelController.updateLevel(roomName);
+        }
     }
 
     async preloadGame(roomName, socket, userName) {

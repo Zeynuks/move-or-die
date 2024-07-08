@@ -29,7 +29,6 @@ class LevelController {
                 break;
             case 1:
                 this.levelMap = [];
-                console.log('this')
                 await fallingBlocksService.downloadLevelMap();
                 this.levelMap = fallingBlocksService.getLevelMap();
                 break;
@@ -39,9 +38,6 @@ class LevelController {
     }
 
     sendLevelMap(roomName) {
-        this.io.emit('levelMap', this.levelMap)
-        //this.io.of('/game').emit('levelMap', this.levelMap)
-        //this.io.emit('hello')
         this.io.emit('levelMap', this.levelMap)
     }
 
@@ -58,10 +54,10 @@ class LevelController {
     }
 
     updateLevel() {
-        switch (0) {
+        switch (this.levelId) {
             case 0:
                 levelColorService.countColoredBlocks();
-                levelColorService.getColoredBlocks();
+                this.io.emit('levelScore', levelColorService.getColoredBlocks())
                 break;
             default:
                 break;

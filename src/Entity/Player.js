@@ -9,6 +9,7 @@ class Player {
         this._collision = collision;
         this._visible = visible;
         this._statement = statement;
+        this._health = 100;
         this._movement = { x: 0, y: 0};
         this._onGround = true;
         this._vy = 0;
@@ -48,6 +49,10 @@ class Player {
 
     get statement() {
         return this._statement;
+    }
+
+    get health() {
+        return this._health;
     }
 
     get movement() {
@@ -96,6 +101,10 @@ class Player {
 
     set statement(value) {
         this._statement = value;
+    }
+
+    set health(value) {
+        this._health = value;
     }
 
     set movement(value) {

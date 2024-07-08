@@ -11,8 +11,19 @@
         <h1 class="page__title">Welcome to the Game Room</h1>
         <p id="roomName" class="game__room-name"></p>
         <p id="userName" class="game__user-name"></p>
-        <canvas id="gameCanvas" class="game__canvas"></canvas>
-
+        <div class="page__container">
+            <canvas id="gameCanvas" class="game__canvas"></canvas>
+            <div class="page__score-box">
+                <h1 class="page__title">Score:</h1>
+                <ul class="page__score-list">
+                    <li class="page__score-list-elem">Blue: <p id="blue-score"></p></li>
+                    <li class="page__score-list-elem">Green: <p id="green-score"></p></li>
+                    <li class="page__score-list-elem">Yellow: <p id="yellow-score"></p></li>
+                    <li class="page__score-list-elem">Purple: <p id="purple-score"></p></li>
+                </ul>
+            </div>
+        </div>
+        <canvas id="healthCanvas" class="health__canvas"></canvas>
         <script src="/socket.io/socket.io.js"></script>
         <script src="/scripts/game.js"></script>
     </body>
