@@ -3,7 +3,7 @@ const GameService = require("../Service/GameService");
 class GameController {
     constructor(io, roomRepository, services) {
         this.io = io;
-        this.gameTime = 60000;
+        this.gameTime = 10000;
         this.timer = null;
         this.gameState = 'inactive';
         this.roomService = services.roomService;
@@ -23,23 +23,25 @@ class GameController {
         const startTimer = () => {
             this.gameState = 'active';
             this.timer = setTimeout(endTimer, this.gameTime);
+            console.log(this.gameState )
         };
 
         const endTimer = function() {
-            clearTimeout(this.timer);
             this.gameState = 'inactive';
             console.log('Game over!');
+            console.log(this.gameState )
         };
 
         startTimer();
-        console.log(this.gameState);
     }
 
-        updateState(roomName, gameObjectsGrid) {
-        this.playerService.updatePlayersPosition(roomName, gameObjectsGrid);
-        const playersData = this.playerService.getPlayersData();
-        this.io.to(roomName).emit('gameStateUpdate', playersData);
-        // this.io.of('/game').emit('gameStateUpdate', players);
+    updateState(roomName, gameObjectsGrid) {
+        if (this.gameState === 'active') {
+            this.playerService.updatePlayersPosition(roomName, gameObjectsGrid);
+            const playersData = this.playerService.getPlayersData();
+            this.io.to(roomName).emit('gameStateUpdate', playersData);
+            // this.io.of('/game').emit('gameStateUpdate', players);
+        }
     }
 }
 
