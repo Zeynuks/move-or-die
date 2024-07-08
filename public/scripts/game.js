@@ -170,17 +170,52 @@ document.addEventListener('DOMContentLoaded', () => {
             sendMovement();
         });
 
+        //подгружаем звуки для движения
+        const upMoveSound = new Audio('../sound/up.mp3');
+        const downMoveSound = new Audio('../sound/down.mp3');
+        const leftMoveSound = new Audio('../sound/move.mp3');
+        const rightMoveSound = new Audio('../sound/move.mp3');
+
+        let sound = null;
         // Отправка данных о движении на сервер
         function sendMovement() {
-            const movementData = {x: 0, y: 0, jump: false};
-            if (keys['ArrowUp']) movementData.jump = true;
-            if (keys['ArrowDown']) movementData.y += 5;
-            if (keys['ArrowLeft']) movementData.x -= 5;
-            if (keys['ArrowRight']) movementData.x += 5;
-            console.log(movementData);
+            const movementData = { x: 0, y: 0, jump: false };
+
+            // Проверяем нажатие клавиш
+            if (keys['ArrowUp']) {
+                movementData.jump = true;
+                sound = upMoveSound;
+                playSound(sound); // Вызываем функцию для воспроизведения звука
+            }
+            if (keys['ArrowDown']) {
+                movementData.y += 5;
+                sound = downMoveSound;
+                playSound(sound);
+            }
+            if (keys['ArrowLeft']) {
+                movementData.x -= 5;
+                sound = leftMoveSound;
+                playSound(sound);
+            }
+            if (keys['ArrowRight']) {
+                movementData.x += 5;
+                sound = rightMoveSound;
+                playSound(sound);
+            }
+
             socket.emit('playerMovement', roomName, movementData);
         }
 
+        function playSound(sound) {
+            // Проверяем, что звук не воспроизводится в данный момент
+            if (!sound.currentTime) {
+                sound.play();
+            } else {
+                // Если звук уже воспроизводится, то перезапускаем его
+                sound.currentTime = 0;
+                sound.play();
+            }
+        }
         socket.on('gameStateUpdate', (playersData) => {
             previousPlayers = players;
             players = playersData;
@@ -196,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let isDrawing = true; //флаг для разрешения рисования
 
-        socket.on('gameState', (state) => { //если состояние игры "неактивно", то рисование запрещено 
+        socket.on('gameState', (state) => { //если состояние игры "неактивно", то рисование запрещено
             if (state === 'inactive') {
                 isDrawing = false;
             }
