@@ -125,8 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
         contextHealth.clearRect(0, 0, canvas.width, canvas.height);
         // Рисуем игровые объекты
         // Проходимся по каждому игроку и рисуем его
-        let playerNum = 0;
-        Object.entries(players).forEach(([ip, player]) => {
+        Object.entries(players).forEach(([ip, player], playerIndex) => {
             const previous = previousPlayers[ip];
             const current = player;
 
@@ -156,20 +155,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         break;
                 }
 
+                contextHealth.fillStyle = 'grey';
+                contextHealth.fillRect(playerIndex * 55 + 10, 30, 50, 80);
                 if (player.health > 0) {
                     contextHealth.fillStyle = player.color;
-                    contextHealth.fillRect(playerNum * 55 + 10, 30, player.health / 2, 80);
-                } else {
-                    contextHealth.fillStyle = 'grey';
-                    contextHealth.fillRect(playerNum * 55 + 10, 30, 50, 80);
+                    contextHealth.fillRect(playerIndex * 55 + 10, 30, 50 * player.health / 100, 80);
                 }
-                playerNum++;
 
                 drawMap();
             }
         });
     }
-
 
     const keys = {};
 

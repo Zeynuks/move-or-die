@@ -24,9 +24,11 @@ class GameController {
         const startTimer = () => {
             this.gameState = 'active';
             this.timer = setTimeout(endTimer, this.gameTime);
-            this.timerHealth = setInterval(() => {
-                this.playerService.decreasePlayersHealth()
-            }, 100)
+            if (!this.timerHealth) {
+                this.timerHealth = setInterval(() => {
+                    this.playerService.decreasePlayersHealth()
+                }, 75)
+            }
         };
 
         const endTimer = () => {

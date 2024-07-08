@@ -66,7 +66,7 @@ class PlayerService {
         player.x += player.movement.x;
         player.vy += GRAVITY;
         player.y += player.vy;
-
+        player.onGround = false;
         // Ограничение по краям экрана
         if (player.x < 0) player.x = 0;
         if (player.x > CANVAS_WIDTH - player.size) player.x = CANVAS_WIDTH - player.size; // Ширина canvas - ширина игрока (50px)
