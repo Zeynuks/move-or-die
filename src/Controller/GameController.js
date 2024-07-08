@@ -19,22 +19,22 @@ class GameController {
     //     }
     // }
 
+
     startGame() {
         const startTimer = () => {
             this.gameState = 'active';
             this.timer = setTimeout(endTimer, this.gameTime);
-            console.log(this.gameState )
+            console.log(this.gameState);
         };
 
-        const endTimer = function() {
+        const endTimer = () => {
             this.gameState = 'inactive';
             console.log('Game over!');
-            console.log(this.gameState )
+            console.log(this.gameState);
         };
 
         startTimer();
     }
-
     updateState(roomName, gameObjectsGrid) {
         if (this.gameState === 'active') {
             this.playerService.updatePlayersPosition(roomName, gameObjectsGrid);
