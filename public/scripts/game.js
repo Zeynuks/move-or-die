@@ -107,18 +107,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        function interpolatePlayer(previous, current, t) {
-            return {
-                x: previous.x + (current.x - previous.x) * t, y: previous.y + (current.y - previous.y) * t
-            };
-        }
+    function interpolatePlayer(previous, current, t) {
+        return {
+            x: previous.x + (current.x - previous.x) * t, y: previous.y + (current.y - previous.y) * t
+        };
+    }
 
 // Функция экстраполяции для предсказания будущего состояния
-        function extrapolatePlayer(current, t) {
-            return {
-                x: current.x + current.movement.x * t, y: current.y + current.vy * t
-            };
-        }
+    function extrapolatePlayer(current, t) {
+        return {
+            x: current.x + current.movement.x * t, y: current.y + current.vy * t
+        };
+    }
 
 
         // Функция для рисования всех игроков
@@ -164,43 +164,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
 
-        const keys = {};
+    const keys = {};
 
-        // Обработка нажатий клавиш для управления движением
-        window.addEventListener('keydown', (event) => {
-            keys[event.key] = true;
-            sendMovement();
-        });
+    // Обработка нажатий клавиш для управления движением
+    window.addEventListener('keydown', (event) => {
+      keys[event.key] = true;
+      sendMovement();
+    });
 
-        window.addEventListener('keyup', (event) => {
-            delete keys[event.key];
-            sendMovement();
-        });
+    window.addEventListener('keyup', (event) => {
+      delete keys[event.key];
+      sendMovement();
+    });
 
-        // Отправка данных о движении на сервер
-        function sendMovement() {
-            const movementData = {x: 0, y: 0, jump: false};
-            if (keys['ArrowUp']) movementData.jump = true;
-            if (keys['ArrowDown']) movementData.y += 5;
-            if (keys['ArrowLeft']) movementData.x -= 5;
-            if (keys['ArrowRight']) movementData.x += 5;
-            socket.emit('playerMovement', roomName, movementData);
+    // Отправка данных о движении на сервер
+    function sendMovement() {
+      const movementData = {x: 0, y: 0, jump: false};
+      if (keys['ArrowUp']) movementData.jump = true;
+      if (keys['ArrowDown']) movementData.y += 5;
+      if (keys['ArrowLeft']) movementData.x -= 5;
+      if (keys['ArrowRight']) movementData.x += 5;
+      socket.emit('playerMovement', roomName, movementData);
+    }
+
+    socket.on('gameUpdate', (playersData) => {
+      previousPlayers = players;
+      players = playersData;
+      Object.entries(playersData).forEach(([ip, playerData]) => {
+        players[ip] = {};
+        for (let key in playerData) {
+          players[ip][key.slice(1)] = playerData[key];
         }
-
-        socket.on('gameUpdate', (playersData) => {
-            previousPlayers = players;
-            players = playersData;
-            Object.entries(playersData).forEach(([ip, playerData]) => {
-                players[ip] = {};
-                for (let key in playerData) {
-                    players[ip][key.slice(1)] = playerData[key];
-                }
-            });
-            lastServerUpdateTime = Date.now();
-        })
+      });
+      lastServerUpdateTime = Date.now();
+    })
 
 
-        let isDrawing = true; //флаг для разрешения рисования
+    let isDrawing = true; //флаг для разрешения рисования
 
         socket.on('gameState', (state) => { //если состояние игры "неактивно", то рисование запрещено
             if (state === 'inactive') {
@@ -230,4 +230,4 @@ document.addEventListener('DOMContentLoaded', () => {
         // Добавь логику для синхронизации игры через Socket.io
     }
 )
-;
+    ;

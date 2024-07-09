@@ -157,10 +157,6 @@ class PlayerService {
         obj.color = player.color;
     }
 
-    getPlayersData() {
-        return this.players;
-    }
-
     randomColor() {
         if (colorArray.length != 0) {
             let colorInd = Math.floor(Math.random() * colorArray.length);
