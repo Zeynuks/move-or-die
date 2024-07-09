@@ -60,6 +60,7 @@ class GameController {
                 this.cycleTimer = setInterval(async () => {
                     await this.playerService.updatePlayersPosition(this.roomName, gameObjects);
                     await this.levelService.updateLevel(this.players, this.levelObjects);
+                    await this.playerService.updateHealth(this.players);
                     this.io.emit('gameUpdate', this.players, this.level);
                 }, 1000 / 60);
             }

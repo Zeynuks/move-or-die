@@ -49,27 +49,20 @@ class PlayerService {
         }
     }
 
-    decreasePlayersHealth() {
-        Object.values(this.players).forEach(player => {
-            if (player.health > 0) {
-                player.health -= 1;
-            } else {
-                console.log('Игрок', player.username, ' умер!')
-            }
-        });
-    }
+    async updateHealth(players) {
 
-    updateHealth(players) {
         Object.values(players).forEach(player => {
-            if (player.x !== this.playerMovement[player.ip] && player.health < 95) {
-                player.health += 5;
+            if (player.x !== this.playerMovement[player.ip] && player.health < 100 && player.onGround) {
+                player.health += 0.6;
+            } else {
+                player.health -= 0.4;
             }
         })
     }
 
     updatePlayersPosition(roomName, gameObjectsGrid) {
         Object.values(this.players).forEach(player => {
-            this.playerMovement[player.ip] = player.movement;
+            this.playerMovement[player.ip] = player.x;
             this.applyPhysics(player);
         });
     }

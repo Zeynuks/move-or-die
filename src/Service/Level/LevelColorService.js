@@ -27,7 +27,6 @@ class LevelColorService extends LevelService {
                     let proximity = this.checkProximity(player, obj);
                     if (proximity) {
                         obj.color = player.color;
-                        console.log(obj.color)
                     }
                 }
             }
