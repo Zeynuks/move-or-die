@@ -69,6 +69,7 @@ class RoomManager {
             console.log('isStart')
             this.rooms[roomName].playerController.addPlayerToGame(socket, userName);
             this.rooms[roomName].gameController.isStart(socket);
+            this.rooms[roomName].levelController.getCurrentLevel();
         }
     }
 

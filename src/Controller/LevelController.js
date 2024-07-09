@@ -1,7 +1,8 @@
 // src/Controller/LevelController.js
 const levelColorService = require('../Service/LevelColorService');
 const fallingBlocksService = require('../Service/FallingBlocksService');
-const LEVEL_ARRAY = ['ColorLevel']
+const LevelService = require("../Service/LevelService");
+const LEVEL_ARRAY = [levelColorService, fallingBlocksService]
 
 class LevelController {
     constructor(io, roomName, services) {
@@ -13,16 +14,17 @@ class LevelController {
         this.levelId = 0;
         this.levelMap = [];
         this.levelQueue = [];
+        this.currLevel = null
     }
 
     changeLevel() {
-        this.levelId = Math.floor(Math.random() * LEVEL_ARRAY.length);
-        console.log('LEVEL:     ', LEVEL_ARRAY[this.levelId])
-        return this.levelId;
+        const shuffledArray = [...LEVEL_ARRAY].sort(() => 0.5 - Math.random());
+        return shuffledArray.slice(0, 1); // Возвращаем первые count элементов
     }
 
     getCurrentLevel() {
-        return levelColorService;
+        const [levelService] = this.changeLevel();
+        this.currLevel = new levelService;
     }
 
 

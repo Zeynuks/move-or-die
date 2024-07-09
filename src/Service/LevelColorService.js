@@ -17,7 +17,8 @@ class LevelColorService extends LevelService {
         let green = this.levelMap.filter(block => block._color === 'green').length;
         let orange = this.levelMap.filter(block => block._color === 'orange').length;
         let purple = this.levelMap.filter(block => block._color === 'purple').length;
-        //console.log('red:', red, 'blue:', blue, 'green:', green, 'orange:', orange, 'purple:', purple)        this.coloredblocks = {red: red, blue: blue, green: green, orange: orange, purple: purple}
+        //console.log('red:', red, 'blue:', blue, 'green:', green, 'orange:', orange, 'purple:', purple);
+        this.coloredblocks = {red: red, blue: blue, green: green, orange: orange, purple: purple}
     }
 
     getColoredBlocks() {
