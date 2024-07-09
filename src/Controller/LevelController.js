@@ -1,24 +1,32 @@
 // src/Controller/LevelController.js
-
-const levelColorService = require('../Service/LevelColorService');
-const fallingBlocksService = require('../Service/FallingBlocksService');
-const LEVEL_ARRAY = ['ColorLevel']
+const levelColorService = require('../Service/Level/LevelColorService');
+const fallingBlocksService = require('../Service/Level/FallingBlocksService');
+const LevelService = require("../Service/LevelService");
+const LEVEL_ARRAY = [levelColorService, fallingBlocksService]
 
 class LevelController {
-    constructor(io, roomRepository, services) {
+    constructor(io, roomName, services) {
         this.io = io;
         this.roomService = services.roomService;
         this.gameService = services.gameService;
         this.playerService = services.playerService;
+        this.levelService = services.levelService;
         this.levelId = 0;
         this.levelMap = [];
+        this.levelQueue = [];
+        this.currLevel = null
     }
 
     changeLevel() {
-        this.levelId = Math.floor(Math.random() * LEVEL_ARRAY.length);
-        console.log('LEVEL:     ', LEVEL_ARRAY[this.levelId])
-        return this.levelId;
+        const shuffledArray = [...LEVEL_ARRAY].sort(() => 0.5 - Math.random());
+        return shuffledArray.slice(0, 1); // Возвращаем первые count элементов
     }
+
+    getCurrentLevel() {
+        const [levelService] = this.changeLevel();
+        this.currLevel = new levelService;
+    }
+
 
     async getLevel(levelId) {
         switch (levelId) {
@@ -29,6 +37,7 @@ class LevelController {
                 break;
             case 1:
                 this.levelMap = [];
+                console.log('this')
                 await fallingBlocksService.downloadLevelMap();
                 this.levelMap = fallingBlocksService.getLevelMap();
                 break;
@@ -37,20 +46,8 @@ class LevelController {
         }
     }
 
-    sendLevelMap(roomName) {
+    sendLevelMap() {
         this.io.emit('levelMap', this.levelMap)
-    }
-
-    getMapGrid(gridSize) {
-        const grid = [];
-        this.levelMap.forEach(obj => {
-            const gridX = Math.floor(obj.x / gridSize);
-            const gridY = Math.floor(obj.y / gridSize);
-            if (!grid[gridY]) grid[gridY] = [];
-            if (!grid[gridY][gridX]) grid[gridY][gridX] = [];
-            grid[gridY][gridX].push(obj);
-        });
-        return grid;
     }
 
     updateLevel() {

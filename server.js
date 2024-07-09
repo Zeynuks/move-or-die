@@ -20,10 +20,10 @@ const server = http.createServer(app);
 const io = socketIo(server, {
     path: config.socket.path,
 });
+const gameNamespace = io.of('/game');
 
 // Создание экземпляра репозитория комнат
 const roomRepository = new RoomRepository(io);
-let roomNames = []; //*** ADD
 
 // Создание экземпляра диспетчера комнат
 const roomManager = new RoomManager(io, roomRepository);
@@ -57,19 +57,8 @@ app.get('/get-info', (req, res) => {
     res.send({ip: localIp, port: PORT});
 });
 
-// Функция для получения IP-адреса клиента
-const getClientIp = (socket) => {
-    const ip = socket.handshake.headers['x-forwarded-for'] || socket.handshake.address;
-    if (ip.substr(0, 7) == "::ffff:") {
-        return ip.substr(7);
-    }
-    return ip;
-};
-
 io.on('connection', (socket) => {
-    // Получение и сохранение IP-адреса клиента
-    socket.ip = getClientIp(socket);
-    // Обработка события создания комнаты
+
     socket.on('createRoom', (roomName, userName) => {
         if (!userName) {
             console.error('Error: userName is null or undefined.');
@@ -77,11 +66,8 @@ io.on('connection', (socket) => {
             return;
         }
         roomManager.createRoom(socket, roomName, userName);
-        roomNames.push(roomName); //*** ADD roomNames arr push
     });
 
-
-    // Обработка события присоединения к комнате
     socket.on('joinRoom', (roomName, userName) => {
         if (!userName) {
             console.error('Error: userName is null or undefined.');
@@ -91,44 +77,31 @@ io.on('connection', (socket) => {
         roomManager.joinRoom(socket, roomName, userName);
     });
 
-    // Обработка события готовности игрока
     socket.on('playerReady', (roomName, userName) => {
         roomManager.playerReady(socket, roomName, userName);
     });
 
-    socket.on('preloadGame', (roomName, userName) => {
-        roomManager.preloadGame(roomName, socket, userName);
+});
+gameNamespace.on('connection', (socket) => {
+
+    socket.on('playerStart', (roomName, userName) => {
+        console.log('playerStart')
+        roomManager.playerStart(socket, roomName, userName);
     });
 
-    //*** ADD обработка движений игрока
     socket.on('playerMovement', (roomName, moveData) => {
         roomManager.handleMove(socket, roomName, moveData);
     });
 
-    // Обработка игровых событий
-    socket.on('gameEvent', (roomName, eventData, callback) => {
-        roomManager.gameEvent(socket, roomName, eventData);
-        // Подтверждение получения данных
-        if (callback) callback();
-    });
-
-    // Обработка события отключения игрока
     socket.on('disconnect', () => {
         roomManager.disconnect(socket);
     });
-});
 
+});
 // Запуск сервера
 server.listen(PORT, () => console.log(`Server running on ${PORT}`));
 
 
-setInterval(() => {
-    if (roomNames.length > 0) {
-        roomNames.forEach((roomName) => {
-            roomManager.updateState(roomName);
-        })
-    }
-}, 1000 / 60)
 
 
 // Обработка сигнала завершения процесса для закрытия всех комнат

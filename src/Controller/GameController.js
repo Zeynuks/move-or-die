@@ -1,52 +1,86 @@
-const GameService = require("../Service/GameService");
-
 class GameController {
-    constructor(io, roomRepository, services) {
+    constructor(io, roomName, services) {
         this.io = io;
-        this.gameTime = 60000;
-        this.timer = null;
-        this.timerHealth = null;
-        this.gameState = 'inactive';
-        this.roomService = services.roomService;
+        this.roomName = roomName;
         this.gameService = services.gameService;
         this.playerService = services.playerService;
+        this.levelService = services.levelService;
+        this.players = {};
+        this.levelObjects = [];
+        this.level = [];
+        this.cycleTimer = null;
     }
 
-    // update(roomName, eventData) {
-    //     const room = this.gameService.handleGameEvent(roomName, socket.ip, eventData);
-    //     if (room) {
-    //         this.io.to(roomName).emit('gameStateU
-    //         pdate', room);
-    //     }
-    // }
-
-    startGame() {
-        const startTimer = () => {
-            this.gameState = 'active';
-            this.timer = setTimeout(endTimer, this.gameTime);
-            if (!this.timerHealth) {
-                this.timerHealth = setInterval(() => {
-                    this.playerService.decreasePlayersHealth()
-                }, 75)
+    async isStart(socket) {
+        try {
+            const state = this.playerService.isStart(socket.handshake.address);
+            if (state) {
+                await this.levelService.downloadLevelMap('ColorLevel');
+                // const spawnpoints = await this.levelService.getPlayersSpawnpoints();
+                // await this.playerService.setSpawnpoints();
+                await this.levelService.getMapGrid(this.levelService.size);
+                await this.startGame()
             }
-        };
-
-        const endTimer = () => {
-            this.gameState = 'inactive';
-            clearInterval(this.timerHealth);
-            console.log('Game over!');
-            console.log(this.gameState)
-        };
-        startTimer();
+        } catch (err) {
+            socket.emit('error', 'Ошибка подготовки к игре');
+        }
     }
 
-    updateState(roomName, gameObjectsGrid) {
-        if (this.gameState === 'active') {
-            this.playerService.updatePlayersPosition(roomName, gameObjectsGrid);
-            const playersData = this.playerService.getPlayersData();
-            this.io.to(roomName).emit('gameStateUpdate', playersData);
-            // this.io.of('/game').emit('gameStateUpdate', players);
+    async startGame() {
+        try {
+            this.gameState = true
+            await this.resetGameData();
+            this.io.emit('startRound', this.players, this.level);
+            await this.updateCycle(this.levelObjects);
+            setTimeout(async () => {
+                this.endGame();
+            }, 100000);
+        } catch (err) {
+            socket.emit('error', 'Ошибка запуска игры');
         }
+    }
+
+    endGame() {
+        try {
+            this.gameState = false
+            this.stopUpdateCycle()
+            const playersScope = this.levelService.getStat();
+            this.io.emit('endRound', playersScope);
+            setTimeout(async () => {
+                await this.startGame();
+            }, 1000);
+        } catch (err) {
+            socket.emit('error', 'Ошибка запуска игры');
+        }
+    }
+
+    async updateCycle(gameObjects) {
+        try {
+            if (this.gameState) {
+                this.cycleTimer = setInterval(async () => {
+                    await this.playerService.updatePlayersPosition(this.roomName, gameObjects);
+                    await this.levelService.updateLevel(this.players, this.levelObjects);
+                    this.io.emit('gameUpdate', this.players, this.level);
+                }, 1000 / 60);
+            }
+        } catch (err) {
+            socket.emit('error', 'Ошибка игрового цикла');
+        }
+    }
+
+    stopUpdateCycle() {
+        if (this.cycleTimer) {
+            clearInterval(this.cycleTimer);
+            this.cycleTimer = null;
+        }
+    }
+
+    async resetGameData() {
+        this.playerService.resetPlayersData();
+        this.levelService.resetLevelData();
+        this.players = this.playerService.players;
+        this.levelObjects = this.levelService.levelObjects;
+        this.level = this.levelService.levelMap;
     }
 }
 
