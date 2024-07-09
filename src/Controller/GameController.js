@@ -1,50 +1,73 @@
-const GameService = require("../Service/GameService");
-
 class GameController {
     constructor(io, roomName, services) {
         this.io = io;
-        this.gameTime = 10000;
         this.roomName = roomName;
-        this.timer = null;
-        this.gameState = 'inactive';
-        this.roomService = services.roomService;
         this.gameService = services.gameService;
         this.playerService = services.playerService;
+        this.levelService = services.levelService;
+        this.players = {};
+        this.levelObjects = [];
+        this.level = [];
+        this.cycleTimer = null;
     }
 
-    // update(roomName, eventData) {
-    //     const room = this.gameService.handleGameEvent(roomName, socket.ip, eventData);
-    //     if (room) {
-    //         this.io.to(roomName).emit('gameStateU
-    //         pdate', room);
-    //     }
-    // }
-
+    async isStart(socket) {
+        const state = this.playerService.isStart(socket.handshake.address);
+        if (state) {
+            await this.levelService.downloadLevelMap('ColorLevel');
+            // const spawnpoints = await this.levelService.getPlayersSpawnpoints();
+            // await this.playerService.setSpawnpoints();
+            await this.levelService.getMapGrid(this.levelService.size);
+            this.startGame()
+            console.log('START:  ', state);
+        }
+    }
 
     startGame() {
-        const startTimer = () => {
-            this.gameState = 'active';
-            this.timer = setTimeout(endTimer, this.gameTime);
-            console.log(this.gameState);
-        };
-
-        const endTimer = () => {
-            this.io.emit('gameState', 'inactive');
-            this.gameState = 'inactive';
-            console.log('Game over!');
-            console.log(this.gameState);
-        };
-
-        startTimer();
+        this.gameState = true
+        this.resetGameData();
+        this.io.emit('startRound', this.players, this.level);
+        this.updateCycle(this.levelObjects);
+        setTimeout(async () => {
+            this.endGame();
+        }, 10000);
     }
-    updateState(roomName, gameObjectsGrid) {
-        if (this.gameState === 'active') {
-            this.playerService.updatePlayersPosition(roomName, gameObjectsGrid);
-            const playersData = this.playerService.getPlayersData();
 
-            this.io.to(roomName).emit('gameStateUpdate', playersData);
-            // this.io.of('/game').emit('gameStateUpdate', players);
+    endGame() {
+        this.gameState = false
+        this.stopUpdateCycle()
+        const playersScope = this.levelService.countColoredBlocks();
+        this.io.emit('endRound', playersScope);
+        setTimeout(async () => {
+            this.startGame();
+        }, 1000);
+    }
+
+    updateCycle(gameObjects) {
+        if (this.gameState) {
+            this.cycleTimer = setInterval(() => {
+                this.playerService.updatePlayersPosition(this.roomName, gameObjects);
+                this.levelService.updateLevel();
+                this.players = this.playerService.players;
+                this.levelObjects = this.levelService.levelObjects;
+                this.io.emit('gameUpdate', this.players, this.levelObjects);
+            }, 1000 / 60);
         }
+    }
+
+    stopUpdateCycle() {
+        if (this.cycleTimer) {
+            clearInterval(this.cycleTimer);
+            this.cycleTimer = null; // Сброс идентификатора интервала
+        }
+    }
+
+    resetGameData() {
+        this.playerService.resetPlayersData();
+        this.levelService.resetLevelData();
+        this.players = this.playerService.players;
+        this.levelObjects = this.levelService.levelObjects;
+        this.level = this.levelService.levelMap;
     }
 }
 

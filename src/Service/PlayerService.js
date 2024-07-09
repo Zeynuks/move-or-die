@@ -1,39 +1,50 @@
 const Player = require("../Entity/Player");
 const CANVAS_WIDTH = 1400;
 const CANVAS_HEIGHT = 800;
-const GRAVITY = 0.5; // Сила гравитации, чтобы игроки падали вниз
-const JUMP_FORCE = -13; // Сила прыжка, отрицательное значение для движения вверх
-const GROUND_LEVEL = CANVAS_HEIGHT - 50; // Уровень земли, чтобы игроки не уходили ниже этой линии
+const GRAVITY = 0.5;
+const JUMP_FORCE = -13;
+const GROUND_LEVEL = CANVAS_HEIGHT - 50;
 const GRID_SIZE = 50;
 let colorArray = ['blue', 'green', 'orange', 'purple'];
 
 class PlayerService {
     constructor() {
         this.players = {};
+        this.playersStart = {}
+    }
+
+    resetPlayersData() {
+        Object.values(this.players).forEach(player => {
+            player.x = 200;
+            player.y = 200;
+            player.collision = true;
+            player.visible = true;
+            player.statement = true;
+            player.movement = { x: 0, y: 0};
+            player.onGround = true;
+            player.vy = 0;
+        });
+    }
+
+    isStart(clientIp) {
+        this.playersStart[clientIp] = true
+        return Object.values(this.playersStart).every(value => value === true);
     }
 
     newPlayer(clientIp, userName, x, y, size, color) {
         return new Player(clientIp, userName, x, y, size, color);
     }
 
-    addPlayerToGame(roomName, userName, clientIp) { //*** REMOVE socketId
+    addPlayerToGame(roomName, userName, clientIp) {
+        this.playersStart[clientIp] = false;
         this.players[clientIp] = this.newPlayer(clientIp, userName, 200, 200, 50, this.randomColor());
     }
 
-    handleMovePlayer(moveData, clientIp) {
-        Object.values(this.players).forEach(player => {
-            if (player.ip === clientIp) {
-                this.setMove(player, moveData);
-            }
-        });
-        return this.players;
-    }
-
-    setMove(player, movementData) {
-        player.movement = movementData;
-        if (movementData.jump && player.onGround) {
-            player.vy = JUMP_FORCE;
-            player.onGround = false;
+    handleMovePlayer(clientIp, movementData) {
+        this.players[clientIp].movement = movementData;
+        if (movementData.jump && this.players[clientIp].onGround) {
+            this.players[clientIp].vy = JUMP_FORCE;
+            this.players[clientIp].onGround = false;
         }
     }
 

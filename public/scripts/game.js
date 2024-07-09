@@ -1,5 +1,5 @@
 // development.yaml-game/public/scripts/game.js
-const socket = io();
+const socket = io('/game');
 
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -35,22 +35,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let grey_block = new Image();
 
+    let state = false
     let players = {};
     let blocks = [];
     let previousPlayers = {};
     let lastUpdateTime = Date.now();
     let lastServerUpdateTime = Date.now();
 
-    socket.emit('joinRoom', roomName, userName);
+    socket.emit('playerStart', roomName, userName);
 
-
-    socket.emit('preloadGame', roomName, userName);
-
-    socket.on('levelMap', (data) => {
-        blocks = data;
-        drawMap();
+    socket.on('startRound', (gamePlayers, levelBlocks) => {
+        players = gamePlayers;
+        blocks = levelBlocks;
+        state = true
     });
 
+    console.log(players, blocks)
     socket.on('levelScore', (data) => {
         //console.log(data.blue, data.orange, data.green, data.purple)
         blue_score.textContent = data.blue;
@@ -177,11 +177,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (keys['ArrowDown']) movementData.y += 5;
             if (keys['ArrowLeft']) movementData.x -= 5;
             if (keys['ArrowRight']) movementData.x += 5;
-            console.log(movementData);
             socket.emit('playerMovement', roomName, movementData);
         }
 
-        socket.on('gameStateUpdate', (playersData) => {
+        socket.on('gameUpdate', (playersData) => {
             previousPlayers = players;
             players = playersData;
             Object.entries(playersData).forEach(([ip, playerData]) => {
@@ -212,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
         }
-
+        drawMap();
         preload(roomName);
         gameLoop();
 
