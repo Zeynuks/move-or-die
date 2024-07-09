@@ -58,7 +58,7 @@ class GameController {
     stopUpdateCycle() {
         if (this.cycleTimer) {
             clearInterval(this.cycleTimer);
-            this.cycleTimer = null; // Сброс идентификатора интервала
+            this.cycleTimer = null;
         }
     }
 
