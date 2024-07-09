@@ -3,7 +3,7 @@ const PlayerController = require('../Controller/PlayerController');
 const GameController = require('../Controller/GameController');
 const RoomService = require("../Service/RoomService");
 const PlayerService = require("../Service/PlayerService");
-const LevelColorService = require("../Service/LevelColorService");
+const LevelColorService = require("../Service/Level/LevelColorService");
 const LevelController = require("../Controller/LevelController");
 
 class RoomManager {
@@ -69,17 +69,6 @@ class RoomManager {
             console.log('isStart')
             this.rooms[roomName].playerController.addPlayerToGame(socket, userName);
             this.rooms[roomName].gameController.isStart(socket);
-            this.rooms[roomName].levelController.getCurrentLevel();
-        }
-    }
-
-    updateState(roomName) {
-        // const gameObjectsGrid = this.rooms[roomName].levelController.getMapGrid(50);
-        this.rooms[roomName].levelController.sendLevelMap(roomName);
-        if (gameObjectsGrid.length === 0) return;
-        this.rooms[roomName].gameController.updateState(roomName, gameObjectsGrid);
-        if (this.rooms[roomName].gameController.gameState === 'active') {
-            this.rooms[roomName].levelController.updateLevel(roomName);
         }
     }
 

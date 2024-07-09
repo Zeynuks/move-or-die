@@ -187,9 +187,10 @@ document.addEventListener('DOMContentLoaded', () => {
       socket.emit('playerMovement', roomName, movementData);
     }
 
-    socket.on('gameUpdate', (playersData) => {
+    socket.on('gameUpdate', (playersData, objectsData) => {
       previousPlayers = players;
       players = playersData;
+      blocks = objectsData
       Object.entries(playersData).forEach(([ip, playerData]) => {
         players[ip] = {};
         for (let key in playerData) {

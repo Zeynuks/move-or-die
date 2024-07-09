@@ -50,6 +50,57 @@ class LevelService {
     resetLevelData() {
         this.downloadLevelMap('ColorLevel');
     }
+
+
+    checkCellsCollision(player, cellsToCheck, objects) {
+        for (let [y, x] of cellsToCheck) {
+            if (objects[y] && objects[y][x]) {
+                for (let obj of objects[y][x]) {
+                    let collision = this.checkCollision(player, obj); // Проверка коллизии с объектом
+                    if (collision) {
+                        this.resolveCollision(player, obj, collision); // Разрешение коллизии
+                    }
+                }
+            }
+        }
+    }
+
+    checkCollision(player, obj) {
+        let collision = {
+            left: false,
+            right: false,
+            top: false,
+            bottom: false
+        };
+
+        // Проверка пересечения прямоугольников
+        if (player.x < obj.x + obj.size && player.x + player.size > obj.x && player.y < obj.y + obj.size && player.y + player.size > obj.y) {
+            collision.left = player.x + player.size > obj.x && player.x < obj.x; // Коллизия слева
+            collision.right = player.x < obj.x + obj.size && player.x + player.size > obj.x + obj.size; // Коллизия справа
+            collision.top = player.y + player.size > obj.y && player.y < obj.y; // Коллизия сверху
+            collision.bottom = player.y < obj.y + obj.size && player.y + player.size > obj.y + obj.size; // Коллизия снизу
+            return collision;
+        }
+        return null;
+    }
+
+    resolveCollision(player, obj, collision) {
+        if (collision.top && player.vy > 0) { // Коллизия сверху
+            player.y = obj.y - player.size;
+            player.vy = 0;
+            player.onGround = true;
+        } else if (collision.bottom && player.vy < 0) { // Коллизия снизу
+            player.y = obj.y + obj.size;
+            player.vy = 0;
+        } else if (collision.left && player.movement.x > 0) { // Коллизия слева
+            player.x = obj.x - player.size;
+            player.movement.x = 0;
+        } else if (collision.right && player.movement.x < 0) { // Коллизия справа
+            player.x = obj.x + player.size;
+            player.movement.x = 0;
+        }
+        obj.color = player.color;
+    }
 }
 
 module.exports = LevelService;

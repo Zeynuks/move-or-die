@@ -51,7 +51,6 @@ class PlayerService {
     updatePlayersPosition(roomName, gameObjectsGrid) {
         Object.values(this.players).forEach(player => {
             this.applyPhysics(player);
-            this.checkProximityWithObjects(player, gameObjectsGrid);
         });
     }
 
@@ -59,103 +58,10 @@ class PlayerService {
         player.x += player.movement.x;
         player.vy += GRAVITY;
         player.y += player.vy;
-
-        // Ограничение по краям экрана
-        if (player.x < 0) player.x = 0;
-        if (player.x > CANVAS_WIDTH - player.size) player.x = CANVAS_WIDTH - player.size; // Ширина canvas - ширина игрока (50px)
     }
 
-    checkProximityWithObjects(player, gameObjectsGrid) {
-        const gridX = Math.floor(player.x / GRID_SIZE);
-        const gridY = Math.floor(player.y / GRID_SIZE);
-        const cellsToCheck = [
-            [gridY, gridX],
-            [gridY - 1, gridX],
-            [gridY + 1, gridX],
-            [gridY, gridX - 1],
-            [gridY, gridX + 1],
-            [gridY - 1, gridX - 1],
-            [gridY - 1, gridX + 1],
-            [gridY + 1, gridX - 1],
-            [gridY + 1, gridX + 1]
-        ];
-        this.paintBlock(player, cellsToCheck, gameObjectsGrid);
-        this.checkCellsCollision(player, cellsToCheck, gameObjectsGrid);
-    }
 
-    // Раскраска блоков при приближении
-    paintBlock(player, cellsToCheck, gameObjectsGrid) {
-        for (let [y, x] of cellsToCheck) {
-            if (gameObjectsGrid[y] && gameObjectsGrid[y][x]) {
-                for (let obj of gameObjectsGrid[y][x]) {
-                    let proximity = this.checkProximity(player, obj); // Проверка приближения к объекту
-                    if (proximity) {
-                        obj.color = player.color; // Изменение цвета объекта
-                    }
-                }
-            }
-        }
-    }
 
-    checkCellsCollision(player, cellsToCheck, gameObjectsGrid) {
-        for (let [y, x] of cellsToCheck) {
-            if (gameObjectsGrid[y] && gameObjectsGrid[y][x]) {
-                for (let obj of gameObjectsGrid[y][x]) {
-                    let collision = this.checkCollision(player, obj); // Проверка коллизии с объектом
-                    if (collision) {
-                        this.resolveCollision(player, obj, collision); // Разрешение коллизии
-                    }
-                }
-            }
-        }
-    }
-
-    checkProximity(player, obj) {
-        const proximityDistance = 2; // Расстояние до объекта для изменения цвета
-        return (
-            player.x < obj.x + obj.size + proximityDistance &&
-            player.x + player.size > obj.x - proximityDistance &&
-            player.y < obj.y + obj.size + proximityDistance &&
-            player.y + player.size > obj.y - proximityDistance
-        );
-    }
-
-    checkCollision(player, obj) {
-        let collision = {
-            left: false,
-            right: false,
-            top: false,
-            bottom: false
-        };
-
-        // Проверка пересечения прямоугольников
-        if (player.x < obj.x + obj.size && player.x + player.size > obj.x && player.y < obj.y + obj.size && player.y + player.size > obj.y) {
-            collision.left = player.x + player.size > obj.x && player.x < obj.x; // Коллизия слева
-            collision.right = player.x < obj.x + obj.size && player.x + player.size > obj.x + obj.size; // Коллизия справа
-            collision.top = player.y + player.size > obj.y && player.y < obj.y; // Коллизия сверху
-            collision.bottom = player.y < obj.y + obj.size && player.y + player.size > obj.y + obj.size; // Коллизия снизу
-            return collision;
-        }
-        return null;
-    }
-
-    resolveCollision(player, obj, collision) {
-        if (collision.top && player.vy > 0) { // Коллизия сверху
-            player.y = obj.y - player.size;
-            player.vy = 0;
-            player.onGround = true;
-        } else if (collision.bottom && player.vy < 0) { // Коллизия снизу
-            player.y = obj.y + obj.size;
-            player.vy = 0;
-        } else if (collision.left && player.movement.x > 0) { // Коллизия слева
-            player.x = obj.x - player.size;
-            player.movement.x = 0;
-        } else if (collision.right && player.movement.x < 0) { // Коллизия справа
-            player.x = obj.x + player.size;
-            player.movement.x = 0;
-        }
-        obj.color = player.color;
-    }
 
     randomColor() {
         if (colorArray.length != 0) {

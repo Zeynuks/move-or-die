@@ -1,7 +1,6 @@
-const playerService = require('./PlayerService');
-const MapService = require('./MapService');
-const Block = require("../Entity/Block");
-const MapRepository = require("../Repository/MapRepository");
+const playerService = require('../PlayerService');
+const Block = require("../../Entity/Block");
+const MapRepository = require("../../Repository/MapRepository");
 let coordArray = [[6, 4], [23, 4], [4, 15], [25, 15]]
 
 class FallingBlocksService {
