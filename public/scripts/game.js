@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (event.key === 'ArrowUp' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
                 delete keys[event.key];
                 sendMovement();
-            }dr
+            }
         });
 
         // Отправка данных о движении на сервер
