@@ -16,8 +16,6 @@ class GameController {
             const state = this.playerService.isStart(socket.handshake.address);
             if (state) {
                 await this.levelService.downloadLevelMap('ColorLevel');
-                // const spawnpoints = await this.levelService.getPlayersSpawnpoints();
-                // await this.playerService.setSpawnpoints();
                 await this.levelService.getMapGrid(this.levelService.size);
                 await this.startGame()
             }
@@ -30,11 +28,13 @@ class GameController {
         try {
             this.gameState = true
             await this.resetGameData();
+            await this.levelService.downloadLevelMap('ColorLevel');
+            await this.levelService.getMapGrid(this.levelService.size);
             this.io.emit('startRound', this.players, this.level);
             await this.updateCycle(this.levelObjects);
             setTimeout(async () => {
                 this.endGame();
-            }, 100000);
+            }, 10000);
         } catch (err) {
             socket.emit('error', 'Ошибка запуска игры');
         }
