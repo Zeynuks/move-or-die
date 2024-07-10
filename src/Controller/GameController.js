@@ -3,7 +3,7 @@ const GameService = require("../Service/GameService");
 class GameController {
     constructor(io, roomName, services) {
         this.io = io;
-        this.gameTime = 10000;
+        this.gameTime = 30000;
         this.roomName = roomName;
         this.timer = null;
         this.gameState = 'inactive';

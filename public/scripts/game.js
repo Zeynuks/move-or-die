@@ -172,7 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         //подгружаем звуки для движения
         const upMoveSound = new Audio('../sound/up.mp3');
-        const downMoveSound = new Audio('../sound/down.mp3');
         const leftMoveSound = new Audio('../sound/move.mp3');
         const rightMoveSound = new Audio('../sound/move.mp3');
 
@@ -189,8 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (keys['ArrowDown']) {
                 movementData.y += 5;
-                sound = downMoveSound;
-                playSound(sound);
             }
             if (keys['ArrowLeft']) {
                 movementData.x -= 5;
@@ -216,6 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 sound.play();
             }
         }
+
         socket.on('gameStateUpdate', (playersData) => {
             previousPlayers = players;
             players = playersData;
