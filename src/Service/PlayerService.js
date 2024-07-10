@@ -42,7 +42,7 @@ class PlayerService {
     }
 
     handleMovePlayer(clientIp, movementData) {
-        this.players[clientIp].movement = movementData;
+        this.players[clientIp].vx = movementData.x;
         if (movementData.jump && this.players[clientIp].onGround) {
             this.players[clientIp].vy = JUMP_FORCE;
             this.players[clientIp].onGround = false;
@@ -68,7 +68,7 @@ class PlayerService {
     }
 
     applyPhysics(player) {
-        player.x += player.movement.x;
+        player.x += player.vx;
         player.vy += GRAVITY;
         player.y += player.vy;
     }

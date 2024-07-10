@@ -10,7 +10,7 @@ class Player {
         this._visible = visible;
         this._statement = statement;
         this._health = 100;
-        this._movement = { x: 0, y: 0};
+        this._vx = 0;
         this._onGround = true;
         this._vy = 0;
     }
@@ -55,8 +55,8 @@ class Player {
         return this._health;
     }
 
-    get movement() {
-        return this._movement;
+    get vx() {
+        return this._vx;
     }
 
     get onGround() {
@@ -107,8 +107,8 @@ class Player {
         this._health = value;
     }
 
-    set movement(value) {
-        this._movement = value;
+    set vx(value) {
+        this._vx = value;
     }
 
     set onGround(value) {
