@@ -7,12 +7,13 @@ class LevelColorService extends LevelService {
     }
 
     getStat() {
-        let red = this.levelMap.filter(block => block._color === 'red').length;
-        let blue = this.levelMap.filter(block => block._color === 'blue').length;
-        let green = this.levelMap.filter(block => block._color === 'green').length;
-        let orange = this.levelMap.filter(block => block._color === 'orange').length;
-        let purple = this.levelMap.filter(block => block._color === 'purple').length;
-        this.coloredblocks = {red: red, blue: blue, green: green, orange: orange, purple: purple}
+        let blue = this.levelMap.filter(block => block.color === 'blue').length;
+        let green = this.levelMap.filter(block => block.color === 'green').length;
+        let orange = this.levelMap.filter(block => block.color === 'orange').length;
+        let purple = this.levelMap.filter(block => block.color === 'purple').length;
+        let grey = this.levelMap.filter(block => block.color === 'grey').length;
+        console.log(blue, green, orange, purple, grey);
+        this.coloredblocks = {blue: blue, green: green, orange: orange, purple: purple}
     }
 
     getColoredBlocks() {
@@ -44,11 +45,23 @@ class LevelColorService extends LevelService {
     }
 
     updateLevel(players, objects) {
-        this.getStat();
         Object.values(players).forEach(player => {
             this.paintBlock(player, player.getGrid(), objects);
             this.checkCellsCollision(player, player.getGrid(), objects);
         });
+    }
+
+    updateScore(objects) {
+        let blue =  objects.filter(block => block.color === 'blue').length;
+        let green = objects.filter(block => block.color === 'green').length;
+        let orange = objects.filter(block => block.color === 'orange').length;
+        let purple = objects.filter(block => block.color === 'purple').length;
+        let grey = objects.filter(block => block.color === 'grey').length;
+        this.coloredblocks = {blue: blue, green: green, orange: orange, purple: purple}
+    }
+
+    getLevelScore() {
+        return this.coloredblocks
     }
 }
 

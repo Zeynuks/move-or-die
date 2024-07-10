@@ -34,7 +34,7 @@ class GameController {
             await this.updateCycle(this.levelObjects);
             setTimeout(async () => {
                 this.endGame();
-            }, 10000);
+            }, 30000);
         } catch (err) {
             socket.emit('error', 'Ошибка запуска игры');
         }
@@ -44,8 +44,8 @@ class GameController {
         try {
             this.gameState = false
             this.stopUpdateCycle()
-            const playersScope = this.levelService.getStat();
-            this.io.emit('endRound', playersScope);
+            //const playersScope = this.levelService.getStat();
+            this.io.emit('endRound');
             setTimeout(async () => {
                 await this.startGame();
             }, 1000);
@@ -61,7 +61,9 @@ class GameController {
                     await this.playerService.updatePlayersPosition(this.roomName, gameObjects);
                     await this.levelService.updateLevel(this.players, this.levelObjects);
                     await this.playerService.updateHealth(this.players);
+                    await this.levelService.updateScore(this.level);
                     this.io.emit('gameUpdate', this.players, this.level);
+                    this.io.emit('levelScore', this.levelService.getLevelScore());
                 }, 1000 / 60);
             }
         } catch (err) {
