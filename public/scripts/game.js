@@ -111,12 +111,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function drawHealth(player, playerIndex) {
-            contextHealth.fillStyle = 'grey';
-            contextHealth.fillRect(playerIndex * 55 + 10, 30, 50, 80);
-            if (player.health > 0) {
-                contextHealth.fillStyle = player.color;
-                contextHealth.fillRect(playerIndex * 55 + 10, 30, 50 * player.health / 100, 80);
+            if (player.statement) {
+                contextHealth.fillStyle = 'grey';
+            } else {
+                contextHealth.fillStyle = 'red';
             }
+            contextHealth.fillRect(playerIndex * 55 + 10, 30, 50, 80);
+            contextHealth.fillStyle = player.color;
+            contextHealth.fillRect(playerIndex * 55 + 10, 30, 50 * player.health / 100, 80);
         }
 
         function interpolatePlayer(previous, current, t) {
@@ -154,7 +156,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             // Используем экстраполяцию, если прошло много времени
                             position = extrapolatePlayer(current, t - 1);
                         }
-                        context.fillStyle = player.color; // Устанавливаем цвет для игрока {В дальнейшем будет открисовываться скин игрока}
+                        // context.fillStyle = player.color; // Устанавливаем цвет для игрока {В дальнейшем будет открисовываться скин игрока}
+                        context.save();
+                        if (!player.statement) {
+                            context.globalAlpha = 0.3;
+                        }
                         switch (player.color) {
                             case 'blue':
                                 context.drawImage(blue_player, position.x, position.y, player.size, player.size);
@@ -169,6 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 context.drawImage(purple_player, position.x, position.y, player.size, player.size);
                                 break;
                         }
+                        context.restore();
 
                         drawHealth(player, playerIndex);
                     }

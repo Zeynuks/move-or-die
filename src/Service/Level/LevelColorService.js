@@ -46,7 +46,9 @@ class LevelColorService extends LevelService {
     updateLevel(players, objects) {
         this.getStat();
         Object.values(players).forEach(player => {
-            this.paintBlock(player, player.getGrid(), objects);
+            if (player.statement) {
+                this.paintBlock(player, player.getGrid(), objects);
+            }
             this.checkCellsCollision(player, player.getGrid(), objects);
         });
     }

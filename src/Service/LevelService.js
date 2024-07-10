@@ -99,7 +99,6 @@ class LevelService {
             player.x = obj.x + player.size;
             player.vx = 0;
         }
-        obj.color = player.color;
     }
 }
 
