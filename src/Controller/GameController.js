@@ -34,7 +34,7 @@ class GameController {
             await this.updateCycle(this.levelObjects);
             setTimeout(async () => {
                 this.endGame();
-            }, 30000);
+            }, 10000);
         } catch (err) {
             socket.emit('error', 'Ошибка запуска игры');
         }
@@ -48,7 +48,7 @@ class GameController {
             this.io.emit('endRound');
             setTimeout(async () => {
                 await this.startGame();
-            }, 1000);
+            }, 2000);
         } catch (err) {
             socket.emit('error', 'Ошибка запуска игры');
         }

@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.emit('playerStart', roomName, userName);
 
     socket.on('startRound', (gamePlayers, levelBlocks) => {
+        info_box.classList.add('hidden');
         players = transformKeys(gamePlayers);
 
         blocks = levelBlocks;
@@ -14,7 +15,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('endRound', () => {
-        state = false
+        state = false;
+        if (info_box.classList.contains('hidden')) {
+            info_box.classList.remove('hidden');
+        }
     });
 
     socket.on('levelScore', (data) => {

@@ -13,7 +13,6 @@ class LevelService {
         try {
             const map = await this.mapRepository.findMapByLevelName(levelName);
             this.setMap(map);
-            console.log('Map downloaded');
         } catch (error) {
             console.error('Ошибка:', error);
         }

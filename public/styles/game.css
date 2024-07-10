@@ -8,6 +8,7 @@ body.page {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    position: relative;
     /*background-image: url("../images/back.png");*/
 }
 
@@ -57,6 +58,20 @@ body.page {
 
 .page__score-list-elem p {
     display: inline;
+}
+
+#page__info-box {
+    position: absolute;
+    width: 60vw;
+    height: 20vw;
+    background-color: #21242a;
+    border-left: 2px solid #000000;
+    border-right: 2px solid #000000;
+    top: 15vw;
+}
+
+.hidden {
+    display: none;
 }
 
 /* Добавьте это в ваш файл styles/room.css */
