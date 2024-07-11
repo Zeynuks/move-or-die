@@ -9,6 +9,12 @@ class GameController {
         this.levelObjects = [];
         this.level = [];
         this.cycleTimer = null;
+        this.playersScore = {
+            blue: 0,
+            green: 0,
+            yellow: 0,
+            purple: 0,
+        }
     }
 
     async isStart(socket) {
@@ -40,12 +46,33 @@ class GameController {
         }
     }
 
+    updatePlayersScore() {
+        const score = this.levelService.getStat();
+        const total = {};
+
+        for (const color in this.playersScore) {
+            total[color] = (this.playersScore[color] || 0) + (score[color] || 0);
+        }
+
+        this.playersScore = total;
+        this.sortPlayersScore();
+    }
+
+    sortPlayersScore() {
+        const tmp = this.playersScore;
+
+        this.playersScore = Object.entries(tmp)
+            .sort((a, b) => b[1] - a[1]) // Сортировка по второму элементу массива (количество)
+            .reduce((result, [key, value]) => ({ ...result, [key]: value }), {}); // Преобразование в объект
+        //return this.sortedColoredBlocks;
+    }
+
     endGame() {
         try {
             this.gameState = false
             this.stopUpdateCycle()
-            //const playersScope = this.levelService.getStat();
-            this.io.emit('endRound');
+            this.updatePlayersScore();
+            this.io.emit('endRound', this.playersScore);
             setTimeout(async () => {
                 await this.startGame();
             }, 2000);

@@ -70,6 +70,13 @@ body.page {
     top: 15vw;
 }
 
+#page__colored-blocks-list li{
+    color: #ffffff;
+    list-style: none;
+    text-align: center;
+    font-size: 24px;
+}
+
 .hidden {
     display: none;
 }

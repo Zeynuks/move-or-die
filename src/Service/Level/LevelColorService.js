@@ -6,16 +6,6 @@ class LevelColorService extends LevelService {
         this.coloredblocks = {};
     }
 
-    getStat() {
-        let blue = this.levelMap.filter(block => block.color === 'blue').length;
-        let green = this.levelMap.filter(block => block.color === 'green').length;
-        let orange = this.levelMap.filter(block => block.color === 'orange').length;
-        let purple = this.levelMap.filter(block => block.color === 'purple').length;
-        let grey = this.levelMap.filter(block => block.color === 'grey').length;
-        console.log(blue, green, orange, purple, grey);
-        this.coloredblocks = {blue: blue, green: green, orange: orange, purple: purple}
-    }
-
     getColoredBlocks() {
         return this.coloredblocks;
     }
@@ -54,10 +44,27 @@ class LevelColorService extends LevelService {
     updateScore(objects) {
         let blue =  objects.filter(block => block.color === 'blue').length;
         let green = objects.filter(block => block.color === 'green').length;
-        let orange = objects.filter(block => block.color === 'orange').length;
+        let yellow = objects.filter(block => block.color === 'orange').length;
         let purple = objects.filter(block => block.color === 'purple').length;
-        let grey = objects.filter(block => block.color === 'grey').length;
-        this.coloredblocks = {blue: blue, green: green, orange: orange, purple: purple}
+        this.coloredblocks = {blue: blue, green: green, yellow: yellow, purple: purple}
+    }
+
+    getStat() {
+        const sortedColoredBlocks = Object.entries(this.coloredblocks)
+            .sort((a, b) => b[1] - a[1])
+            .reduce((result, [key, value]) => ({ ...result, [key]: value }), {});
+
+        // Начисляем баллы
+        let bonus = 5;
+        const updatedSortedColoredBlocks = {};
+        for (const color in sortedColoredBlocks) { // Проходим по ключам объекта
+            if (sortedColoredBlocks[color] !== 0) { // Проверяем, что количество блоков не равно 0
+                updatedSortedColoredBlocks[color] = bonus; // Создаем новый объект с измененными значениями
+                bonus--;
+            }
+        }
+
+        return updatedSortedColoredBlocks;
     }
 
     getLevelScore() {
