@@ -1,10 +1,6 @@
 const Player = require("../Entity/Player");
-const CANVAS_WIDTH = 1400;
-const CANVAS_HEIGHT = 800;
 const GRAVITY = 0.5;
 const JUMP_FORCE = -13;
-const GROUND_LEVEL = CANVAS_HEIGHT - 50;
-const GRID_SIZE = 50;
 let colorArray = ['blue', 'green', 'orange', 'purple'];
 
 class PlayerService {
