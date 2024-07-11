@@ -24,6 +24,7 @@ class PlayerService {
             player.movement = { x: 0, y: 0};
             player.onGround = true;
             player.vy = 0;
+            player.health = 100;
         });
     }
 
@@ -42,7 +43,7 @@ class PlayerService {
     }
 
     handleMovePlayer(clientIp, movementData) {
-        this.players[clientIp].movement = movementData;
+        this.players[clientIp].vx = movementData.x;
         if (movementData.jump && this.players[clientIp].onGround) {
             this.players[clientIp].vy = JUMP_FORCE;
             this.players[clientIp].onGround = false;
@@ -50,8 +51,11 @@ class PlayerService {
     }
 
     async updateHealth(players) {
-
         Object.values(players).forEach(player => {
+            if (player.health <= 0) {
+                player.statement = false;
+                return;
+            }
             if (player.x !== this.playerMovement[player.ip] && player.health < 100 && player.onGround) {
                 player.health += 0.6;
             } else if (player.health > 0) {
@@ -68,7 +72,7 @@ class PlayerService {
     }
 
     applyPhysics(player) {
-        player.x += player.movement.x;
+        player.x += player.vx;
         player.vy += GRAVITY;
         player.y += player.vy;
     }

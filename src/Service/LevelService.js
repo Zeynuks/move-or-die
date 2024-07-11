@@ -92,14 +92,13 @@ class LevelService {
         } else if (collision.bottom && player.vy < 0) { // Коллизия снизу
             player.y = obj.y + obj.size;
             player.vy = 0;
-        } else if (collision.left && player.movement.x > 0) { // Коллизия слева
+        } else if (collision.left && player.vx > 0) { // Коллизия слева
             player.x = obj.x - player.size;
-            player.movement.x = 0;
-        } else if (collision.right && player.movement.x < 0) { // Коллизия справа
+            player.vx = 0;
+        } else if (collision.right && player.vx < 0) { // Коллизия справа
             player.x = obj.x + player.size;
-            player.movement.x = 0;
+            player.vx = 0;
         }
-        obj.color = player.color;
     }
 }
 
