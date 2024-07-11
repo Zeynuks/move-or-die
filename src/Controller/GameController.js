@@ -18,6 +18,7 @@ class GameController {
                 // await this.levelService.downloadLevelMap('ColorLevel');
                 // await this.levelService.getMapGrid(this.levelService.size);
                 await this.startGame()
+                setTimeout(await this.startGame(), 500);
             } else {
                 this.gameLoad(socket)
             }
