@@ -47,7 +47,7 @@ class GameController {
                 this.endGame();
             }, 10000);
         } catch (err) {
-            socket.emit('error', 'Ошибка запуска игры');
+            this.io.emit('error', 'Ошибка запуска игры');
         }
     }
 
@@ -81,7 +81,7 @@ class GameController {
                 await this.startGame();
             }, 2000);
         } catch (err) {
-            socket.emit('error', 'Ошибка запуска игры');
+            this.io.emit('error', 'Ошибка остановки игры');
         }
     }
 
@@ -98,7 +98,7 @@ class GameController {
                 }, 1000 / 60);
             }
         } catch (err) {
-            socket.emit('error', 'Ошибка игрового цикла');
+            this.io.emit('error', 'Ошибка игрового цикла');
         }
     }
 
@@ -110,7 +110,7 @@ class GameController {
     }
 
     async resetGameData() {
-        this.playerService.resetPlayersData();
+        await this.playerService.resetPlayersData();
         await this.levelService.resetLevelData();
         this.players = this.playerService.players;
         this.levelObjects = this.levelService.levelObjects;

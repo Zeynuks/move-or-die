@@ -52,6 +52,12 @@ class RoomManager {
         }
     }
 
+    gameDisconnect(socket) {
+        for (let roomName in this.rooms) {
+            this.rooms[roomName].playerController.disconnect(socket);
+        }
+    }
+
     closeAllRooms() {
         for (let roomName in this.rooms) {
             this.rooms[roomName].roomController.closeAllRooms();
@@ -66,7 +72,6 @@ class RoomManager {
 
     playerStart(socket, roomName, userName) {
         if (this.rooms[roomName]) {
-            console.log('isStart')
             this.rooms[roomName].playerController.addPlayerToGame(socket, userName);
             this.rooms[roomName].gameController.isStart(socket);
         }

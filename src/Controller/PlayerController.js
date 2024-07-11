@@ -6,12 +6,28 @@ class PlayerController {
     }
 
     async addPlayerToGame(socket, userName) {
-        socket.join(this.roomName);
-        this.playerService.addPlayerToGame(this.roomName, userName, socket.handshake.address);
+        try {
+            socket.join(this.roomName);
+            await this.playerService.addPlayerToGame(this.roomName, userName, socket.handshake.address);
+        } catch (err) {
+            socket.emit('error', 'Ошибка подключения');
+        }
     }
 
-    handleMovePlayer(socket, moveData) {
-        this.playerService.handleMovePlayer(socket.handshake.address, moveData);
+    async handleMovePlayer(socket, moveData) {
+        try {
+            await this.playerService.handleMovePlayer(socket.handshake.address, moveData);
+        } catch (err) {
+            socket.emit('error', 'Ошибка движения');
+        }
+    }
+
+    async disconnect(socket) {
+        try {
+            await this.playerService.disconnect(socket.handshake.address);
+        } catch (err) {
+            socket.emit('error', 'Ошибка отключения');
+        }
     }
 
 }

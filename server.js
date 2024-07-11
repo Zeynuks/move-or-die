@@ -81,11 +81,14 @@ io.on('connection', (socket) => {
         roomManager.playerReady(socket, roomName, userName);
     });
 
+    socket.on('disconnect', () => {
+        roomManager.disconnect(socket);
+    });
+
 });
 gameNamespace.on('connection', (socket) => {
 
     socket.on('playerStart', (roomName, userName) => {
-        console.log('playerStart')
         roomManager.playerStart(socket, roomName, userName);
     });
 
@@ -94,7 +97,7 @@ gameNamespace.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
-        roomManager.disconnect(socket);
+        roomManager.gameDisconnect(socket);
     });
 
 });
