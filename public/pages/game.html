@@ -8,9 +8,6 @@
         <link rel="stylesheet" href="/styles/game.css">
     </head>
         <body class="page">
-        <div id="colorLevelInfo" class="colorLevelInfo">
-            <img class="colorLevelInfoImg" src="../images/infoColorLevel.png" alt="">
-        </div>
         <audio src="../sound/inGame.mp3" autoplay="autoplay" loop="loop"></audio>
         <h1 class="page__title">Welcome to the Game Room</h1>
         <p id="roomName" class="game__room-name"></p>
@@ -26,6 +23,7 @@
                     <li class="page__score-list-elem">Purple: <p id="purple-score"></p></li>
                 </ul>
             </div>
+            <img class="colorLevelInfoImg" src="../images/infoColorLevel.png" alt="">
         </div>
         <script src="/socket.io/socket.io.js"></script>
         <script src="/scripts/game.js"></script>

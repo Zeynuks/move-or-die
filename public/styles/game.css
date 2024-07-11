@@ -31,6 +31,7 @@ canvas {
 
 .page__container {
     display: flex;
+    position: relative;
 }
 
 .page__score-box {
@@ -83,13 +84,11 @@ canvas {
     to { bottom: 0; opacity: 0; }
 }
 
-.colorLevelInfo {
-    position: absolute;
-    top: 117px;
-    left: 140px;
-}
 
 .colorLevelInfoImg {
-    height: 530px;
-    width: 930px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 60vw;
+    height: calc(4 / 7 * 60vw);
 }
