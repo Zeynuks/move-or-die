@@ -6,6 +6,16 @@ class LevelColorService extends LevelService {
         this.coloredblocks = {};
     }
 
+    getStat() {
+        let blue = this.levelMap.filter(block => block.color === 'blue').length;
+        let green = this.levelMap.filter(block => block.color === 'green').length;
+        let orange = this.levelMap.filter(block => block.color === 'orange').length;
+        let purple = this.levelMap.filter(block => block.color === 'purple').length;
+        let grey = this.levelMap.filter(block => block.color === 'grey').length;
+        console.log(blue, green, orange, purple, grey);
+        this.coloredblocks = {blue: blue, green: green, orange: orange, purple: purple}
+    }
+
     getColoredBlocks() {
         return this.coloredblocks;
     }
@@ -56,13 +66,18 @@ class LevelColorService extends LevelService {
             .sort((a, b) => b[1] - a[1])
             .reduce((result, [key, value]) => ({ ...result, [key]: value }), {});
 
-        // Начисляем баллы
-        let bonus = 5;
+        let count = 0;
+        let bonus = 5
         const updatedSortedColoredBlocks = {};
-        for (const color in sortedColoredBlocks) { // Проходим по ключам объекта
-            if (sortedColoredBlocks[color] !== 0) { // Проверяем, что количество блоков не равно 0
-                updatedSortedColoredBlocks[color] = bonus; // Создаем новый объект с измененными значениями
+        for (const color in sortedColoredBlocks) {
+            if (sortedColoredBlocks[color] !== 0) {
+                if (count === 3) {
+                    updatedSortedColoredBlocks[color] = 1;
+                } else {
+                    updatedSortedColoredBlocks[color] = bonus - count * 2;
+                }
                 bonus--;
+                count++;
             }
         }
 
