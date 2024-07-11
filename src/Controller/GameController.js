@@ -20,9 +20,6 @@ class GameController {
 
     async getCurrLevel() {
         this.counter -= 1;
-        if (this.counter === 0) {
-            this.gameState = false;
-        }
         return new this.levelList[this.counter]
     }
 
@@ -88,11 +85,11 @@ class GameController {
             this.stopUpdateCycle()
             this.updatePlayersScore();
             this.io.emit('endRound', this.playersScore);
-            if (this.gameState) {
+            // if (this.gameState) {
                 setTimeout(async () => {
                     await this.startGame();
                 }, 2000);
-            }
+            // }
         } catch (err) {
             this.io.emit('error', 'Ошибка остановки игры');
         }
