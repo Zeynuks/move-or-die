@@ -4,10 +4,12 @@ class GameController {
         this.roomName = roomName;
         this.gameService = services.gameService;
         this.playerService = services.playerService;
-        this.levelService = services.levelService;
+        this.levelService = {}
         this.players = {};
         this.levelObjects = [];
         this.level = [];
+        this.levelList = {}
+        // this.counter = 0;
         this.cycleTimer = null;
         this.playersScore = {
             blue: 0,
@@ -17,11 +19,17 @@ class GameController {
         }
     }
 
+    async getCurrLevel() {
+        this.counter -= 1;
+        return new this.levelList[this.counter]
+    }
+
     async isStart(socket) {
         try {
             if (!this.gameState) {
                 // await this.levelService.downloadLevelMap('ColorLevel');
                 // await this.levelService.getMapGrid(this.levelService.size);
+                this.counter = this.levelList.length + 1;
                 await this.startGame()
             } else {
                 this.gameLoad(socket)
@@ -38,6 +46,7 @@ class GameController {
     async startGame() {
         try {
             this.gameState = true
+            this.levelService = await this.getCurrLevel()
             await this.resetGameData();
             await this.levelService.downloadLevelMap('ColorLevel');
             await this.levelService.getMapGrid(this.levelService.size);
@@ -45,7 +54,7 @@ class GameController {
             await this.updateCycle(this.levelObjects);
             setTimeout(async () => {
                 this.endGame();
-            }, 10000);
+            }, 1000);
         } catch (err) {
             this.io.emit('error', 'Ошибка запуска игры');
         }

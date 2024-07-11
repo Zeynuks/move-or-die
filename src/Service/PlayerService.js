@@ -56,10 +56,7 @@ class PlayerService {
         try {
             Object.values(this.players).forEach(player => {
                 if (player.statement) {
-                    if (player.health <= 0) {
-                        player.statement = false;
-                        return;
-                    }
+                    player.statement = player.health <= 0 ? false : player.statement;
                     if (player.x !== this.playerMovement[player.ip] && player.health < 100 && player.onGround) {
                         player.health += 0.6;
                     } else if (player.health > 0) {

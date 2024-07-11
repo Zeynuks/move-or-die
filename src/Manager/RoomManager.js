@@ -17,16 +17,16 @@ class RoomManager {
         if (!this.rooms[roomName]) {
             const services = {
                 roomService: new RoomService(this.roomRepository),
-                playerService: new PlayerService(this.roomRepository),
-                levelService: new LevelColorService(this.roomRepository)
+                playerService: new PlayerService(this.roomRepository)
             }
             this.rooms[roomName] = {
                 roomController: new RoomController(this.io.to(roomName), roomName, services),
                 playerController: new PlayerController(this.io.of('/game').to(roomName), roomName, services),
                 gameController: new GameController(this.io.of('/game').to(roomName), roomName, services),
-                levelController: new LevelController(this.io.of('/game').to(roomName), roomName, services)
+                levelController: new LevelController(this.io.of('/game').to(roomName))
             };
         }
+        this.rooms[roomName].gameController.levelList = this.rooms[roomName].levelController.getLevelList();
         this.rooms[roomName].roomController.createRoom(socket, userName);
     }
 
