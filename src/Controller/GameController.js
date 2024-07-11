@@ -53,7 +53,7 @@ class GameController {
             await this.updateCycle(this.levelObjects);
             setTimeout(async () => {
                 this.endGame();
-            }, 10000);
+            }, 20000);
         } catch (err) {
             this.io.emit('error', 'Ошибка запуска игры');
         }
@@ -101,12 +101,19 @@ class GameController {
                     await this.levelService.updateLevel(this.players, this.levelObjects);
                     await this.playerService.updateHealth(this.players);
                     await this.levelService.updateScore(this.level);
+                    await this.isEndGame();
                     this.io.emit('gameUpdate', this.players, this.level);
                     this.io.emit('levelScore', this.levelService.getLevelScore());
                 }, 1000 / 60);
             }
         } catch (err) {
             this.io.emit('error', 'Ошибка игрового цикла');
+        }
+    }
+
+    async isEndGame() {
+        if (await this.playerService.isAllDie()) {
+            this.endGame();
         }
     }
 

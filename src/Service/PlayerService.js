@@ -69,7 +69,7 @@ class PlayerService {
         }
     }
 
-    async updatePlayersPosition(roomName, gameObjectsGrid) {
+    async updatePlayersPosition() {
         try {
             Object.values(this.players).forEach(player => {
                 this.playerMovement[player.ip] = player.x;
@@ -94,6 +94,14 @@ class PlayerService {
             return color;
         } else {
             return 'grey';
+        }
+    }
+
+    async isAllDie() {
+        try {
+            return Object.values(this.players).every(player => player.statement === false);
+        } catch (error) {
+            console.error('Ошибка проверки игроков: ' + error.message);
         }
     }
 
