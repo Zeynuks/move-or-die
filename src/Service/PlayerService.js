@@ -29,7 +29,7 @@ class PlayerService {
     }
 
     newPlayer(clientIp, userName, x, y, size, color) {
-        return new Player(clientIp, userName, x, y, size, color, true,true, false);
+        return new Player(clientIp, userName, x, y, size, color, true,true);
     }
 
     addPlayerToGame(roomName, userName, clientIp) {
