@@ -10,7 +10,6 @@ let colorArray = ['blue', 'green', 'orange', 'purple'];
 class PlayerService {
     constructor() {
         this.players = {};
-        this.playersStart = {};
         this.playerMovement = {};
     }
 
@@ -25,20 +24,15 @@ class PlayerService {
             player.onGround = true;
             player.vy = 0;
             player.health = 100;
+            player.statement = true
         });
     }
 
-    isStart(clientIp) {
-        this.playersStart[clientIp] = true
-        return Object.values(this.playersStart).every(value => value === true);
-    }
-
     newPlayer(clientIp, userName, x, y, size, color) {
-        return new Player(clientIp, userName, x, y, size, color);
+        return new Player(clientIp, userName, x, y, size, color, true,true, false);
     }
 
     addPlayerToGame(roomName, userName, clientIp) {
-        this.playersStart[clientIp] = false;
         this.players[clientIp] = this.newPlayer(clientIp, userName, 200, 200, 50, this.randomColor());
     }
 
@@ -52,14 +46,16 @@ class PlayerService {
 
     async updateHealth(players) {
         Object.values(players).forEach(player => {
-            if (player.health <= 0) {
-                player.statement = false;
-                return;
-            }
-            if (player.x !== this.playerMovement[player.ip] && player.health < 100 && player.onGround) {
-                player.health += 0.6;
-            } else if (player.health > 0) {
-                player.health -= 0.4;
+            if (player.statement) {
+                if (player.health <= 0) {
+                    player.statement = false;
+                    return;
+                }
+                if (player.x !== this.playerMovement[player.ip] && player.health < 100 && player.onGround) {
+                    player.health += 0.6;
+                } else if (player.health > 0) {
+                    player.health -= 0.4;
+                }
             }
         })
     }

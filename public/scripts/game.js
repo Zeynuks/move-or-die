@@ -2,6 +2,15 @@
 document.addEventListener('DOMContentLoaded', () => {
     socket.emit('playerStart', roomName, userName);
 
+    socket.on('gameLoad', (gamePlayers, levelBlocks) => {
+        players = transformKeys(gamePlayers);
+        blocks = levelBlocks;
+        state = true
+        drawMap();
+        preload();
+        gameLoop();
+    });
+
     socket.on('startRound', (gamePlayers, levelBlocks) => {
         players = transformKeys(gamePlayers);
 
