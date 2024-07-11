@@ -19,15 +19,20 @@ class GameController {
 
     async isStart(socket) {
         try {
-            const state = this.playerService.isStart(socket.handshake.address);
-            if (state) {
-                await this.levelService.downloadLevelMap('ColorLevel');
-                await this.levelService.getMapGrid(this.levelService.size);
+            if (!this.gameState) {
+                // await this.levelService.downloadLevelMap('ColorLevel');
+                // await this.levelService.getMapGrid(this.levelService.size);
                 await this.startGame()
+            } else {
+                this.gameLoad(socket)
             }
         } catch (err) {
             socket.emit('error', 'Ошибка подготовки к игре');
         }
+    }
+
+    gameLoad(socket) {
+        socket.emit('gameLoad', this.players, this.level);
     }
 
     async startGame() {
@@ -69,7 +74,6 @@ class GameController {
 
     endGame() {
         try {
-            this.gameState = false
             this.stopUpdateCycle()
             this.updatePlayersScore();
             this.io.emit('endRound', this.playersScore);
@@ -107,7 +111,7 @@ class GameController {
 
     async resetGameData() {
         this.playerService.resetPlayersData();
-        this.levelService.resetLevelData();
+        await this.levelService.resetLevelData();
         this.players = this.playerService.players;
         this.levelObjects = this.levelService.levelObjects;
         this.level = this.levelService.levelMap;
