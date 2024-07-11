@@ -150,12 +150,36 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        //подгружаем звуки для движения
+        const upMoveSound = new Audio('../sound/up.mp3');
+        const leftMoveSound = new Audio('../sound/move.mp3');
+        const rightMoveSound = new Audio('../sound/move.mp3');
+
+        let sound = null;
         // Отправка данных о движении на сервер
         function sendMovement() {
-            const movementData = {x: 0, jump: false};
-            if (keys['ArrowUp']) movementData.jump = true;
-            if (keys['ArrowLeft']) movementData.x -= 5;
-            if (keys['ArrowRight']) movementData.x += 5;
+            const movementData = { x: 0, y: 0, jump: false };
+
+            // Проверяем нажатие клавиш
+            if (keys['ArrowUp']) {
+                movementData.jump = true;
+                sound = upMoveSound;
+                playSound(sound); // Вызываем функцию для воспроизведения звука
+            }
+            if (keys['ArrowDown']) {
+                movementData.y += 5;
+            }
+            if (keys['ArrowLeft']) {
+                movementData.x -= 5;
+                sound = leftMoveSound;
+                playSound(sound);
+            }
+            if (keys['ArrowRight']) {
+                movementData.x += 5;
+                sound = rightMoveSound;
+                playSound(sound);
+            }
+
             socket.emit('playerMovement', roomName, movementData);
         }
 
@@ -171,24 +195,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         lastServerUpdateTime = Date.now();
     })
-
-    let isDrawing = true; //флаг для разрешения рисования
-
-    socket.on('gameState', (state) => { //если состояние игры "неактивно", то рисование запрещено
-        if (state === 'inactive') {
-            isDrawing = false;
-        }
-    });
-
-    function gameLoop() {
-        if (isDrawing) {
-            if (Object.keys(players).length !== 0) {
-                drawPlayers(); // Рисуем всех игроков
+        function playSound(sound) {
+            // Проверяем, что звук не воспроизводится в данный момент
+            if (!sound.currentTime) {
+                sound.play();
+            } else {
+                // Если звук уже воспроизводится, то перезапускаем его
+                sound.currentTime = 0;
+                sound.play();
             }
+        }
+
+        socket.on('gameStateUpdate', (playersData) => {
+            previousPlayers = players;
+            players = playersData;
+            Object.entries(playersData).forEach(([ip, playerData]) => {
+                players[ip] = {};
+                for (let key in playerData) {
+                    players[ip][key.slice(1)] = playerData[key];
+                }
+            });
+            lastServerUpdateTime = Date.now();
+        })
+
+        function gameLoop() {
+                if (Object.keys(players).length !== 0 ) {
+                    drawPlayers(); // Рисуем всех игроков
+                }
 
             if (state) {
                 requestAnimationFrame(gameLoop); // Планируем следующий кадр игрового цикла
-            }
         }
     }
 
@@ -198,7 +234,6 @@ document.addEventListener('DOMContentLoaded', () => {
             acc[newKey] = (typeof obj[key] === 'object' && obj[key] !== null) ? transformKeys(obj[key]) : obj[key];
             return acc;}, Array.isArray(obj) ? [] : {});
         }
-        // Добавь логику для синхронизации игры через Socket.io
     }
 )
     ;
