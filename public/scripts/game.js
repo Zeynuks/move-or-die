@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('startRound', (gamePlayers, levelBlocks) => {
+        info_box.classList.add('hidden');
         players = transformKeys(gamePlayers);
 
         blocks = levelBlocks;
@@ -22,14 +23,18 @@ document.addEventListener('DOMContentLoaded', () => {
         gameLoop();
     });
 
-    socket.on('endRound', () => {
-        state = false
+    socket.on('endRound', (data) => {
+        state = false;
+        if (info_box.classList.contains('hidden')) {
+            info_box.classList.remove('hidden');
+        }
+        renderWinnerList(data)
     });
 
     socket.on('levelScore', (data) => {
         //console.log(data.blue, data.orange, data.green, data.purple)
         blue_score.textContent = data.blue;
-        orange_score.textContent = data.orange;
+        orange_score.textContent = data.yellow;
         green_score.textContent = data.green;
         purple_score.textContent = data.purple;
     });
@@ -218,13 +223,23 @@ document.addEventListener('DOMContentLoaded', () => {
             lastServerUpdateTime = Date.now();
         })
 
-        function gameLoop() {
-                if (Object.keys(players).length !== 0 ) {
-                    drawPlayers(); // Рисуем всех игроков
-                }
+    function gameLoop() {
+        if (Object.keys(players).length !== 0 ) {
+            drawPlayers(); // Рисуем всех игроков
+        }
 
-            if (state) {
-                requestAnimationFrame(gameLoop); // Планируем следующий кадр игрового цикла
+        if (state) {
+            requestAnimationFrame(gameLoop); // Планируем следующий кадр игрового цикла
+        }
+    }
+
+    function renderWinnerList(winnerlist) {
+        const list = document.getElementById('page__colored-blocks-list');
+        list.innerHTML = ''; // Очищаем список
+        for (const [color, count] of Object.entries(winnerlist)) {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${color}: ${count}`;
+            list.appendChild(listItem);
         }
     }
 
@@ -234,6 +249,6 @@ document.addEventListener('DOMContentLoaded', () => {
             acc[newKey] = (typeof obj[key] === 'object' && obj[key] !== null) ? transformKeys(obj[key]) : obj[key];
             return acc;}, Array.isArray(obj) ? [] : {});
         }
+        // Добавь логику для синхронизации игры через Socket.io
     }
-)
-    ;
+);

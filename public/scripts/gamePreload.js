@@ -55,3 +55,6 @@ function preload() {
     green_player.src = '../images/character_green.png';
     purple_player.src = '../images/character_red.png';
 }
+
+const info_box = document.getElementById('page__info-box');
+info_box.classList.add('hidden');

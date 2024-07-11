@@ -56,10 +56,32 @@ class LevelColorService extends LevelService {
     updateScore(objects) {
         let blue =  objects.filter(block => block.color === 'blue').length;
         let green = objects.filter(block => block.color === 'green').length;
-        let orange = objects.filter(block => block.color === 'orange').length;
+        let yellow = objects.filter(block => block.color === 'orange').length;
         let purple = objects.filter(block => block.color === 'purple').length;
-        let grey = objects.filter(block => block.color === 'grey').length;
-        this.coloredblocks = {blue: blue, green: green, orange: orange, purple: purple}
+        this.coloredblocks = {blue: blue, green: green, yellow: yellow, purple: purple}
+    }
+
+    getStat() {
+        const sortedColoredBlocks = Object.entries(this.coloredblocks)
+            .sort((a, b) => b[1] - a[1])
+            .reduce((result, [key, value]) => ({ ...result, [key]: value }), {});
+
+        let count = 0;
+        let bonus = 5
+        const updatedSortedColoredBlocks = {};
+        for (const color in sortedColoredBlocks) {
+            if (sortedColoredBlocks[color] !== 0) {
+                if (count === 3) {
+                    updatedSortedColoredBlocks[color] = 1;
+                } else {
+                    updatedSortedColoredBlocks[color] = bonus - count * 2;
+                }
+                bonus--;
+                count++;
+            }
+        }
+
+        return updatedSortedColoredBlocks;
     }
 
     getLevelScore() {
