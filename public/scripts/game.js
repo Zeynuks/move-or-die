@@ -1,6 +1,14 @@
 // development.yaml-game/public/scripts/game.js
 const socket = io();
 
+const element = document.getElementById('colorLevelInfo');
+
+// Устанавливаем таймаут на 10 секунд
+setTimeout(function() {
+    // Добавляем свойство "hidden" к элементу
+    element.setAttribute('hidden', '');
+}, 3000);
+
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const roomName = urlParams.get('room');
