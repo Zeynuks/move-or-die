@@ -1,6 +1,3 @@
-// development.yaml-game/public/scripts/game.js
-const socket = io();
-
 const element = document.getElementById('colorLevelInfo');
 
 // Устанавливаем таймаут на 10 секунд
@@ -10,79 +7,46 @@ setTimeout(function() {
 }, 3000);
 
 document.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const roomName = urlParams.get('room');
-    const userName = urlParams.get('name');
+    socket.emit('playerStart', roomName, userName);
 
-    if (!roomName) {
-        window.location.href = '/';
-    }
-
-    document.getElementById('roomName').innerText = `Room: ${roomName}`;
-
-    // Здесь можно добавить логику для инициализации canvas игры
-    const canvas = document.getElementById('gameCanvas');
-    const context = canvas.getContext('2d');
-    canvas.width = 1400;
-    canvas.height = 800;
-
-    let blue_block = new Image();
-    let orange_block = new Image();
-    let green_block = new Image();
-    let purple_block = new Image();
-
-    let blue_player = new Image();
-    let orange_player = new Image();
-    let green_player = new Image();
-    let purple_player = new Image();
-
-    let blue_score = document.getElementById('blue-score');
-    let orange_score = document.getElementById('yellow-score');
-    let green_score = document.getElementById('green-score');
-    let purple_score = document.getElementById('purple-score');
-
-    let grey_block = new Image();
-
-    let players = {};
-    let blocks = [];
-    let previousPlayers = {};
-    let lastUpdateTime = Date.now();
-    let lastServerUpdateTime = Date.now();
-
-    socket.emit('joinRoom', roomName, userName);
-
-
-    socket.emit('preloadGame', roomName, userName);
-
-    socket.on('levelMap', (data) => {
-        blocks = data;
+    socket.on('gameLoad', (gamePlayers, levelBlocks) => {
+        players = transformKeys(gamePlayers);
+        blocks = levelBlocks;
+        state = true
         drawMap();
+        preload();
+        gameLoop();
+    });
+
+    socket.on('startRound', (gamePlayers, levelBlocks) => {
+        info_box.classList.add('hidden');
+        players = transformKeys(gamePlayers);
+
+        blocks = levelBlocks;
+        console.log(players, blocks)
+        state = true
+        drawMap();
+        preload();
+        gameLoop();
+    });
+
+    socket.on('endRound', (data) => {
+        state = false;
+        if (info_box.classList.contains('hidden')) {
+            info_box.classList.remove('hidden');
+        }
+        renderWinnerList(data)
     });
 
     socket.on('levelScore', (data) => {
         //console.log(data.blue, data.orange, data.green, data.purple)
         blue_score.textContent = data.blue;
-        orange_score.textContent = data.orange;
+        orange_score.textContent = data.yellow;
         green_score.textContent = data.green;
         purple_score.textContent = data.purple;
     });
 
-    function preload(roomName) {
-        blue_block.src = '../images/blue-block.png';
-        orange_block.src = '../images/yellow-block.png';
-        green_block.src = '../images/green-block.png';
-        purple_block.src = '../images/purple-block.png';
-        grey_block.src = '../images/grey-block.png';
 
-        blue_player.src = '../images/character_blue.png';
-        orange_player.src = '../images/character_orange.png';
-        green_player.src = '../images/character_green.png';
-        purple_player.src = '../images/character_red.png';
-
-        socket.emit('preload', roomName)
-    }
-
-    // Функция для рисования игровых объектов
     function drawMap() {
         // Проходимся по каждому игровому объекту и рисуем его
         for (let obj of blocks) {
@@ -102,24 +66,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 case 'grey':
                     context.drawImage(grey_block, obj._x, obj._y, obj._size, obj._size);
                     break;
+                }
             }
         }
-    }
 
-    function interpolatePlayer(previous, current, t) {
-        return {
-            x: previous.x + (current.x - previous.x) * t, y: previous.y + (current.y - previous.y) * t
-        };
-    }
+        function drawHealth(player, playerIndex) {
+            if (player.statement) {
+                contextHealth.fillStyle = 'grey';
+            } else {
+                contextHealth.fillStyle = 'red';
+            }
+            contextHealth.fillRect(playerIndex * 55 + 10, 30, 50, 80);
+            contextHealth.fillStyle = player.color;
+            contextHealth.fillRect(playerIndex * 55 + 10, 30, 50 * player.health / 100, 80);
+        }
 
-// Функция экстраполяции для предсказания будущего состояния
-    function extrapolatePlayer(current, t) {
-        return {
-            x: current.x + current.movement.x * t, y: current.y + current.vy * t
-        };
-    }
+        function interpolatePlayer(previous, current, t) {
+            return {
+                x: previous.x + (current.x - previous.x) * t, y: previous.y + (current.y - previous.y) * t
+            };
+        }
 
-
+        // Функция экстраполяции для предсказания будущего состояния
+        function extrapolatePlayer(current, t) {
+            return {
+                x: current.x + current.vx * t, y: current.y + current.vy * t
+            };
+        }
 
         // Функция для рисования всех игроков
         function drawPlayers() {
@@ -127,36 +100,44 @@ document.addEventListener('DOMContentLoaded', () => {
             const t = (now - lastServerUpdateTime) / (1000 / 60);
             // Очищаем весь canvas
             context.clearRect(0, 0, canvas.width, canvas.height);
+            contextHealth.clearRect(0, 0, canvas.width, canvas.height);
             // Рисуем игровые объекты
             // Проходимся по каждому игроку и рисуем его
-            Object.entries(players).forEach(([ip, player]) => {
+            Object.entries(players).forEach(([ip, player], playerIndex) => {
                 const previous = previousPlayers[ip];
                 const current = player;
+                if (state) {
+                    if (previous && current) {
+                        let position;
+                        // Используем интерполяцию, если прошло мало времени с последнего обновления
+                        if (t < 1) {
+                            position = interpolatePlayer(previous, current, t);
+                        } else {
+                            // Используем экстраполяцию, если прошло много времени
+                            position = extrapolatePlayer(current, t - 1);
+                        }
+                        // context.fillStyle = player.color; // Устанавливаем цвет для игрока {В дальнейшем будет открисовываться скин игрока}
+                        context.save();
+                        if (!player.statement) {
+                            context.globalAlpha = 0.3;
+                        }
+                        switch (player.color) {
+                            case 'blue':
+                                context.drawImage(blue_player, position.x, position.y, player.size, player.size);
+                                break;
+                            case 'orange':
+                                context.drawImage(orange_player, position.x, position.y, player.size, player.size);
+                                break;
+                            case 'green':
+                                context.drawImage(green_player, position.x, position.y, player.size, player.size);
+                                break;
+                            case 'purple':
+                                context.drawImage(purple_player, position.x, position.y, player.size, player.size);
+                                break;
+                        }
+                        context.restore();
 
-                if (previous && current) {
-                    let position;
-                    // Используем интерполяцию, если прошло мало времени с последнего обновления
-                    if (t < 1) {
-                        position = interpolatePlayer(previous, current, t);
-                    } else {
-                        // Используем экстраполяцию, если прошло много времени
-                        position = extrapolatePlayer(current, t - 1);
-                    }
-
-                    context.fillStyle = player.color; // Устанавливаем цвет для игрока {В дальнейшем будет открисовываться скин игрока}
-                    switch (player.color) {
-                        case 'blue':
-                            context.drawImage(blue_player, position.x, position.y, player.size, player.size);
-                            break;
-                        case 'orange':
-                            context.drawImage(orange_player, position.x, position.y, player.size, player.size);
-                            break;
-                        case 'green':
-                            context.drawImage(green_player, position.x, position.y, player.size, player.size);
-                            break;
-                        case 'purple':
-                            context.drawImage(purple_player, position.x, position.y, player.size, player.size);
-                            break;
+                        drawHealth(player, playerIndex);
                     }
 
                     drawMap();
@@ -164,18 +145,21 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-
-        const keys = {};
+    const keys = {};
 
         // Обработка нажатий клавиш для управления движением
         window.addEventListener('keydown', (event) => {
-            keys[event.key] = true;
-            sendMovement();
+            if (event.key === 'ArrowUp' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+                keys[event.key] = true;
+                sendMovement();
+            }
         });
 
         window.addEventListener('keyup', (event) => {
-            delete keys[event.key];
-            sendMovement();
+            if (event.key === 'ArrowUp' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+                delete keys[event.key];
+                sendMovement();
+            }
         });
 
         //подгружаем звуки для движения
@@ -211,6 +195,18 @@ document.addEventListener('DOMContentLoaded', () => {
             socket.emit('playerMovement', roomName, movementData);
         }
 
+    socket.on('gameUpdate', (playersData, objectsData) => {
+        previousPlayers = players;
+        players = playersData;
+        blocks = objectsData
+        Object.entries(playersData).forEach(([ip, playerData]) => {
+            players[ip] = {};
+            for (let key in playerData) {
+                players[ip][key.slice(1)] = playerData[key];
+            }
+        });
+        lastServerUpdateTime = Date.now();
+    })
         function playSound(sound) {
             // Проверяем, что звук не воспроизводится в данный момент
             if (!sound.currentTime) {
@@ -234,32 +230,32 @@ document.addEventListener('DOMContentLoaded', () => {
             lastServerUpdateTime = Date.now();
         })
 
-
-        let isDrawing = true; //флаг для разрешения рисования
-
-        socket.on('gameState', (state) => { //если состояние игры "неактивно", то рисование запрещено
-            if (state === 'inactive') {
-                isDrawing = false;
-            }
-        });
-
-        function gameLoop() {
-            if (isDrawing) {
-                if (Object.keys(players).length !== 0 ) {
-                    drawPlayers(); // Рисуем всех игроков
-                }
-
-                requestAnimationFrame(gameLoop); // Планируем следующий кадр игрового цикла
-            }
-
+    function gameLoop() {
+        if (Object.keys(players).length !== 0 ) {
+            drawPlayers(); // Рисуем всех игроков
         }
 
-        preload(roomName);
-        gameLoop();
-
-        // Добавь логику для синхронизации игры через Socket.io
-
+        if (state) {
+            requestAnimationFrame(gameLoop); // Планируем следующий кадр игрового цикла
+        }
     }
 
-)
-    ;
+    function renderWinnerList(winnerlist) {
+        const list = document.getElementById('page__colored-blocks-list');
+        list.innerHTML = ''; // Очищаем список
+        for (const [color, count] of Object.entries(winnerlist)) {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${color}: ${count}`;
+            list.appendChild(listItem);
+        }
+    }
+
+    function transformKeys(obj) {
+        return Object.keys(obj).reduce((acc, key) => {
+            const newKey = key.startsWith('_') ? key.slice(1) : key;
+            acc[newKey] = (typeof obj[key] === 'object' && obj[key] !== null) ? transformKeys(obj[key]) : obj[key];
+            return acc;}, Array.isArray(obj) ? [] : {});
+        }
+        // Добавь логику для синхронизации игры через Socket.io
+    }
+);

@@ -9,7 +9,8 @@ class Player {
         this._collision = collision;
         this._visible = visible;
         this._statement = statement;
-        this._movement = { x: 0, y: 0};
+        this._health = 100;
+        this._vx = 0;
         this._onGround = true;
         this._vy = 0;
     }
@@ -50,8 +51,12 @@ class Player {
         return this._statement;
     }
 
-    get movement() {
-        return this._movement;
+    get health() {
+        return this._health;
+    }
+
+    get vx() {
+        return this._vx;
     }
 
     get onGround() {
@@ -98,8 +103,12 @@ class Player {
         this._statement = value;
     }
 
-    set movement(value) {
-        this._movement = value;
+    set health(value) {
+        this._health = value;
+    }
+
+    set vx(value) {
+        this._vx = value;
     }
 
     set onGround(value) {
@@ -108,6 +117,22 @@ class Player {
 
     set vy(value) {
         this._vy = value;
+    }
+
+    getGrid() {
+        const gridX = Math.floor(this.x / 50);
+        const gridY = Math.floor(this.y / 50);
+        return [
+            [gridY, gridX],
+            [gridY - 1, gridX],
+            [gridY + 1, gridX],
+            [gridY, gridX - 1],
+            [gridY, gridX + 1],
+            [gridY - 1, gridX - 1],
+            [gridY - 1, gridX + 1],
+            [gridY + 1, gridX - 1],
+            [gridY + 1, gridX + 1]
+        ];
     }
 }
 

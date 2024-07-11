@@ -4,8 +4,6 @@ class RoomController {
         this.roomName = roomName;
         this.roomHost = null;
         this.roomService = services.roomService;
-        this.gameService = services.gameService;
-        this.playerService = services.playerService;
     }
 
     async createRoom(socket, userName) {

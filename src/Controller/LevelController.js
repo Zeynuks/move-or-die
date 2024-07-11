@@ -1,67 +1,21 @@
 // src/Controller/LevelController.js
-
-const levelColorService = require('../Service/LevelColorService');
-const fallingBlocksService = require('../Service/FallingBlocksService');
-const LEVEL_ARRAY = ['ColorLevel']
+const levelColorService = require('../Service/Level/LevelColorService');
+const fallingBlocksService = require('../Service/Level/FallingBlocksService');
+const LevelService = require("../Service/LevelService");
+const LEVEL_ARRAY = [levelColorService]
 
 class LevelController {
-    constructor(io, roomRepository, services) {
+    constructor(io) {
         this.io = io;
-        this.roomService = services.roomService;
-        this.gameService = services.gameService;
-        this.playerService = services.playerService;
-        this.levelId = 0;
-        this.levelMap = [];
     }
 
-    changeLevel() {
-        this.levelId = Math.floor(Math.random() * LEVEL_ARRAY.length);
-        console.log('LEVEL:     ', LEVEL_ARRAY[this.levelId])
-        return this.levelId;
-    }
-
-    async getLevel(levelId) {
-        switch (levelId) {
-            case 0:
-                this.levelMap = [];
-                await levelColorService.downloadLevelMap();
-                this.levelMap = levelColorService.getLevelMap();
-                break;
-            case 1:
-                this.levelMap = [];
-                await fallingBlocksService.downloadLevelMap();
-                this.levelMap = fallingBlocksService.getLevelMap();
-                break;
-            default:
-                break;
+    getLevelList() {
+        const shuffled = LEVEL_ARRAY.sort(() => 0.5 - Math.random());
+        const result = [];
+        while (result.length < 10) {
+            result.push(...shuffled);
         }
-    }
-
-    sendLevelMap(roomName) {
-        this.io.emit('levelMap', this.levelMap)
-    }
-
-    getMapGrid(gridSize) {
-        const grid = [];
-        this.levelMap.forEach(obj => {
-            const gridX = Math.floor(obj.x / gridSize);
-            const gridY = Math.floor(obj.y / gridSize);
-            if (!grid[gridY]) grid[gridY] = [];
-            if (!grid[gridY][gridX]) grid[gridY][gridX] = [];
-            grid[gridY][gridX].push(obj);
-        });
-        return grid;
-    }
-
-    updateLevel() {
-        switch (this.levelId) {
-            case 0:
-                levelColorService.countColoredBlocks();
-                this.io.emit('levelScore', levelColorService.getColoredBlocks())
-                break;
-            default:
-                break;
-        }
+        return result.slice(0, 10);
     }
 }
 

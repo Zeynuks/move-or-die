@@ -1,9 +1,9 @@
 const RoomController = require('../Controller/RoomController');
 const PlayerController = require('../Controller/PlayerController');
 const GameController = require('../Controller/GameController');
-const GameService = require("../Service/GameService");
 const RoomService = require("../Service/RoomService");
 const PlayerService = require("../Service/PlayerService");
+const LevelColorService = require("../Service/Level/LevelColorService");
 const LevelController = require("../Controller/LevelController");
 
 class RoomManager {
@@ -16,17 +16,17 @@ class RoomManager {
     createRoom(socket, roomName, userName) {
         if (!this.rooms[roomName]) {
             const services = {
-                gameService: new GameService(this.roomRepository),
                 roomService: new RoomService(this.roomRepository),
                 playerService: new PlayerService(this.roomRepository)
             }
             this.rooms[roomName] = {
                 roomController: new RoomController(this.io.to(roomName), roomName, services),
-                playerController: new PlayerController(this.io.to(roomName), roomName, services),
-                gameController: new GameController(this.io.to(roomName), roomName, services),
-                levelController: new LevelController(this.io.to(roomName), roomName, services)
+                playerController: new PlayerController(this.io.of('/game').to(roomName), roomName, services),
+                gameController: new GameController(this.io.of('/game').to(roomName), roomName, services),
+                levelController: new LevelController(this.io.of('/game').to(roomName))
             };
         }
+        this.rooms[roomName].gameController.levelList = this.rooms[roomName].levelController.getLevelList();
         this.rooms[roomName].roomController.createRoom(socket, userName);
     }
 
@@ -46,18 +46,15 @@ class RoomManager {
         }
     }
 
-    gameEvent(socket, roomName, eventData, callback) {
-        if (this.rooms[roomName]) {
-            this.rooms[roomName].gameController.update(roomName, eventData);
-            if (callback) callback();
-        } else {
-            socket.emit('error', 'Room does not exist');
-        }
-    }
-
     disconnect(socket) {
         for (let roomName in this.rooms) {
             this.rooms[roomName].roomController.disconnect(socket);
+        }
+    }
+
+    gameDisconnect(socket) {
+        for (let roomName in this.rooms) {
+            this.rooms[roomName].playerController.disconnect(socket);
         }
     }
 
@@ -69,28 +66,17 @@ class RoomManager {
 
     handleMove(socket, roomName, moveData) {
         if (this.rooms[roomName]) {
-            this.rooms[roomName].playerController.handleMovePlayer(moveData, socket);
+            this.rooms[roomName].playerController.handleMovePlayer(socket, moveData);
         }
     }
 
-    updateState(roomName) {
-        const gameObjectsGrid = this.rooms[roomName].levelController.getMapGrid(50);
-        this.rooms[roomName].levelController.sendLevelMap(roomName);
-        if (gameObjectsGrid.length === 0) return;
-        this.rooms[roomName].gameController.updateState(roomName, gameObjectsGrid);
-        if (this.rooms[roomName].gameController.gameState === 'active') {
-            this.rooms[roomName].levelController.updateLevel(roomName);
-        }
-    }
-
-    async preloadGame(roomName, socket, userName) {
+    playerStart(socket, roomName, userName) {
         if (this.rooms[roomName]) {
-            await this.rooms[roomName].levelController.getLevel(this.rooms[roomName].levelController.changeLevel());
-            await this.rooms[roomName].playerController.addPlayerToGame(socket, userName)
-            this.rooms[roomName].levelController.sendLevelMap(roomName);
-            this.rooms[roomName].gameController.startGame();
+            this.rooms[roomName].playerController.addPlayerToGame(socket, userName);
+            this.rooms[roomName].gameController.isStart(socket);
         }
     }
+
 }
 
 module.exports = RoomManager;
