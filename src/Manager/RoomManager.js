@@ -4,6 +4,7 @@ const GameController = require('../Controller/GameController');
 const RoomService = require("../Service/RoomService");
 const PlayerService = require("../Service/PlayerService");
 const LevelColorService = require("../Service/Level/LevelColorService");
+const BombTagService = require("../Service/Level/BombTagService")
 const LevelController = require("../Controller/LevelController");
 
 class RoomManager {

@@ -26,40 +26,6 @@ class LevelController {
         const [levelService] = this.changeLevel();
         this.currLevel = new levelService;
     }
-
-
-    async getLevel(levelId) {
-        switch (levelId) {
-            case 0:
-                this.levelMap = [];
-                await levelColorService.downloadLevelMap();
-                this.levelMap = levelColorService.getLevelMap();
-                break;
-            case 1:
-                this.levelMap = [];
-                console.log('this')
-                await fallingBlocksService.downloadLevelMap();
-                this.levelMap = fallingBlocksService.getLevelMap();
-                break;
-            default:
-                break;
-        }
-    }
-
-    sendLevelMap() {
-        this.io.emit('levelMap', this.levelMap)
-    }
-
-    updateLevel() {
-        switch (this.levelId) {
-            case 0:
-                levelColorService.countColoredBlocks();
-                this.io.emit('levelScore', levelColorService.getColoredBlocks())
-                break;
-            default:
-                break;
-        }
-    }
 }
 
 module.exports = LevelController;

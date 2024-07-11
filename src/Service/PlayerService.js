@@ -73,14 +73,13 @@ class PlayerService {
 
 
     randomColor() {
-        if (colorArray.length != 0) {
-            let colorInd = Math.floor(Math.random() * colorArray.length);
-            let color = colorArray[colorInd];
-            colorArray.splice(colorInd, 1);
-            return color;
-        } else {
-            return 'grey';
+        let colorInd = Math.floor(Math.random() * colorArray.length);
+        let color = colorArray[colorInd];
+        colorArray.splice(colorInd, 1);
+        if (colorArray.length === 0) {
+            colorArray = ['blue', 'green', 'orange', 'purple'];
         }
+        return color;
     }
 }
 

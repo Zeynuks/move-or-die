@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
 
     function gameLoop() {
-        if (Object.keys(players).length !== 0 ) {
+        if (Object.keys(players).length !== 0) {
             drawPlayers(); // Рисуем всех игроков
         }
 

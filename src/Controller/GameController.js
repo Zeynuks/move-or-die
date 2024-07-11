@@ -39,7 +39,7 @@ class GameController {
         try {
             this.gameState = true
             await this.resetGameData();
-            await this.levelService.downloadLevelMap('ColorLevel');
+            await this.levelService.downloadLevelMap(this.levelService.levelName);
             await this.levelService.getMapGrid(this.levelService.size);
             this.io.emit('startRound', this.players, this.level);
             await this.updateCycle(this.levelObjects);
@@ -111,7 +111,7 @@ class GameController {
 
     async resetGameData() {
         this.playerService.resetPlayersData();
-        await this.levelService.resetLevelData();
+        await this.levelService.resetLevelData(this.levelService.levelName);
         this.players = this.playerService.players;
         this.levelObjects = this.levelService.levelObjects;
         this.level = this.levelService.levelMap;
