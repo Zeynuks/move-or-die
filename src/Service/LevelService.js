@@ -46,8 +46,8 @@ class LevelService {
         });
     }
 
-    async resetLevelData() {
-        await this.downloadLevelMap('ColorLevel');
+    async resetLevelData(levelName) {
+        await this.downloadLevelMap(levelName);
         await this.getMapGrid(this.size);
     }
 

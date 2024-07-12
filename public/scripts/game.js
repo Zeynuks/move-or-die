@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.on('gameLoad', (gamePlayers, levelBlocks) => {
         players = transformKeys(gamePlayers);
-        blocks = levelBlocks;
+        blocks = transformKeys(levelBlocks);
         state = true
         drawMap();
         preload();
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
         info_box.classList.add('hidden');
         players = transformKeys(gamePlayers);
 
-        blocks = levelBlocks;
+        blocks = transformKeys(levelBlocks);
         console.log(players, blocks)
         state = true
         drawMap();
@@ -43,21 +43,21 @@ document.addEventListener('DOMContentLoaded', () => {
     function drawMap() {
         // Проходимся по каждому игровому объекту и рисуем его
         for (let obj of blocks) {
-            switch (obj._color) {
+            switch (obj.color) {
                 case 'blue':
-                    context.drawImage(blue_block, obj._x, obj._y, obj._size, obj._size);
+                    context.drawImage(blue_block, obj.x, obj.y, obj.size, obj.size);
                     break;
                 case 'orange':
-                    context.drawImage(orange_block, obj._x, obj._y, obj._size, obj._size);
+                    context.drawImage(orange_block, obj.x, obj.y, obj.size, obj.size);
                     break;
                 case 'green':
-                    context.drawImage(green_block, obj._x, obj._y, obj._size, obj._size);
+                    context.drawImage(green_block, obj.x, obj.y, obj.size, obj.size);
                     break;
                 case 'purple':
-                    context.drawImage(purple_block, obj._x, obj._y, obj._size, obj._size);
+                    context.drawImage(purple_block, obj.x, obj.y, obj.size, obj.size);
                     break;
                 case 'grey':
-                    context.drawImage(grey_block, obj._x, obj._y, obj._size, obj._size);
+                    context.drawImage(grey_block, obj.x, obj.y, obj.size, obj.size);
                     break;
                 }
             }
@@ -91,25 +91,19 @@ document.addEventListener('DOMContentLoaded', () => {
         function drawPlayers() {
             const now = Date.now();
             const t = (now - lastServerUpdateTime) / (1000 / 60);
-            // Очищаем весь canvas
             context.clearRect(0, 0, canvas.width, canvas.height);
             contextHealth.clearRect(0, 0, canvas.width, canvas.height);
-            // Рисуем игровые объекты
-            // Проходимся по каждому игроку и рисуем его
             Object.entries(players).forEach(([ip, player], playerIndex) => {
                 const previous = previousPlayers[ip];
                 const current = player;
                 if (state) {
                     if (previous && current) {
                         let position;
-                        // Используем интерполяцию, если прошло мало времени с последнего обновления
                         if (t < 1) {
                             position = interpolatePlayer(previous, current, t);
                         } else {
-                            // Используем экстраполяцию, если прошло много времени
                             position = extrapolatePlayer(current, t - 1);
                         }
-                        // context.fillStyle = player.color; // Устанавливаем цвет для игрока {В дальнейшем будет открисовываться скин игрока}
                         context.save();
                         if (!player.statement) {
                             context.globalAlpha = 0.3;
@@ -190,8 +184,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.on('gameUpdate', (playersData, objectsData) => {
         previousPlayers = players;
-        players = playersData;
-        blocks = objectsData
+        // players = playersData;
+        blocks = transformKeys(objectsData);
         Object.entries(playersData).forEach(([ip, playerData]) => {
             players[ip] = {};
             for (let key in playerData) {
