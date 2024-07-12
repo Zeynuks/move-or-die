@@ -10,6 +10,7 @@ class GameController {
         this.level = [];
         this.levelList = {}
         this.cycleTimer = null;
+        this.gameState = false;
         this.playersScore = {
             blue: 0,
             green: 0,
@@ -26,8 +27,7 @@ class GameController {
     async isStart(socket) {
         try {
             if (!this.gameState) {
-                // await this.levelService.downloadLevelMap('ColorLevel');
-                // await this.levelService.getMapGrid(this.levelService.size);
+                this.gameState = true
                 this.counter = this.levelList.length;
                 await this.startGame();
             } else {
@@ -45,11 +45,8 @@ class GameController {
     async startGame() {
         try {
             setTimeout(async () => {
-                this.gameState = true
                 this.levelService = await this.getCurrLevel()
                 await this.setGameData();
-                // await this.levelService.downloadLevelMap('ColorLevel');
-                // await this.levelService.getMapGrid(this.levelService.size);
                 this.io.emit('startRound', this.players, this.level);
                 await this.updateCycle(this.levelObjects);
                 setTimeout(async () => {
