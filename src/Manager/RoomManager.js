@@ -4,7 +4,6 @@ const GameController = require('../Controller/GameController');
 const RoomService = require("../Service/RoomService");
 const PlayerService = require("../Service/PlayerService");
 const LevelColorService = require("../Service/Level/LevelColorService");
-const BombTagService = require("../Service/Level/BombTagService")
 const LevelController = require("../Controller/LevelController");
 
 class RoomManager {
@@ -18,16 +17,16 @@ class RoomManager {
         if (!this.rooms[roomName]) {
             const services = {
                 roomService: new RoomService(this.roomRepository),
-                playerService: new PlayerService(this.roomRepository),
-                levelService: new LevelColorService(this.roomRepository)
+                playerService: new PlayerService(this.roomRepository)
             }
             this.rooms[roomName] = {
                 roomController: new RoomController(this.io.to(roomName), roomName, services),
                 playerController: new PlayerController(this.io.of('/game').to(roomName), roomName, services),
                 gameController: new GameController(this.io.of('/game').to(roomName), roomName, services),
-                levelController: new LevelController(this.io.of('/game').to(roomName), roomName, services)
+                levelController: new LevelController(this.io.of('/game').to(roomName))
             };
         }
+        this.rooms[roomName].gameController.levelList = this.rooms[roomName].levelController.getLevelList();
         this.rooms[roomName].roomController.createRoom(socket, userName);
     }
 
@@ -53,6 +52,12 @@ class RoomManager {
         }
     }
 
+    gameDisconnect(socket) {
+        for (let roomName in this.rooms) {
+            this.rooms[roomName].playerController.disconnect(socket);
+        }
+    }
+
     closeAllRooms() {
         for (let roomName in this.rooms) {
             this.rooms[roomName].roomController.closeAllRooms();
@@ -67,7 +72,6 @@ class RoomManager {
 
     playerStart(socket, roomName, userName) {
         if (this.rooms[roomName]) {
-            console.log('isStart')
             this.rooms[roomName].playerController.addPlayerToGame(socket, userName);
             this.rooms[roomName].gameController.isStart(socket);
         }

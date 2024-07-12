@@ -31,15 +31,14 @@ body.page {
 }
 
 .health__canvas {
-    border: 2px solid #000000;
     width: 60vw;
-    background-image: url("../images/game.png");
     background-size: cover;
     height: calc(1 / 30 * 60vw);
 }
 
 .page__container {
     display: flex;
+    position: relative;
 }
 
 .page__score-box {
@@ -67,7 +66,7 @@ body.page {
     background-color: #21242a;
     border-left: 2px solid #000000;
     border-right: 2px solid #000000;
-    top: 15vw;
+    top: 5vw;
 }
 
 #page__colored-blocks-list li{
@@ -113,3 +112,12 @@ body.page {
     to { bottom: 0; opacity: 0; }
 }
 
+
+.colorLevelInfoImg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 60vw;
+    height: calc(4 / 7 * 60vw);
+    border: 2px solid #000000;
+}

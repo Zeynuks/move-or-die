@@ -1,46 +1,47 @@
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 const dotenv = require('dotenv');
 
 dotenv.config();
 
 class MapRepository {
     constructor() {
-        this.connection = mysql.createConnection({
+        this.connection = mysql.createPool({
             host: process.env.DB_HOST,
             user: process.env.DB_USER,
             password: process.env.DB_PASSWORD,
             database: process.env.DB_NAME,
         });
-        this.connection.connect((err) => {
-            if (err) {
-                console.error('Error connecting to database:', err);
+        this.initialize();
+    }
+
+    async initialize() {
+        try {
+            const connection = await this.connection.getConnection();
+            connection.release();
+        } catch (error) {
+            throw new Error('Ошибка инициализации базы данных: ' + error.message);
+        }
+    }
+
+    async findMapByLevelName(levelName) {
+        try {
+            const [results] = await this.connection.query('SELECT level_map FROM map WHERE level_name = ?', [levelName]);
+            if (results.length > 0) {
+                return results[0].level_map;
             } else {
-                console.log('Connected to MySQL database');
-                this.connection.query('TRUNCATE TABLE room', (err) => {
-                    if (err) console.error('Error truncating map table:', err);
-                });
+                throw new Error('Данные не найдены');
             }
-        });
+        } catch (error) {
+            throw new Error('Ошибка поиска карты по названию уровня: ' + error.message);
+        }
     }
 
-    disconnect(callback) {
-        this.connection.end(callback);
-    }
-
-    findMapByLevelName(levelName) {
-        return new Promise((resolve, reject) => {
-            this.connection.query('SELECT level_map FROM map WHERE level_name = ?', [levelName], (error, results, fields) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                if (results.length > 0) {
-                    resolve(results[0].level_map);
-                } else {
-                    reject('Данные не найдены');
-                }
-            });
-        });
+    async disconnect() {
+        try {
+            await this.connection.end();
+        } catch (error) {
+            throw new Error('Ошибка отключения от базы данных: ' + error.message);
+        }
     }
 }
 

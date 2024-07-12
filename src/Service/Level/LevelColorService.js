@@ -6,10 +6,6 @@ class LevelColorService extends LevelService {
         this.coloredblocks = {};
     }
 
-    getColoredBlocks() {
-        return this.coloredblocks;
-    }
-
     // Раскраска блоков при приближении
     paintBlock(player, cellsToCheck, objects) {
         for (let [y, x] of cellsToCheck) {

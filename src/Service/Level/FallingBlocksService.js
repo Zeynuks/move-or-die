@@ -1,41 +1,57 @@
-const playerService = require('../PlayerService');
-const Block = require("../../Entity/Block");
-const MapRepository = require("../../Repository/MapRepository");
-let coordArray = [[6, 4], [23, 4], [4, 15], [25, 15]]
+const LevelService = require("../LevelService");
+const FallingBlock = require("../Entity/FallingBlock");
+const GRAVITY = 0.5;
 
-class FallingBlocksService {
+class FallingBlocksService extends LevelService {
     constructor() {
-        this.levelMap = [];
+        super();
         this.levelName = 'FallingBlocks';
-        this.mapRepository = new MapRepository();
+        this.fallingBlocks = {};
+        this.complexity = 20;
         this.size = 50;
+        this.setFallingBlocks();
+        console.log(this.fallingBlocks);
     }
 
-    async downloadLevelMap() {
-        try {
-            const map = await this.mapRepository.findMapByLevelName(this.levelName);
-            this._setMap(map);
-            console.log('Map downloaded');
-            return this.levelMap;
-        } catch (error) {
-            console.error('Ошибка:', error);
+    updateLevel(players, objects) {
+        Object.values(players).forEach(player => {
+            this.checkCellsCollision(player, player.getGrid(), objects);
+        });
+        this.fallingBlocksMovement();
+    }
+
+    setFallingBlocks() {
+        for (let i = 0; i < this.complexity; i++){
+            let x = Math.floor(Math.random() * 1300);
+            let y = Math.floor(Math.random() * -300);
+            this.fallingBlocks.push(new FallingBlock(x * this.size, y * this.size, this.size));
         }
     }
 
-    _setMap(map) {
-        this.levelMap = [];
-        for(let i = 0; i < map.length; i++){
-            let col = map[i];
-            for(let j = 0; j < col.length; j++) {
-                if (map[i][j] === 'X') {
-                    this.levelMap.push(new Block(j * this.size, i * this.size, this.size));
-                }
+    fallingBlocksMovement() {
+        for (let i = 0; i < this.fallingBlocks.length; i++){
+            this.fallingBlocks[i].vy += GRAVITY;
+            this.fallingBlocks[i].y += this.fallingBlocks[i].vy;
+            if (this.fallingBlocks[i].y >= 800)  {
+                this.fallingBlocks.slice(i, 1);
             }
         }
     }
 
-    getLevelMap(map) {
-        return this.levelMap;
+    getSpecialObjects() {
+        return this.fallingBlocks;
+    }
+
+    updateScore(objects) {
+
+    }
+
+    getStat() {
+        return {blue: 0, green: 0, yellow: 0, purple: 0}
+    }
+
+    getLevelScore() {
+        return {blue: 0, green: 0, yellow: 0, purple: 0}
     }
 }
 

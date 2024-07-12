@@ -100,6 +100,10 @@ class LevelService {
             player.vx = 0;
         }
     }
+
+    getSpecialObjects() {
+        return [];
+    }
 }
 
 module.exports = LevelService;
