@@ -6,7 +6,6 @@ class LevelColorService extends LevelService {
         this.coloredblocks = {};
     }
 
-    // Раскраска блоков при приближении
     paintBlock(player, cellsToCheck, objects) {
         for (let [y, x] of cellsToCheck) {
             if (objects[y] && objects[y][x]) {
@@ -21,7 +20,7 @@ class LevelColorService extends LevelService {
     }
 
     checkProximity(player, obj) {
-        const proximityDistance = 2; // Расстояние до объекта для изменения цвета
+        const proximityDistance = 1;
         return (
             player.x < obj.x + obj.size + proximityDistance &&
             player.x + player.size > obj.x - proximityDistance &&
