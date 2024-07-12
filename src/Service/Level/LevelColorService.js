@@ -6,20 +6,6 @@ class LevelColorService extends LevelService {
         this.coloredblocks = {};
     }
 
-    getStat() {
-        let blue = this.levelMap.filter(block => block.color === 'blue').length;
-        let green = this.levelMap.filter(block => block.color === 'green').length;
-        let orange = this.levelMap.filter(block => block.color === 'orange').length;
-        let purple = this.levelMap.filter(block => block.color === 'purple').length;
-        let grey = this.levelMap.filter(block => block.color === 'grey').length;
-        console.log(blue, green, orange, purple, grey);
-        this.coloredblocks = {blue: blue, green: green, orange: orange, purple: purple}
-    }
-
-    getColoredBlocks() {
-        return this.coloredblocks;
-    }
-
     // Раскраска блоков при приближении
     paintBlock(player, cellsToCheck, objects) {
         for (let [y, x] of cellsToCheck) {

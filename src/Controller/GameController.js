@@ -128,8 +128,9 @@ class GameController {
 
     async setGameData() {
         await this.playerService.resetPlayersData();
-        await this.levelService.resetLevelData();
+        await this.levelService.resetLevelData(this.levelService.levelName);
         this.players = this.playerService.players;
+        console.log(this.players);
         this.levelObjects = this.levelService.levelObjects;
         this.level = this.levelService.levelMap;
     }
