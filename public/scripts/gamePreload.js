@@ -29,6 +29,8 @@ let orange_player = new Image();
 let green_player = new Image();
 let purple_player = new Image();
 
+let killing_block = new Image();
+
 let blue_score = document.getElementById('blue-score');
 let orange_score = document.getElementById('yellow-score');
 let green_score = document.getElementById('green-score');
@@ -39,6 +41,7 @@ let grey_block = new Image();
 let state = false
 let players = {};
 let blocks = [];
+let specialObjects = [];
 let previousPlayers = {};
 let lastUpdateTime = Date.now();
 let lastServerUpdateTime = Date.now();
@@ -54,6 +57,8 @@ function preload() {
     orange_player.src = '../images/character_orange.png';
     green_player.src = '../images/character_green.png';
     purple_player.src = '../images/character_red.png';
+
+    killing_block.src = '../images/DeathSheet.png'
 }
 
 const info_box = document.getElementById('page__info-box');

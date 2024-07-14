@@ -46,6 +46,18 @@ class LevelService {
         });
     }
 
+    getObjectsGrid(objects) {
+        const grid = [];
+        objects.forEach(obj => {
+            const gridX = Math.floor(obj.x / this.size);
+            const gridY = Math.floor(obj.y / this.size);
+            if (!grid[gridY]) grid[gridY] = [];
+            if (!grid[gridY][gridX]) grid[gridY][gridX] = [];
+            grid[gridY][gridX].push(obj);
+        });
+        return grid;
+    }
+
     async resetLevelData(levelName) {
         await this.downloadLevelMap(levelName);
         await this.getMapGrid(this.size);

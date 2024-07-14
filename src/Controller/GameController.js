@@ -8,6 +8,7 @@ class GameController {
         this.players = {};
         this.levelObjects = [];
         this.level = [];
+        this.specialObjects = [];
         this.levelList = {}
         this.cycleTimer = null;
         this.gameState = false;
@@ -103,7 +104,7 @@ class GameController {
                     await this.playerService.updateHealth(this.players);
                     await this.levelService.updateScore(this.level);
                     // await this.isEndGame();
-                    this.io.emit('gameUpdate', this.players, this.level);
+                    this.io.emit('gameUpdate', this.players, this.level, this.specialObjects);
                     this.io.emit('levelScore', this.levelService.getLevelScore());
                 }, 1000 / 60);
             }
@@ -125,6 +126,7 @@ class GameController {
         this.players = this.playerService.players;
         this.levelObjects = this.levelService.levelObjects;
         this.level = this.levelService.levelMap;
+        this.specialObjects = this.levelService.getSpecialObjects();
     }
 }
 

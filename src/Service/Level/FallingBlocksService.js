@@ -1,39 +1,80 @@
 const LevelService = require("../LevelService");
-const FallingBlock = require("../Entity/FallingBlock");
-const GRAVITY = 0.5;
+const FallingBlock = require("../../Entity/FallingBlock");
+const GRAVITY = 0.08;
 
 class FallingBlocksService extends LevelService {
     constructor() {
         super();
         this.levelName = 'FallingBlocks';
-        this.fallingBlocks = {};
-        this.complexity = 20;
+        this.fallingBlocks = [];
+        this.complexity = 26;
         this.size = 50;
         this.setFallingBlocks();
-        console.log(this.fallingBlocks);
     }
+
+    paintBlock(player, cellsToCheck, objects) {
+        console.log( objects)
+        for (let [y, x] of cellsToCheck) {
+            if (objects[y] && objects[y][x]) {
+                for (let obj of objects[y][x]) {
+                    //console.log(obj)
+                    let proximity = this.checkProximity(player, obj);
+                    if (proximity) {
+                        player.health = 0;
+                    }
+                }
+            }
+        }
+    }
+
+    checkProximity(player, obj) {
+        const proximityDistance = 2; // Расстояние до объекта для изменения цвета
+        return (
+            player.x < obj.x + obj.size + proximityDistance &&
+            player.x + player.size > obj.x - proximityDistance &&
+            player.y < obj.y + obj.size + proximityDistance &&
+            player.y + player.size > obj.y - proximityDistance
+        );
+    }
+
 
     updateLevel(players, objects) {
         Object.values(players).forEach(player => {
+            if (player.statement) {
+                this.paintBlock(player, player.getGrid(), this.getObjectsGrid(this.fallingBlocks));
+            }
             this.checkCellsCollision(player, player.getGrid(), objects);
         });
         this.fallingBlocksMovement();
     }
 
+    // isKilling(player) {
+    //     let collision = false;
+    //     this.fallingBlocks.forEach(block => {
+    //         collision = this.checkCollision(player, block);
+    //     })
+    //     return collision
+    // }
+
     setFallingBlocks() {
+        let x = -this.size;
         for (let i = 0; i < this.complexity; i++){
-            let x = Math.floor(Math.random() * 1300);
-            let y = Math.floor(Math.random() * -300);
-            this.fallingBlocks.push(new FallingBlock(x * this.size, y * this.size, this.size));
+            x += this.size;
+            let y = Math.floor(Math.random() * -2000);
+            this.fallingBlocks.push(new FallingBlock(x + this.size, y -this.size, this.size));
         }
     }
 
     fallingBlocksMovement() {
         for (let i = 0; i < this.fallingBlocks.length; i++){
-            this.fallingBlocks[i].vy += GRAVITY;
+            if (this.fallingBlocks[i].y <= this.size) {
+                this.fallingBlocks[i].vy = 5;
+            } else {
+                this.fallingBlocks[i].vy += GRAVITY;
+            }
             this.fallingBlocks[i].y += this.fallingBlocks[i].vy;
             if (this.fallingBlocks[i].y >= 800)  {
-                this.fallingBlocks.slice(i, 1);
+                this.fallingBlocks[i].y = -this.size + Math.floor(Math.random() * -2000);
             }
         }
     }

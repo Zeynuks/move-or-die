@@ -1,26 +1,8 @@
 const Block = require("./Block");
 
 class KillingBlock extends Block {
-    constructor() {
-        super();
-        this._vx = 0;
-        this._vy = 0;
-    }
-
-    get vx() {
-        return this._vx;
-    }
-
-    get vy() {
-        return this._vy;
-    }
-
-    set vx(value) {
-        this._vx = value;
-    }
-
-    set vy(value) {
-        this._vy = value;
+    constructor(x, y, size) {
+        super(x, y, size, 'KillingBlock.png');
     }
 
     getGrid() {

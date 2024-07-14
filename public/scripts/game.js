@@ -135,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     drawMap();
+                    drawSpecialObjects();
                 }
             });
         }
@@ -189,10 +190,12 @@ document.addEventListener('DOMContentLoaded', () => {
             socket.emit('playerMovement', roomName, movementData);
         }
 
-    socket.on('gameUpdate', (playersData, objectsData) => {
+    socket.on('gameUpdate', (playersData, objectsData, specialObjectsData) => {
         previousPlayers = players;
         // players = playersData;
         blocks = transformKeys(objectsData);
+        specialObjects = transformKeys(specialObjectsData);
+        console.log(specialObjectsData);
         Object.entries(playersData).forEach(([ip, playerData]) => {
             players[ip] = {};
             for (let key in playerData) {
@@ -241,6 +244,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const listItem = document.createElement('li');
             listItem.textContent = `${color}: ${count}`;
             list.appendChild(listItem);
+        }
+    }
+
+    function drawSpecialObjects() {
+        for (let obj of specialObjects) {
+            context.drawImage(killing_block, obj.x, obj.y, obj.size, obj.size);
         }
     }
 
