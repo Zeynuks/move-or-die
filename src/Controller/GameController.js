@@ -116,6 +116,7 @@ class GameController {
 
     async isRoundEnd() {
         if (await this.playerService.isAllDie() || this.players.length === 0) {
+            this.levelService.isEnd = true;
             this.stopGameCycle()
             this.endRound();
         }
