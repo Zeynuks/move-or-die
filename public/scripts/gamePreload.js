@@ -54,7 +54,7 @@ function preload() {
     grey_block.src = '../images/grey-block.png';
 
     blue_player.src = '../images/character_blue.png';
-    yellow_player.src = '../images/character_orange.png';
+    yellow_player.src = '../images/character_yellow.png';
     green_player.src = '../images/character_green.png';
     purple_player.src = '../images/character_red.png';
 

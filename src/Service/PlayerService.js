@@ -1,12 +1,13 @@
 const Player = require("../Entity/Player");
 const GRAVITY = 0.5;
 const JUMP_FORCE = -13;
-let colorArray = ['blue', 'green', 'orange', 'purple'];
+let colorArray = ['blue', 'green', 'yellow', 'purple'];
 
 class PlayerService {
     constructor() {
         this.players = {};
         this.playerMovement = {};
+        this.leftPlayers = {};
     }
 
     async resetPlayersData() {
@@ -34,7 +35,16 @@ class PlayerService {
 
     async addPlayerToGame(roomName, userName, clientIp) {
         try {
-            this.players[clientIp] = this.newPlayer(clientIp, userName, 200, 200, 50, this.randomColor());
+            console.log('connect');
+            if (this.leftPlayers[clientIp] === undefined) {
+                console.log('new - ', this.leftPlayers[clientIp], this.players[clientIp]);
+                this.players[clientIp] = this.newPlayer(clientIp, userName, 200, 200, 50, this.randomColor());
+            } else {
+                console.log('last - ', this.leftPlayers[clientIp], this.players[clientIp]);
+                this.players[clientIp] = this.leftPlayers[clientIp];
+                delete this.leftPlayers[clientIp];
+                console.log(this.leftPlayers);
+            }
         } catch (error) {
             console.error('Ошибка добавления игрока в игру: ' + error.message);
         }
@@ -73,7 +83,7 @@ class PlayerService {
         try {
             Object.values(this.players).forEach(player => {
                 this.playerMovement[player.ip] = player.x;
-                player.applyPhysics()
+                player.applyPhysics();
             });
         } catch (error) {
             console.error('Ошибка обновления позиций игроков: ' + error.message);
@@ -86,7 +96,7 @@ class PlayerService {
         colorArray.splice(colorInd, 1);
 
         if (colorArray.length === 0) {
-            colorArray = ['blue', 'green', 'orange', 'purple'];
+            colorArray = ['blue', 'green', 'yellow', 'purple'];
         }
 
         return color;
@@ -102,6 +112,8 @@ class PlayerService {
 
     async disconnect(clientIp) {
         try {
+            this.leftPlayers[clientIp] = this.players[clientIp];
+            console.log('disconnect')
             delete this.players[clientIp];
         } catch (error) {
             console.error('Ошибка отключения: ' + error.message);

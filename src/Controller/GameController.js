@@ -46,7 +46,7 @@ class GameController {
 
     async startRound() {
         try {
-           setTimeout(async () => {
+            setTimeout(async () => {
                 this.levelService = await this.getCurrLevel()
                 await this.setGameData();
                 this.io.emit('startRound', this.players, this.level);
@@ -63,19 +63,15 @@ class GameController {
     updatePlayersScore() {
         const score = this.levelService.getStat(this.players);
         const total = {};
-
         for (const color in this.playersScore) {
             total[color] = (this.playersScore[color] || 0) + (score[color] || 0);
         }
-
         this.playersScore = total;
         this.sortPlayersScore();
     }
 
     sortPlayersScore() {
-        const tmp = this.playersScore;
-
-        this.playersScore = Object.entries(tmp)
+        this.playersScore = Object.entries(this.playersScore)
             .sort((a, b) => b[1] - a[1])
             .reduce((result, [key, value]) => ({...result, [key]: value}), {});
     }
