@@ -43,7 +43,7 @@ class BombTagService extends LevelService {
     setBombTimer() {
         clearTimeout(this.bombTimer);
         this.bombTimer = setTimeout(() => {
-            if (!this.bombPlayer || !this.bombPlayer.statement) return;
+            if (!this.bombPlayer || !this.bombPlayer.statement || !this.isEnd) return;
             this.io.emit('explode', {x: this.bombPlayer.x, y: this.bombPlayer.y, color: this.bombPlayer.color});
             this.bombPlayer.active = false;
             this.bombPlayer.health = 0;

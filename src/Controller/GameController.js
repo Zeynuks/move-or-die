@@ -57,7 +57,6 @@ class GameController {
             setTimeout(async () => {
                 this.levelService = await this.getCurrLevel()
                 await this.setGameData();
-                this.levelService.isEnd = true;
                 this.io.emit('startRound', this.players, this.level);
                 await this.updateCycle(this.levelObjects);
                 this.roundTimer = setTimeout(async () => {
@@ -89,6 +88,7 @@ class GameController {
         try {
             this.stopUpdateCycle()
             this.updatePlayersScore();
+            this.levelService.isEnd = true;
             this.io.emit('endRound', this.playersScore);
             setTimeout(async () => {
                 await this.startRound();
