@@ -4,9 +4,11 @@ const Block = require("../Entity/Block");
 class LevelService {
     constructor() {
         this.mapRepository = new MapRepository();
-        this.levelMap = [];
         this.size = 50;
+        this.levelMap = [];
+        this.levelSpawnPoints = [];
         this.levelObjects = [];
+        this.specialObjects = [];
     }
     async downloadLevelMap(levelName) {
         try {
@@ -24,6 +26,8 @@ class LevelService {
                 for (let j = 0; j < col.length; j++) {
                     if (map[i][j] === 'X') {
                         this.levelMap.push(new Block(j * this.size, i * this.size, this.size));
+                    } else if (map[i][j] === 'S') {
+                        this.levelSpawnPoints.push({x: j * this.size,y: i * this.size})
                     }
                 }
             }
@@ -103,10 +107,6 @@ class LevelService {
             player.x = obj.x + player.size;
             player.vx = 0;
         }
-    }
-
-    getSpecialObjects() {
-        return [];
     }
     updateLevel(players, objects) {}
     updateScore() {}

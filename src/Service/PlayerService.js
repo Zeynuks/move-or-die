@@ -86,6 +86,14 @@ class PlayerService {
         }
     }
 
+    async setPlayersSpawnPoints(spawnPoints) {
+        Object.values(this.players).forEach(player => {
+            const spawnPoint = spawnPoints.pop();
+            player.x = spawnPoint.x;
+            player.y = spawnPoint.y;
+        });
+    }
+
     randomColor() {
         let colorInd = Math.floor(Math.random() * colorArray.length);
         let color = colorArray[colorInd];

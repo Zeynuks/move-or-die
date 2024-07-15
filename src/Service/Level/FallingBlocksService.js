@@ -6,7 +6,6 @@ class FallingBlocksService extends LevelService {
     constructor() {
         super();
         this.levelName = 'FallingBlocks';
-        this.fallingBlocks = [];
         this.complexity = 26;
         this.size = 50;
         this.setFallingBlocks();
@@ -44,7 +43,7 @@ class FallingBlocksService extends LevelService {
     updateLevel(players, objects) {
         Object.values(players).forEach(player => {
             if (player.statement) {
-                this.playerDeath(player, player.getGrid(), this.getObjectsGrid(this.fallingBlocks));
+                this.playerDeath(player, player.getGrid(), this.getObjectsGrid(this.specialObjects));
             }
             this.checkCellsCollision(player, player.getGrid(), objects);
         });
@@ -56,26 +55,26 @@ class FallingBlocksService extends LevelService {
         for (let i = 0; i < this.complexity; i++){
             x += this.size;
             let y = Math.floor(Math.random() * -1500);
-            this.fallingBlocks.push(new FallingBlock(x + this.size, y -this.size, this.size));
+            this.specialObjects.push(new FallingBlock(x + this.size, y -this.size, this.size));
         }
     }
 
     fallingBlocksMovement() {
-        for (let i = 0; i < this.fallingBlocks.length; i++){
-            if (this.fallingBlocks[i].y <= this.size) {
-                this.fallingBlocks[i].vy = 5;
+        for (let i = 0; i < this.specialObjects.length; i++){
+            if (this.specialObjects[i].y <= this.size) {
+                this.specialObjects[i].vy = 5;
             } else {
-                this.fallingBlocks[i].vy += GRAVITY;
+                this.specialObjects[i].vy += GRAVITY;
             }
-            this.fallingBlocks[i].y += this.fallingBlocks[i].vy;
-            if (this.fallingBlocks[i].y >= 800)  {
-                this.fallingBlocks[i].y = -this.size + Math.floor(Math.random() * -1500);
+            this.specialObjects[i].y += this.specialObjects[i].vy;
+            if (this.specialObjects[i].y >= 800)  {
+                this.specialObjects[i].y = -this.size + Math.floor(Math.random() * -1500);
             }
         }
     }
 
     getSpecialObjects() {
-        return this.fallingBlocks;
+        return this.specialObjects;
     }
 
     updateScore(objects) {
