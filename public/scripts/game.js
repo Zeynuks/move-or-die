@@ -1,70 +1,71 @@
 const element = document.getElementById('colorLevelInfo');
 
-// Устанавливаем таймаут на 10 секунд
-setTimeout(function () {
+setTimeout(function() {
     // Добавляем свойство "hidden" к элементу
     element.setAttribute('hidden', '');
 }, 3000);
 
 document.addEventListener('DOMContentLoaded', () => {
-        socket.emit('playerStart', roomName, userName);
+    socket.emit('playerStart', roomName, userName);
 
-        socket.on('gameLoad', (gamePlayers, levelBlocks) => {
-            players = transformKeys(gamePlayers);
-            blocks = transformKeys(levelBlocks);
-            state = true
-            drawMap();
-            preload();
-            gameLoop();
-        });
+    socket.on('error', (error) => {
+        console.log(error);
+    });
 
-        socket.on('startRound', (gamePlayers, levelBlocks) => {
-            info_box.classList.add('hidden');
-            players = transformKeys(gamePlayers);
+    socket.on('gameLoad', (gamePlayers, levelBlocks) => {
+        players = transformKeys(gamePlayers);
+        blocks = transformKeys(levelBlocks);
+        state = true
+        drawMap();
+        preload();
+        gameLoop();
+    });
 
-            blocks = transformKeys(levelBlocks);
-            state = true
-            drawMap();
-            preload();
-            gameLoop();
-        });
+    socket.on('startRound', (gamePlayers, levelBlocks) => {
+        info_box.classList.add('hidden');
+        players = transformKeys(gamePlayers);
+        blocks = transformKeys(levelBlocks);
+        state = true
+        drawMap();
+        preload();
+        gameLoop();
+    });
 
-        socket.on('endRound', (data) => {
-            state = false;
-            if (info_box.classList.contains('hidden')) {
-                info_box.classList.remove('hidden');
-            }
-            renderWinnerList(data)
-        });
+    socket.on('endRound', (data) => {
+        state = false;
+        if (info_box.classList.contains('hidden')) {
+            info_box.classList.remove('hidden');
+        }
+        renderWinnerList(data)
+    });
 
-        socket.on('levelScore', (data) => {
-            //console.log(data.blue, data.orange, data.green, data.purple)
-            blue_score.textContent = data.blue;
-            orange_score.textContent = data.yellow;
-            green_score.textContent = data.green;
-            purple_score.textContent = data.purple;
-        });
+    socket.on('levelScore', (data) => {
+        blue_score.textContent = data.blue;
+        yellow_score.textContent = data.yellow;
+        green_score.textContent = data.green;
+        purple_score.textContent = data.purple;
+    });
 
 
-        function drawMap() {
-            // Проходимся по каждому игровому объекту и рисуем его
-            for (let obj of blocks) {
-                switch (obj.color) {
-                    case 'blue':
-                        context.drawImage(blue_block, obj.x, obj.y, obj.size, obj.size);
-                        break;
-                    case 'orange':
-                        context.drawImage(orange_block, obj.x, obj.y, obj.size, obj.size);
-                        break;
-                    case 'green':
-                        context.drawImage(green_block, obj.x, obj.y, obj.size, obj.size);
-                        break;
-                    case 'purple':
-                        context.drawImage(purple_block, obj.x, obj.y, obj.size, obj.size);
-                        break;
-                    case 'grey':
-                        context.drawImage(grey_block, obj.x, obj.y, obj.size, obj.size);
-                        break;
+    function drawMap() {
+        // Проходимся по каждому игровому объекту и рисуем его
+        for (let obj of blocks) {
+            switch (obj.color) {
+                case 'blue':
+                    context.drawImage(blue_block, obj.x, obj.y, obj.size, obj.size);
+                    break;
+                case 'yellow':
+                    context.drawImage(yellow_block, obj.x, obj.y, obj.size, obj.size);
+                    break;
+                case 'green':
+                    context.drawImage(green_block, obj.x, obj.y, obj.size, obj.size);
+                    break;
+                case 'purple':
+                    context.drawImage(purple_block, obj.x, obj.y, obj.size, obj.size);
+                    break;
+                case 'grey':
+                    context.drawImage(grey_block, obj.x, obj.y, obj.size, obj.size);
+                    break;
                 }
             }
         }
@@ -92,7 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 x: current.x + current.vx * t, y: current.y + current.vy * t
             };
         }
-
 
         class Particle {
             constructor(x, y, color) {
@@ -175,8 +175,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             case 'blue':
                                 context.drawImage(blue_player, position.x, position.y, player.size, player.size);
                                 break;
-                            case 'orange':
-                                context.drawImage(orange_player, position.x, position.y, player.size, player.size);
+                            case 'yellow':
+                                context.drawImage(yellow_player, position.x, position.y, player.size, player.size);
                                 break;
                             case 'green':
                                 context.drawImage(green_player, position.x, position.y, player.size, player.size);
@@ -196,11 +196,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     drawMap();
+                    drawSpecialObjects();
                 }
             });
         }
 
-        const keys = {};
+    const keys = {};
 
         // Обработка нажатий клавиш для управления движением
         window.addEventListener('keydown', (event) => {
@@ -223,10 +224,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const rightMoveSound = new Audio('../sound/move.mp3');
 
         let sound = null;
-
         // Отправка данных о движении на сервер
         function sendMovement() {
-            const movementData = {x: 0, y: 0, jump: false};
+            const movementData = { x: 0, y: 0, jump: false };
 
             // Проверяем нажатие клавиш
             if (keys['ArrowUp']) {
@@ -251,19 +251,19 @@ document.addEventListener('DOMContentLoaded', () => {
             socket.emit('playerMovement', roomName, movementData);
         }
 
-        socket.on('gameUpdate', (playersData, objectsData) => {
-            previousPlayers = players;
-            // players = playersData;
-            blocks = transformKeys(objectsData);
-            Object.entries(playersData).forEach(([ip, playerData]) => {
-                players[ip] = {};
-                for (let key in playerData) {
-                    players[ip][key.slice(1)] = playerData[key];
-                }
-            });
-            lastServerUpdateTime = Date.now();
-        })
-
+    socket.on('gameUpdate', (playersData, objectsData, specialObjectsData) => {
+        previousPlayers = players;
+        // players = playersData;
+        blocks = transformKeys(objectsData);
+        specialObjects = transformKeys(specialObjectsData);
+        Object.entries(playersData).forEach(([ip, playerData]) => {
+            players[ip] = {};
+            for (let key in playerData) {
+                players[ip][key.slice(1)] = playerData[key];
+            }
+        });
+        lastServerUpdateTime = Date.now();
+    })
         function playSound(sound) {
             // Проверяем, что звук не воспроизводится в данный момент
             if (!sound.currentTime) {
@@ -287,34 +287,38 @@ document.addEventListener('DOMContentLoaded', () => {
             lastServerUpdateTime = Date.now();
         })
 
-        function gameLoop() {
-            if (Object.keys(players).length !== 0) {
-                drawPlayers(); // Рисуем всех игроков
-            }
-
-            if (state) {
-                requestAnimationFrame(gameLoop); // Планируем следующий кадр игрового цикла
-            }
+    function gameLoop() {
+        if (Object.keys(players).length !== 0 ) {
+            drawPlayers(); // Рисуем всех игроков
         }
 
-        function renderWinnerList(winnerlist) {
-            const list = document.getElementById('page__colored-blocks-list');
-            list.innerHTML = ''; // Очищаем список
-            for (const [color, count] of Object.entries(winnerlist)) {
-                const listItem = document.createElement('li');
-                listItem.textContent = `${color}: ${count}`;
-                list.appendChild(listItem);
-            }
+        if (state) {
+            requestAnimationFrame(gameLoop); // Планируем следующий кадр игрового цикла
         }
+    }
 
-        function transformKeys(obj) {
-            return Object.keys(obj).reduce((acc, key) => {
-                const newKey = key.startsWith('_') ? key.slice(1) : key;
-                acc[newKey] = (typeof obj[key] === 'object' && obj[key] !== null) ? transformKeys(obj[key]) : obj[key];
-                return acc;
-            }, Array.isArray(obj) ? [] : {});
+    function renderWinnerList(winnerlist) {
+        const list = document.getElementById('page__colored-blocks-list');
+        list.innerHTML = ''; // Очищаем список
+        for (const [color, count] of Object.entries(winnerlist)) {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${color}: ${count}`;
+            list.appendChild(listItem);
         }
+    }
 
+    function drawSpecialObjects() {
+        for (let obj of specialObjects) {
+            context.drawImage(killing_block, obj.x, obj.y, obj.size, obj.size);
+        }
+    }
+
+    function transformKeys(obj) {
+        return Object.keys(obj).reduce((acc, key) => {
+            const newKey = key.startsWith('_') ? key.slice(1) : key;
+            acc[newKey] = (typeof obj[key] === 'object' && obj[key] !== null) ? transformKeys(obj[key]) : obj[key];
+            return acc;}, Array.isArray(obj) ? [] : {});
+        }
         // Добавь логику для синхронизации игры через Socket.io
     }
 );

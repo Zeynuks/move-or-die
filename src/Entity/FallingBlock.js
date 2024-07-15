@@ -1,8 +1,8 @@
-const Block = require("./Block");
+const KillingBlock = require("./KillingBlock");
 
-class FallingBlock extends Block {
-    constructor() {
-        super();
+class FallingBlock extends KillingBlock {
+    constructor(x, y, size) {
+        super(x, y, size);
         this._vx = 0;
         this._vy = 0;
     }
@@ -21,22 +21,6 @@ class FallingBlock extends Block {
 
     set vy(value) {
         this._vy = value;
-    }
-
-    getGrid() {
-        const gridX = Math.floor(this.x / 50);
-        const gridY = Math.floor(this.y / 50);
-        return [
-            [gridY, gridX],
-            [gridY - 1, gridX],
-            [gridY + 1, gridX],
-            [gridY, gridX - 1],
-            [gridY, gridX + 1],
-            [gridY - 1, gridX - 1],
-            [gridY - 1, gridX + 1],
-            [gridY + 1, gridX - 1],
-            [gridY + 1, gridX + 1]
-        ];
     }
 }
 

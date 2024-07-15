@@ -25,9 +25,9 @@ class RoomManager {
                 gameController: new GameController(this.io.of('/game').to(roomName), roomName, services),
                 levelController: new LevelController(this.io.of('/game').to(roomName))
             };
+            this.rooms[roomName].gameController.levelList = this.rooms[roomName].levelController.getLevelList();
+            this.rooms[roomName].roomController.createRoom(socket, userName);
         }
-        this.rooms[roomName].gameController.levelList = this.rooms[roomName].levelController.getLevelList();
-        this.rooms[roomName].roomController.createRoom(socket, userName);
     }
 
     joinRoom(socket, roomName, userName) {

@@ -4,11 +4,12 @@ const Block = require("../Entity/Block");
 class LevelService {
     constructor() {
         this.mapRepository = new MapRepository();
-        this.levelMap = [];
         this.size = 50;
+        this.levelMap = [];
+        this.levelSpawnPoints = [];
         this.levelObjects = [];
+        this.specialObjects = [];
     }
-
     async downloadLevelMap(levelName) {
         try {
             const map = await this.mapRepository.findMapByLevelName(levelName);
@@ -17,7 +18,6 @@ class LevelService {
             console.error('Ошибка:', error);
         }
     }
-
     setMap(map) {
         try {
             this.levelMap = [];
@@ -26,6 +26,8 @@ class LevelService {
                 for (let j = 0; j < col.length; j++) {
                     if (map[i][j] === 'X') {
                         this.levelMap.push(new Block(j * this.size, i * this.size, this.size));
+                    } else if (map[i][j] === 'S') {
+                        this.levelSpawnPoints.push({x: j * this.size,y: i * this.size})
                     }
                 }
             }
@@ -33,8 +35,6 @@ class LevelService {
             throw new Error('Ошибка загрузки блоков в карту')
         }
     }
-
-
     async getMapGrid(gridSize) {
         this.levelObjects = [];
         this.levelMap.forEach(obj => {
@@ -46,12 +46,22 @@ class LevelService {
         });
     }
 
+    getObjectsGrid(objects) {
+        const grid = [];
+        objects.forEach(obj => {
+            const gridX = Math.floor(obj.x / this.size);
+            const gridY = Math.floor(obj.y / this.size);
+            if (!grid[gridY]) grid[gridY] = [];
+            if (!grid[gridY][gridX]) grid[gridY][gridX] = [];
+            grid[gridY][gridX].push(obj);
+        });
+        return grid;
+    }
+
     async resetLevelData(levelName) {
         await this.downloadLevelMap(levelName);
         await this.getMapGrid(this.size);
     }
-
-
     checkCellsCollision(player, cellsToCheck, objects) {
         for (let [y, x] of cellsToCheck) {
             if (objects[y] && objects[y][x]) {
@@ -64,7 +74,6 @@ class LevelService {
             }
         }
     }
-
     checkCollision(player, obj) {
         let collision = {
             left: false,
@@ -83,7 +92,6 @@ class LevelService {
         }
         return null;
     }
-
     resolveCollision(player, obj, collision) {
         if (collision.top && player.vy > 0) { // Коллизия сверху
             player.y = obj.y - player.size;
@@ -100,6 +108,10 @@ class LevelService {
             player.vx = 0;
         }
     }
+    updateLevel(players, objects) {}
+    updateScore() {}
+    getStat() {}
+
 }
 
 module.exports = LevelService;
