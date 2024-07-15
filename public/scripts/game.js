@@ -8,6 +8,10 @@ setTimeout(function() {
 document.addEventListener('DOMContentLoaded', () => {
     socket.emit('playerStart', roomName, userName);
 
+    socket.on('error', (error) => {
+        console.log(error);
+    });
+
     socket.on('gameLoad', (gamePlayers, levelBlocks) => {
         players = transformKeys(gamePlayers);
         blocks = transformKeys(levelBlocks);

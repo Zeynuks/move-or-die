@@ -35,15 +35,11 @@ class PlayerService {
 
     async addPlayerToGame(roomName, userName, clientIp) {
         try {
-            console.log('connect');
             if (this.leftPlayers[clientIp] === undefined) {
-                console.log('new - ', this.leftPlayers[clientIp], this.players[clientIp]);
                 this.players[clientIp] = this.newPlayer(clientIp, userName, 200, 200, 50, this.randomColor());
             } else {
-                console.log('last - ', this.leftPlayers[clientIp], this.players[clientIp]);
                 this.players[clientIp] = this.leftPlayers[clientIp];
                 delete this.leftPlayers[clientIp];
-                console.log(this.leftPlayers);
             }
         } catch (error) {
             console.error('Ошибка добавления игрока в игру: ' + error.message);
@@ -113,7 +109,6 @@ class PlayerService {
     async disconnect(clientIp) {
         try {
             this.leftPlayers[clientIp] = this.players[clientIp];
-            console.log('disconnect')
             delete this.players[clientIp];
         } catch (error) {
             console.error('Ошибка отключения: ' + error.message);
