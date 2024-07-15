@@ -1,7 +1,7 @@
 const Player = require("../Entity/Player");
 const GRAVITY = 0.5;
 const JUMP_FORCE = -13;
-let colorArray = ['blue', 'green', 'yellow', 'purple'];
+let colorArray = ['blue', 'green', 'orange', 'purple'];
 
 class PlayerService {
     constructor() {
@@ -73,17 +73,11 @@ class PlayerService {
         try {
             Object.values(this.players).forEach(player => {
                 this.playerMovement[player.ip] = player.x;
-                this.applyPhysics(player);
+                player.applyPhysics()
             });
         } catch (error) {
             console.error('Ошибка обновления позиций игроков: ' + error.message);
         }
-    }
-
-    applyPhysics(player) {
-        player.x += player.vx;
-        player.vy += GRAVITY;
-        player.y += player.vy;
     }
 
     randomColor() {
@@ -92,7 +86,7 @@ class PlayerService {
         colorArray.splice(colorInd, 1);
 
         if (colorArray.length === 0) {
-            colorArray = ['blue', 'green', 'yellow', 'purple'];
+            colorArray = ['blue', 'green', 'orange', 'purple'];
         }
 
         return color;

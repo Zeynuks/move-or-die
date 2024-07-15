@@ -74,6 +74,7 @@ class GameController {
 
     sortPlayersScore() {
         const tmp = this.playersScore;
+
         this.playersScore = Object.entries(tmp)
             .sort((a, b) => b[1] - a[1])
             .reduce((result, [key, value]) => ({...result, [key]: value}), {});

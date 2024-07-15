@@ -89,7 +89,6 @@ io.on('connection', (socket) => {
 gameNamespace.on('connection', (socket) => {
 
     socket.on('playerStart', (roomName, userName) => {
-        console.log('playerStart')
         roomManager.playerStart(socket, roomName, userName);
     });
 

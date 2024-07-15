@@ -8,7 +8,6 @@ class LevelService {
         this.size = 50;
         this.levelObjects = [];
     }
-
     async downloadLevelMap(levelName) {
         try {
             const map = await this.mapRepository.findMapByLevelName(levelName);
@@ -17,7 +16,6 @@ class LevelService {
             console.error('Ошибка:', error);
         }
     }
-
     setMap(map) {
         try {
             this.levelMap = [];
@@ -33,8 +31,6 @@ class LevelService {
             throw new Error('Ошибка загрузки блоков в карту')
         }
     }
-
-
     async getMapGrid(gridSize) {
         this.levelObjects = [];
         this.levelMap.forEach(obj => {
@@ -62,8 +58,6 @@ class LevelService {
         await this.downloadLevelMap(levelName);
         await this.getMapGrid(this.size);
     }
-
-
     checkCellsCollision(player, cellsToCheck, objects) {
         for (let [y, x] of cellsToCheck) {
             if (objects[y] && objects[y][x]) {
@@ -76,7 +70,6 @@ class LevelService {
             }
         }
     }
-
     checkCollision(player, obj) {
         let collision = {
             left: false,
@@ -95,7 +88,6 @@ class LevelService {
         }
         return null;
     }
-
     resolveCollision(player, obj, collision) {
         if (collision.top && player.vy > 0) { // Коллизия сверху
             player.y = obj.y - player.size;
@@ -113,9 +105,11 @@ class LevelService {
         }
     }
 
-    getSpecialObjects() {
-        return [];
-    }
+    getSpecialObjects() {}
+    updateLevel(players, objects) {}
+    updateScore() {}
+    getStat() {}
+
 }
 
 module.exports = LevelService;

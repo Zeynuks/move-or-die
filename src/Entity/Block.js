@@ -1,5 +1,5 @@
 class Block {
-    constructor(x, y, size, skin = 'default.png', collision = true, visible = true, action = 'default') {
+    constructor(x, y, size, skin = 'default.png', collision = true, visible = true) {
         this._x = x;
         this._y = y;
         this._size = size;
@@ -7,7 +7,6 @@ class Block {
         this._skin = skin;
         this._collision = collision;
         this._visible = visible;
-        this._action = action;
     }
 
     get x() {
@@ -38,10 +37,6 @@ class Block {
         return this._visible;
     }
 
-    get action() {
-        return this._action;
-    }
-
     set x (value) {
         this._x = value;
     }
@@ -68,10 +63,6 @@ class Block {
 
     set visible(value) {
         this._visible = value;
-    }
-
-    set action(value) {
-        this._action = value;
     }
 }
 
