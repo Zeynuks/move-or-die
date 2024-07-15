@@ -148,6 +148,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (particles[i].life <= 0) { // Если время жизни частицы истекло, удаляем ее
                     particles.splice(i, 1);
                 }
+
+                if (!state) {
+                    particles = [];
+                    break;
+                }
             }
         }
 

@@ -7,6 +7,7 @@ class BombTagService extends LevelService {
         this.bombState = false;
         this.bombPlayer = null;
         this.bombTimer = null;
+        this.lastBombTime = null;
         this.io = null;
         this.isEnd = false;
         this.levelScore = {
@@ -17,7 +18,7 @@ class BombTagService extends LevelService {
         }
     }
 
-    checkProximity(player, obj) {
+checkProximity(player, obj) {
         const proximityDistance = 2; // Расстояние до объекта для изменения цвета
         return (
             player.x < obj.x + obj.size + proximityDistance &&
@@ -28,22 +29,21 @@ class BombTagService extends LevelService {
     }
 
     // Раскраска блоков при приближении
-    bombTransfer(player, player2) {
-        if (!player2.statement) return;
-        if (this.checkProximity(player, player2)) {
+    bombTransfer(player, currentTime) {
+        if (!player.statement) return;
+        if (this.checkProximity(this.bombPlayer, player) && currentTime - this.lastBombTime > 1000) {
             this.bombPlayer.active = false;
-            player2.active = true;
-            setTimeout(() => {
-                this.bombPlayer = player2;
-                this.setBombTimer();
-            }, 1000)
+            player.active = true;
+            this.bombPlayer = player;
+            this.setBombTimer();
         }
     }
 
     setBombTimer() {
         clearTimeout(this.bombTimer);
+        this.lastBombTime = Date.now();
         this.bombTimer = setTimeout(() => {
-            if (!this.bombPlayer || !this.bombPlayer.statement || !this.isEnd) return;
+            if (!this.bombPlayer || !this.bombPlayer.statement || this.isEnd) return;
             this.io.emit('explode', {x: this.bombPlayer.x, y: this.bombPlayer.y, color: this.bombPlayer.color});
             this.bombPlayer.active = false;
             this.bombPlayer.health = 0;
@@ -63,12 +63,13 @@ class BombTagService extends LevelService {
     }
 
     updateLevel(players, objects, io) {
+        let currentTime = Date.now()
         if (!this.io) this.io = io;
         this.setBombPlayer(players);
         Object.values(players).forEach(player => {
             if (!player.statement) player.active = false;
             if (this.bombPlayer && this.bombPlayer !== player && this.bombPlayer.active) {
-                this.bombTransfer(this.bombPlayer, player)
+                this.bombTransfer(player, currentTime)
             }
             this.checkCellsCollision(player, player.getGrid(), objects);
         });
