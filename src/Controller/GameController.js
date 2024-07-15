@@ -23,12 +23,12 @@ class GameController {
 
     async getCurrLevel() {
         try {
-            this.counter -= 1;
-            if (this.counter <= 0) {
+            if (this.levelList) {
                 await this.gameEnd();
-                return null;
+            } else {
+                delete this.levelService
+                return new this.levelList.pop();
             }
-            return new this.levelList[this.counter]
         } catch (error) {
             this.io.emit('error', 'Ошибка загрузки уровня');
         }
@@ -38,7 +38,6 @@ class GameController {
         try {
             if (!this.gameState) {
                 this.gameState = true
-                this.counter = this.levelList.length;
                 await this.startRound();
             } else {
                 this.gameLoad(socket)
