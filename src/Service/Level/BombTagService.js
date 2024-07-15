@@ -31,8 +31,8 @@ class BombTagService extends LevelService {
     bombTransfer(player, player2) {
         if (!player2.statement) return;
         if (this.checkProximity(player, player2)) {
-            this.bombPlayer.isCarrier = false;
-            player2.isCarrier = true;
+            this.bombPlayer.active = false;
+            player2.active = true;
             setTimeout(() => {
                 this.bombPlayer = player2;
                 this.setBombTimer();
@@ -45,7 +45,7 @@ class BombTagService extends LevelService {
         this.bombTimer = setTimeout(() => {
             if (!this.bombPlayer || !this.bombPlayer.statement) return;
             this.io.emit('explode', {x: this.bombPlayer.x, y: this.bombPlayer.y, color: this.bombPlayer.color});
-            this.bombPlayer.isCarrier = false;
+            this.bombPlayer.active = false;
             this.bombPlayer.health = 0;
             this.bombPlayer.statement = false;
         }, 5000)
@@ -56,7 +56,7 @@ class BombTagService extends LevelService {
             this.bombState = true;
             this.bombPlayer = this.getRandomAlivePlayer(players);
             if (this.bombPlayer) {
-                this.bombPlayer.isCarrier = true;
+                this.bombPlayer.active = true;
                 this.setBombTimer();
             }
         }
@@ -66,8 +66,8 @@ class BombTagService extends LevelService {
         if (!this.io) this.io = io;
         this.setBombPlayer(players);
         Object.values(players).forEach(player => {
-            if (!player.statement) player.isCarrier = false;
-            if (this.bombPlayer && this.bombPlayer !== player && this.bombPlayer.isCarrier) {
+            if (!player.statement) player.active = false;
+            if (this.bombPlayer && this.bombPlayer !== player && this.bombPlayer.active) {
                 this.bombTransfer(this.bombPlayer, player)
             }
             this.checkCellsCollision(player, player.getGrid(), objects);
@@ -88,16 +88,11 @@ class BombTagService extends LevelService {
             .reduce((result, [key, value]) => ({ ...result, [key]: value }), {});
 
         let count = 0;
-        let bonus = 5
+        let bonus =  [5, 2, 1, 0]
         const updatedSortedScore = {};
         for (const color in sortedScore) {
             if (sortedScore[color] !== 0) {
-                if (count === 3) {
-                    updatedSortedScore[color] = 1;
-                } else {
-                    updatedSortedScore[color] = bonus - count * 2;
-                }
-                bonus--;
+                updatedSortedScore[color] = bonus[count];
                 count++;
             }
         }

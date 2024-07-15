@@ -194,9 +194,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         drawHealth(player, playerIndex);
 
-                        if (player.isCarrier) {
-                            context.fillStyle = 'red';
-                            context.fillRect(player.x, player.y, 15, 15);
+                        if (player.active) {
+                            // context.fillStyle = 'red';
+                            // context.fillRect(player.x, player.y, 15, 15);
+                            context.drawImage(bomb_image, player.x-2.5, player.y+15, 55, 25);
                         }
                     }
 

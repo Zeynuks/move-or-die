@@ -23,6 +23,7 @@ class PlayerService {
                 player.vy = 0;
                 player.health = 100;
                 player.statement = true;
+                player.isCarrier = false;
             });
         } catch (error) {
             console.error('Ошибка сброса данных игроков: ' + error.message);

@@ -31,6 +31,8 @@ let purple_player = new Image();
 
 let killing_block = new Image();
 
+let bomb_image = new Image();
+
 let blue_score = document.getElementById('blue-score');
 let yellow_score = document.getElementById('yellow-score');
 let green_score = document.getElementById('green-score');
@@ -58,7 +60,9 @@ function preload() {
     green_player.src = '../images/character_green.png';
     purple_player.src = '../images/character_red.png';
 
-    killing_block.src = '../images/DeathSheet.png'
+    killing_block.src = '../images/DeathSheet.png';
+
+    bomb_image.src = '../images/bomb.png';
 }
 
 const info_box = document.getElementById('page__info-box');

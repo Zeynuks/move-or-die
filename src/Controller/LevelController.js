@@ -1,7 +1,7 @@
 const levelColorService = require('../Service/Level/LevelColorService');
 const fallingBlocksService = require('../Service/Level/FallingBlocksService');
 const BombTagService = require('../Service/Level/BombTagService');
-const LEVEL_ARRAY = [levelColorService, fallingBlocksService];
+const LEVEL_ARRAY = [levelColorService, fallingBlocksService, BombTagService];
 
 class LevelController {
     constructor(io) {

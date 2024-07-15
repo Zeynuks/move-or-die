@@ -9,7 +9,7 @@ class Player extends Entity {
         this._statement = statement;
         this._health = 100;
         this._onGround = true;
-        this._isCarrier = false;
+        this._active = false;
     }
 
     get ip() {
@@ -36,8 +36,8 @@ class Player extends Entity {
         return this._onGround;
     }
 
-    get isCarrier() {
-        return this._isCarrier;
+    get active() {
+        return this._active;
     }
 
     set ip(value) {
@@ -63,8 +63,8 @@ class Player extends Entity {
         this._onGround = value;
     }
 
-    set isCarrier(value) {
-        this._isCarrier = value;
+    set active(value) {
+        this._active = value;
     }
 }
 
