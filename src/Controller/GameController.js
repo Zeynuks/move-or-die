@@ -23,7 +23,7 @@ class GameController {
 
     async getCurrLevel() {
         try {
-            if (this.levelList) {
+            if (this.levelList === []) {
                 await this.gameEnd();
             } else {
                 delete this.levelService
