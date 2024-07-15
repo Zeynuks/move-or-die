@@ -1,6 +1,5 @@
 const element = document.getElementById('colorLevelInfo');
 
-// Устанавливаем таймаут на 10 секунд
 setTimeout(function() {
     // Добавляем свойство "hidden" к элементу
     element.setAttribute('hidden', '');
@@ -21,9 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('startRound', (gamePlayers, levelBlocks) => {
         info_box.classList.add('hidden');
         players = transformKeys(gamePlayers);
-
         blocks = transformKeys(levelBlocks);
-        console.log(players, blocks)
         state = true
         drawMap();
         preload();
@@ -39,7 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('levelScore', (data) => {
-        //console.log(data.blue, data.yellow, data.green, data.purple)
         blue_score.textContent = data.blue;
         yellow_score.textContent = data.yellow;
         green_score.textContent = data.green;
@@ -195,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // players = playersData;
         blocks = transformKeys(objectsData);
         specialObjects = transformKeys(specialObjectsData);
-        console.log(specialObjectsData);
         Object.entries(playersData).forEach(([ip, playerData]) => {
             players[ip] = {};
             for (let key in playerData) {

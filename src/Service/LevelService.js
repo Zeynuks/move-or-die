@@ -105,7 +105,9 @@ class LevelService {
         }
     }
 
-    getSpecialObjects() {}
+    getSpecialObjects() {
+        return [];
+    }
     updateLevel(players, objects) {}
     updateScore() {}
     getStat() {}

@@ -31,7 +31,7 @@ class GameController {
             if (!this.gameState) {
                 this.gameState = true
                 this.counter = this.levelList.length;
-                await this.startGame();
+                await this.startRound();
             } else {
                 this.gameLoad(socket)
             }
@@ -44,7 +44,7 @@ class GameController {
         socket.emit('gameLoad', this.players, this.level);
     }
 
-    async startGame() {
+    async startRound() {
         try {
            setTimeout(async () => {
                 this.levelService = await this.getCurrLevel()
@@ -52,7 +52,7 @@ class GameController {
                 this.io.emit('startRound', this.players, this.level);
                 await this.updateCycle(this.levelObjects);
                 this.roundTimer = setTimeout(async () => {
-                    this.endGame();
+                    this.endRound();
                 }, 20000);
             }, 3000);
         } catch (err) {
@@ -80,13 +80,13 @@ class GameController {
             .reduce((result, [key, value]) => ({...result, [key]: value}), {});
     }
 
-    endGame() {
+    endRound() {
         try {
             this.stopUpdateCycle()
             this.updatePlayersScore();
             this.io.emit('endRound', this.playersScore);
             setTimeout(async () => {
-                await this.startGame();
+                await this.startRound();
             }, 2000);
         } catch (err) {
             this.io.emit('error', 'Ошибка остановки игры');
@@ -101,7 +101,7 @@ class GameController {
                     await this.levelService.updateLevel(this.players, this.levelObjects);
                     await this.playerService.updateHealth(this.players);
                     await this.levelService.updateScore(this.level);
-                    await this.isEndGame();
+                    await this.isRoundEnd();
                     this.io.emit('gameUpdate', this.players, this.level, this.specialObjects);
                     this.io.emit('levelScore', this.levelService.getLevelScore());
                 }, 1000 / 60);
@@ -111,11 +111,11 @@ class GameController {
         }
     }
 
-    async isEndGame() {
+    async isRoundEnd() {
         if (await this.playerService.isAllDie() || this.players.length === 0) {
             this.stopUpdateCycle();
             this.stopGameCycle()
-            this.endGame();
+            this.endRound();
         }
     }
 
@@ -126,14 +126,12 @@ class GameController {
         }
     }
 
-
     stopGameCycle() {
         if (this.roundTimer) {
             clearTimeout(this.roundTimer)
             this.roundTimer = null;
         }
     }
-
 
     async setGameData() {
         await this.playerService.resetPlayersData();
