@@ -99,9 +99,9 @@ class GameController {
             if (this.gameState) {
                 this.cycleTimer = setInterval(async () => {
                     await this.playerService.updatePlayersPosition(this.roomName, gameObjects);
-                    await this.levelService.updateLevel(this.players, this.levelObjects);
+                    await this.levelService.updateLevel(this.players, this.levelObjects, this.io);
                     await this.playerService.updateHealth(this.players);
-                    await this.levelService.updateScore(this.level);
+                    await this.levelService.updateScore(this.level, this.players);
                     // await this.isEndGame();
                     this.io.emit('gameUpdate', this.players, this.level);
                     this.io.emit('levelScore', this.levelService.getLevelScore());
@@ -130,7 +130,6 @@ class GameController {
         await this.playerService.resetPlayersData();
         await this.levelService.resetLevelData(this.levelService.levelName);
         this.players = this.playerService.players;
-        console.log(this.players);
         this.levelObjects = this.levelService.levelObjects;
         this.level = this.levelService.levelMap;
     }

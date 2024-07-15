@@ -42,6 +42,9 @@ class PlayerService {
 
     async handleMovePlayer(clientIp, movementData) {
         try {
+            if (this.players[clientIp].isCarrier && movementData.x) {
+                movementData.x = movementData.x  > 0 ? movementData.x  + 1 : movementData.x  - 1;
+            }
             this.players[clientIp].vx = movementData.x;
             if (movementData.jump && this.players[clientIp].onGround) {
                 this.players[clientIp].vy = JUMP_FORCE;

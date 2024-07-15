@@ -13,6 +13,7 @@ class Player {
         this._vx = 0;
         this._onGround = true;
         this._vy = 0;
+        this._isCarrier = false;
     }
 
     get ip() {
@@ -67,6 +68,10 @@ class Player {
         return this._vy;
     }
 
+    get isCarrier() {
+        return this._isCarrier;
+    }
+
     set ip(value) {
         this._ip = value;
     }
@@ -117,6 +122,10 @@ class Player {
 
     set vy(value) {
         this._vy = value;
+    }
+
+    set isCarrier(value) {
+        this._isCarrier = value;
     }
 
     getGrid() {
