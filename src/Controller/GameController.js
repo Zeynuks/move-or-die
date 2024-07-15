@@ -23,7 +23,7 @@ class GameController {
 
     async getCurrLevel() {
         try {
-            if (this.levelList) {
+            if (this.levelList === []) {
                 await this.gameEnd();
             } else {
                 delete this.levelService
@@ -87,6 +87,7 @@ class GameController {
         try {
             this.stopUpdateCycle()
             this.updatePlayersScore();
+            this.levelService.isEnd = true;
             this.io.emit('endRound', this.playersScore);
             setTimeout(async () => {
                 await this.startRound();
@@ -116,6 +117,7 @@ class GameController {
 
     async isRoundEnd() {
         if (await this.playerService.isAllDie() || this.players.length === 0) {
+            this.levelService.isEnd = true;
             this.stopGameCycle()
             this.endRound();
         }
