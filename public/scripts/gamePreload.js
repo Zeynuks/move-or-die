@@ -31,10 +31,10 @@ let purple_player = new Image();
 
 let killing_block = new Image();
 
-let blue_score = document.getElementById('blue-score');
-let yellow_score = document.getElementById('yellow-score');
-let green_score = document.getElementById('green-score');
-let purple_score = document.getElementById('purple-score');
+let blue_score = 0;
+let yellow_score = 0;
+let green_score = 0;
+let purple_score = 0;
 
 let grey_block = new Image();
 

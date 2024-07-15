@@ -96,7 +96,7 @@ class GameController {
                     await this.playerService.updatePlayersPosition(this.roomName, gameObjects);
                     await this.levelService.updateLevel(this.players, this.levelObjects);
                     await this.playerService.updateHealth(this.players);
-                    await this.levelService.updateScore(this.level);
+                    await this.levelService.updateScore(this.level, this.players);
                     await this.isRoundEnd();
                     this.io.emit('gameUpdate', this.players, this.level, this.specialObjects);
                     this.io.emit('levelScore', this.levelService.getLevelScore());

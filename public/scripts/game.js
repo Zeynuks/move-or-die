@@ -40,11 +40,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('levelScore', (data) => {
-        blue_score.textContent = data.blue;
-        yellow_score.textContent = data.yellow;
-        green_score.textContent = data.green;
-        purple_score.textContent = data.purple;
+        blue_score = data.blue;
+        yellow_score = data.yellow;
+        green_score = data.green;
+        purple_score = data.purple;
     });
+
+    function drawScore() {
+        let allPoints = blue_score + yellow_score + purple_score + green_score;
+        let x = 600;
+        let y = 100;
+
+        context.fillStyle = 'rgba(156, 156, 156, 0.3)';
+        context.fillRect(x, y, 200, 30);
+
+        context.fillStyle = 'rgba(114, 218, 232, 0.53)';
+        context.fillRect(x, y, (blue_score / allPoints) * 200, 30);
+
+        context.fillStyle = 'rgba(255,211,0,0.53)';
+        x += (blue_score / allPoints) * 200;
+        context.fillRect(x, y, (yellow_score / allPoints) * 200, 30);
+
+        context.fillStyle = 'rgba(240, 84, 206, 0.53)';
+        x += (yellow_score / allPoints) * 200;
+        context.fillRect(x, y, (purple_score / allPoints) * 200, 30);
+
+        context.fillStyle = 'rgba(30, 199, 58, 0.53)';
+        x += (purple_score / allPoints) * 200;
+        context.fillRect(x, y, (green_score / allPoints) * 200, 30);
+    }
 
 
     function drawMap() {
@@ -136,6 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     drawMap();
                     drawSpecialObjects();
+                    drawScore();
                 }
             });
         }
