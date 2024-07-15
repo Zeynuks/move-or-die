@@ -57,6 +57,7 @@ class GameController {
             setTimeout(async () => {
                 this.levelService = await this.getCurrLevel()
                 await this.setGameData();
+                this.levelService.isEnd = true;
                 this.io.emit('startRound', this.players, this.level);
                 await this.updateCycle(this.levelObjects);
                 this.roundTimer = setTimeout(async () => {
@@ -137,17 +138,17 @@ class GameController {
     }
 
     async setGameData() {
-       try {
-           await this.playerService.resetPlayersData();
-           await this.levelService.resetLevelData(this.levelService.levelName);
-           await this.playerService.setPlayersSpawnPoints(this.levelService.levelSpawnPoints)
-           this.players = this.playerService.players;
-           this.levelObjects = this.levelService.levelObjects;
-           this.level = this.levelService.levelMap;
-           this.specialObjects = this.levelService.specialObjects
-       } catch (error) {
-           this.io.emit('error', 'Ошибка обновления данных');
-       }
+        try {
+            await this.playerService.resetPlayersData();
+            await this.levelService.resetLevelData(this.levelService.levelName);
+            await this.playerService.setPlayersSpawnPoints(this.levelService.levelSpawnPoints)
+            this.players = this.playerService.players;
+            this.levelObjects = this.levelService.levelObjects;
+            this.level = this.levelService.levelMap;
+            this.specialObjects = this.levelService.specialObjects
+        } catch (error) {
+            this.io.emit('error', 'Ошибка обновления данных');
+        }
     }
 
     async gameEnd(){
