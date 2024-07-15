@@ -87,6 +87,7 @@ class GameController {
         try {
             this.stopUpdateCycle()
             this.updatePlayersScore();
+            this.levelService.isEnd = true;
             this.io.emit('endRound', this.playersScore);
             setTimeout(async () => {
                 await this.startRound();
