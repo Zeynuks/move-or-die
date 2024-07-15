@@ -39,9 +39,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('levelScore', (data) => {
-        //console.log(data.blue, data.orange, data.green, data.purple)
+        //console.log(data.blue, data.yellow, data.green, data.purple)
         blue_score.textContent = data.blue;
-        orange_score.textContent = data.yellow;
+        yellow_score.textContent = data.yellow;
         green_score.textContent = data.green;
         purple_score.textContent = data.purple;
     });
@@ -54,8 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 case 'blue':
                     context.drawImage(blue_block, obj.x, obj.y, obj.size, obj.size);
                     break;
-                case 'orange':
-                    context.drawImage(orange_block, obj.x, obj.y, obj.size, obj.size);
+                case 'yellow':
+                    context.drawImage(yellow_block, obj.x, obj.y, obj.size, obj.size);
                     break;
                 case 'green':
                     context.drawImage(green_block, obj.x, obj.y, obj.size, obj.size);
@@ -119,8 +119,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             case 'blue':
                                 context.drawImage(blue_player, position.x, position.y, player.size, player.size);
                                 break;
-                            case 'orange':
-                                context.drawImage(orange_player, position.x, position.y, player.size, player.size);
+                            case 'yellow':
+                                context.drawImage(yellow_player, position.x, position.y, player.size, player.size);
                                 break;
                             case 'green':
                                 context.drawImage(green_player, position.x, position.y, player.size, player.size);

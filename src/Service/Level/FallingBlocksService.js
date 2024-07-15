@@ -10,14 +10,18 @@ class FallingBlocksService extends LevelService {
         this.complexity = 26;
         this.size = 50;
         this.setFallingBlocks();
+        this.levelScore = {
+            blue: 0,
+            green: 0,
+            yellow: 0,
+            purple: 0,
+        }
     }
 
-    paintBlock(player, cellsToCheck, objects) {
-        console.log( objects)
+    playerDeath(player, cellsToCheck, objects) {
         for (let [y, x] of cellsToCheck) {
             if (objects[y] && objects[y][x]) {
                 for (let obj of objects[y][x]) {
-                    //console.log(obj)
                     let proximity = this.checkProximity(player, obj);
                     if (proximity) {
                         player.health = 0;
@@ -28,7 +32,7 @@ class FallingBlocksService extends LevelService {
     }
 
     checkProximity(player, obj) {
-        const proximityDistance = 2; // Расстояние до объекта для изменения цвета
+        const proximityDistance = 1; // Расстояние до объекта для изменения цвета
         return (
             player.x < obj.x + obj.size + proximityDistance &&
             player.x + player.size > obj.x - proximityDistance &&
@@ -37,30 +41,21 @@ class FallingBlocksService extends LevelService {
         );
     }
 
-
     updateLevel(players, objects) {
         Object.values(players).forEach(player => {
             if (player.statement) {
-                this.paintBlock(player, player.getGrid(), this.getObjectsGrid(this.fallingBlocks));
+                this.playerDeath(player, player.getGrid(), this.getObjectsGrid(this.fallingBlocks));
             }
             this.checkCellsCollision(player, player.getGrid(), objects);
         });
         this.fallingBlocksMovement();
     }
 
-    // isKilling(player) {
-    //     let collision = false;
-    //     this.fallingBlocks.forEach(block => {
-    //         collision = this.checkCollision(player, block);
-    //     })
-    //     return collision
-    // }
-
     setFallingBlocks() {
         let x = -this.size;
         for (let i = 0; i < this.complexity; i++){
             x += this.size;
-            let y = Math.floor(Math.random() * -2000);
+            let y = Math.floor(Math.random() * -1500);
             this.fallingBlocks.push(new FallingBlock(x + this.size, y -this.size, this.size));
         }
     }
@@ -74,7 +69,7 @@ class FallingBlocksService extends LevelService {
             }
             this.fallingBlocks[i].y += this.fallingBlocks[i].vy;
             if (this.fallingBlocks[i].y >= 800)  {
-                this.fallingBlocks[i].y = -this.size + Math.floor(Math.random() * -2000);
+                this.fallingBlocks[i].y = -this.size + Math.floor(Math.random() * -1500);
             }
         }
     }
@@ -84,11 +79,16 @@ class FallingBlocksService extends LevelService {
     }
 
     updateScore(objects) {
-
+        //
     }
 
-    getStat() {
-        return {blue: 0, green: 0, yellow: 0, purple: 0}
+    getStat(players) {
+        Object.values(players).forEach(player => {
+            if (player.statement) {
+                this.levelScore[player.color] = 5;
+            }
+        });
+        return this.levelScore;
     }
 
     getLevelScore() {

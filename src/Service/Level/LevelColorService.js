@@ -6,7 +6,6 @@ class LevelColorService extends LevelService {
         this.coloredblocks = {};
     }
 
-    // Раскраска блоков при приближении
     paintBlock(player, cellsToCheck, objects) {
         for (let [y, x] of cellsToCheck) {
             if (objects[y] && objects[y][x]) {
@@ -21,7 +20,7 @@ class LevelColorService extends LevelService {
     }
 
     checkProximity(player, obj) {
-        const proximityDistance = 2; // Расстояние до объекта для изменения цвета
+        const proximityDistance = 1;
         return (
             player.x < obj.x + obj.size + proximityDistance &&
             player.x + player.size > obj.x - proximityDistance &&
@@ -42,12 +41,12 @@ class LevelColorService extends LevelService {
     updateScore(objects) {
         let blue =  objects.filter(block => block.color === 'blue').length;
         let green = objects.filter(block => block.color === 'green').length;
-        let yellow = objects.filter(block => block.color === 'orange').length;
+        let yellow = objects.filter(block => block.color === 'yellow').length;
         let purple = objects.filter(block => block.color === 'purple').length;
         this.coloredblocks = {blue: blue, green: green, yellow: yellow, purple: purple}
     }
 
-    getStat() {
+    getStat(players) {
         const sortedColoredBlocks = Object.entries(this.coloredblocks)
             .sort((a, b) => b[1] - a[1])
             .reduce((result, [key, value]) => ({ ...result, [key]: value }), {});

@@ -1,7 +1,7 @@
 const Player = require("../Entity/Player");
 const GRAVITY = 0.5;
 const JUMP_FORCE = -13;
-let colorArray = ['blue', 'green', 'orange', 'purple'];
+let colorArray = ['blue', 'green', 'yellow', 'purple'];
 
 class PlayerService {
     constructor() {
@@ -92,7 +92,7 @@ class PlayerService {
         colorArray.splice(colorInd, 1);
 
         if (colorArray.length === 0) {
-            colorArray = ['blue', 'green', 'orange', 'purple'];
+            colorArray = ['blue', 'green', 'yellow', 'purple'];
         }
 
         return color;
