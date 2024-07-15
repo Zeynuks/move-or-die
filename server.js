@@ -100,6 +100,9 @@ gameNamespace.on('connection', (socket) => {
         roomManager.gameDisconnect(socket);
     });
 
+    socket.on('endGame', () => {
+        roomManager.removeRoom(socket);
+    });
 });
 // Запуск сервера
 server.listen(PORT, () => console.log(`Server running on ${PORT}`));

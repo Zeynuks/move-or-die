@@ -47,6 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
+    socket.on('endGame', () => {
+        window.location.href = `/`;
+    });
+
+
     function drawMap() {
         // Проходимся по каждому игровому объекту и рисуем его
         for (let obj of blocks) {

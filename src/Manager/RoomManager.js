@@ -3,7 +3,6 @@ const PlayerController = require('../Controller/PlayerController');
 const GameController = require('../Controller/GameController');
 const RoomService = require("../Service/RoomService");
 const PlayerService = require("../Service/PlayerService");
-const LevelColorService = require("../Service/Level/LevelColorService");
 const LevelController = require("../Controller/LevelController");
 
 class RoomManager {
@@ -50,6 +49,7 @@ class RoomManager {
         for (let roomName in this.rooms) {
             this.rooms[roomName].roomController.disconnect(socket);
         }
+        // if (this.rooms[roomName].roomController.roomService.pl) {}
     }
 
     gameDisconnect(socket) {
@@ -74,6 +74,12 @@ class RoomManager {
         if (this.rooms[roomName]) {
             this.rooms[roomName].playerController.addPlayerToGame(socket, userName);
             this.rooms[roomName].gameController.isStart(socket);
+        }
+    }
+
+    removeRoom() {
+        if (this.rooms[roomName]) {
+            delete this.rooms[roomName];
         }
     }
 
