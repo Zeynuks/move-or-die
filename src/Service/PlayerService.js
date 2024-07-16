@@ -31,6 +31,7 @@ class PlayerService {
                 player.vy = 0;
                 player.health = 100;
                 player.statement = true;
+                player.active = false;
             });
         } catch (error) {
             console.error('Ошибка сброса данных игроков: ' + error.message);
@@ -81,6 +82,9 @@ class PlayerService {
      */
     async handleMovePlayer(clientIp, movementData) {
         try {
+            if (this.players[clientIp].isCarrier && movementData.x) {
+                movementData.x = movementData.x  > 0 ? movementData.x  + 1 : movementData.x  - 1;
+            }
             this.players[clientIp].vx = movementData.x;
             if (movementData.jump && this.players[clientIp].onGround) {
                 this.players[clientIp].vy = JUMP_FORCE;

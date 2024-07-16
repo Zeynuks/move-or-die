@@ -18,6 +18,8 @@ canvas.height = 800;
 
 const canvasHealth = document.getElementById('healthCanvas');
 const contextHealth = canvasHealth.getContext('2d');
+canvasHealth.width = 1400;
+canvasHealth.height = 100;
 
 let blue_block = new Image();
 let yellow_block = new Image();
@@ -30,6 +32,8 @@ let green_player = new Image();
 let purple_player = new Image();
 
 let killing_block = new Image();
+
+let bomb_image = new Image();
 
 let blue_score = document.getElementById('blue-score');
 let yellow_score = document.getElementById('yellow-score');
@@ -58,7 +62,9 @@ function preload() {
     green_player.src = '../images/character_green.png';
     purple_player.src = '../images/character_red.png';
 
-    killing_block.src = '../images/DeathSheet.png'
+    killing_block.src = '../images/DeathSheet.png';
+
+    bomb_image.src = '../images/bomb.png';
 }
 
 const info_box = document.getElementById('page__info-box');

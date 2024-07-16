@@ -38,7 +38,7 @@ class LevelColorService extends LevelService {
         });
     }
 
-    updateScore(objects) {
+    updateScore(objects, players) {
         let blue =  objects.filter(block => block.color === 'blue').length;
         let green = objects.filter(block => block.color === 'green').length;
         let yellow = objects.filter(block => block.color === 'yellow').length;
@@ -52,16 +52,11 @@ class LevelColorService extends LevelService {
             .reduce((result, [key, value]) => ({ ...result, [key]: value }), {});
 
         let count = 0;
-        let bonus = 5
+        let bonus = [5, 2, 1, 0]
         const updatedSortedColoredBlocks = {};
         for (const color in sortedColoredBlocks) {
             if (sortedColoredBlocks[color] !== 0) {
-                if (count === 3) {
-                    updatedSortedColoredBlocks[color] = 1;
-                } else {
-                    updatedSortedColoredBlocks[color] = bonus - count * 2;
-                }
-                bonus--;
+                updatedSortedColoredBlocks[color] = bonus[count];
                 count++;
             }
         }

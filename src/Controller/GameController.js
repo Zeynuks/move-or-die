@@ -60,7 +60,6 @@ class GameController extends BaseController {
             setTimeout(async () => {
                 this.levelService = await this.getCurrLevel()
                 await this.setGameData();
-                this.levelService.isEnd = true;
                 this.io.emit('startRound', this.players, this.level);
                 await this.updateCycle(this.levelObjects);
                 this.roundTimer = setTimeout(async () => {
@@ -92,6 +91,7 @@ class GameController extends BaseController {
         try {
             this.stopUpdateCycle()
             this.updatePlayersScore();
+            this.levelService.isEnd = true;
             this.io.emit('endRound', this.playersScore);
             setTimeout(async () => {
                 await this.startRound();
@@ -106,9 +106,9 @@ class GameController extends BaseController {
             if (this.gameState) {
                 this.cycleTimer = setInterval(async () => {
                     await this.playerService.updatePlayersPosition(this.roomName, gameObjects);
-                    await this.levelService.updateLevel(this.players, this.levelObjects);
+                    await this.levelService.updateLevel(this.players, this.levelObjects, this.io);
                     await this.playerService.updateHealth(this.players);
-                    await this.levelService.updateScore(this.level);
+                    await this.levelService.updateScore(this.level, this.players);
                     await this.isRoundEnd();
                     this.io.emit('gameUpdate', this.players, this.level, this.specialObjects);
                     this.io.emit('levelScore', this.levelService.getLevelScore());
