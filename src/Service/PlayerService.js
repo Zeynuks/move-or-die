@@ -1,8 +1,12 @@
 const Player = require("../Entity/Player");
-const GRAVITY = 0.5;
+
 const JUMP_FORCE = -13;
 let colorArray = ['blue', 'green', 'yellow', 'purple'];
 
+/**
+ * Сервис для управления игроками.
+ * @class PlayerService
+ */
 class PlayerService {
     constructor() {
         this.players = {};
@@ -10,6 +14,10 @@ class PlayerService {
         this.leftPlayers = {};
     }
 
+    /**
+     * Сбрасывает данные всех игроков.
+     * @async
+     */
     async resetPlayersData() {
         try {
             Object.values(this.players).forEach(player => {
@@ -18,7 +26,7 @@ class PlayerService {
                 player.collision = true;
                 player.visible = true;
                 player.statement = true;
-                player.movement = { x: 0, y: 0};
+                player.movement = { x: 0, y: 0 };
                 player.onGround = true;
                 player.vy = 0;
                 player.health = 100;
@@ -29,10 +37,27 @@ class PlayerService {
         }
     }
 
+    /**
+     * Создает нового игрока.
+     * @param {string} clientIp - IP клиента.
+     * @param {string} userName - Имя игрока.
+     * @param {number} x - Начальная координата X.
+     * @param {number} y - Начальная координата Y.
+     * @param {number} size - Размер игрока.
+     * @param {string} color - Цвет игрока.
+     * @returns {Player} Новый объект игрока.
+     */
     newPlayer(clientIp, userName, x, y, size, color) {
         return new Player(clientIp, userName, x, y, size, color, true, true);
     }
 
+    /**
+     * Добавляет игрока в игру.
+     * @param {string} roomName - Имя комнаты.
+     * @param {string} userName - Имя игрока.
+     * @param {string} clientIp - IP клиента.
+     * @async
+     */
     async addPlayerToGame(roomName, userName, clientIp) {
         try {
             if (this.leftPlayers[clientIp] === undefined) {
@@ -46,6 +71,14 @@ class PlayerService {
         }
     }
 
+    /**
+     * Обрабатывает движение игрока.
+     * @param {string} clientIp - IP клиента.
+     * @param {Object} movementData - Данные о движении игрока.
+     * @param {number} movementData.x - Скорость по оси X.
+     * @param {boolean} movementData.jump - Флаг прыжка.
+     * @async
+     */
     async handleMovePlayer(clientIp, movementData) {
         try {
             this.players[clientIp].vx = movementData.x;
@@ -58,6 +91,10 @@ class PlayerService {
         }
     }
 
+    /**
+     * Обновляет здоровье всех игроков.
+     * @async
+     */
     async updateHealth() {
         try {
             Object.values(this.players).forEach(player => {
@@ -75,6 +112,10 @@ class PlayerService {
         }
     }
 
+    /**
+     * Обновляет позиции всех игроков.
+     * @async
+     */
     async updatePlayersPosition() {
         try {
             Object.values(this.players).forEach(player => {
@@ -86,6 +127,10 @@ class PlayerService {
         }
     }
 
+    /**
+     * Устанавливает точки спавна для всех игроков.
+     * @param {Array<{x: number, y: number}>} spawnPoints - Массив точек спавна.
+     */
     async setPlayersSpawnPoints(spawnPoints) {
         Object.values(this.players).forEach(player => {
             const spawnPoint = spawnPoints.pop();
@@ -94,6 +139,10 @@ class PlayerService {
         });
     }
 
+    /**
+     * Возвращает случайный цвет из массива цветов.
+     * @returns {string} Случайный цвет.
+     */
     randomColor() {
         let colorInd = Math.floor(Math.random() * colorArray.length);
         let color = colorArray[colorInd];
@@ -106,6 +155,11 @@ class PlayerService {
         return color;
     }
 
+    /**
+     * Проверяет, все ли игроки погибли.
+     * @returns {boolean} Все ли игроки погибли.
+     * @async
+     */
     async isAllDie() {
         try {
             return Object.values(this.players).every(player => player.statement === false);
@@ -114,6 +168,11 @@ class PlayerService {
         }
     }
 
+    /**
+     * Отключает игрока от игры.
+     * @param {string} clientIp - IP клиента.
+     * @async
+     */
     async disconnect(clientIp) {
         try {
             this.leftPlayers[clientIp] = this.players[clientIp];

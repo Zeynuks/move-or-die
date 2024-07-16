@@ -1,6 +1,9 @@
 const MapRepository = require("../Repository/MapRepository");
 const Block = require("../Entity/Block");
 
+/**
+ * Сервис для работы с уровнями игры.
+ */
 class LevelService {
     constructor() {
         this.mapRepository = new MapRepository();
@@ -10,6 +13,11 @@ class LevelService {
         this.levelObjects = [];
         this.specialObjects = [];
     }
+
+    /**
+     * Загружает карту уровня из репозитория.
+     * @param {string} levelName - Название уровня для загрузки.
+     */
     async downloadLevelMap(levelName) {
         try {
             const map = await this.mapRepository.findMapByLevelName(levelName);
@@ -18,6 +26,11 @@ class LevelService {
             console.error('Ошибка:', error);
         }
     }
+
+    /**
+     * Устанавливает карту уровня из массива данных.
+     * @param {Array<Array<string>>} map - Карта уровня в виде двумерного массива строк.
+     */
     setMap(map) {
         try {
             this.levelMap = [];
@@ -27,14 +40,19 @@ class LevelService {
                     if (map[i][j] === 'X') {
                         this.levelMap.push(new Block(j * this.size, i * this.size, this.size));
                     } else if (map[i][j] === 'S') {
-                        this.levelSpawnPoints.push({x: j * this.size,y: i * this.size})
+                        this.levelSpawnPoints.push({x: j * this.size, y: i * this.size});
                     }
                 }
             }
         } catch (error) {
-            throw new Error('Ошибка загрузки блоков в карту')
+            throw new Error('Ошибка загрузки блоков в карту');
         }
     }
+
+    /**
+     * Генерирует сетку объектов уровня на основе заданного размера ячейки сетки.
+     * @param {number} gridSize - Размер ячейки сетки.
+     */
     async getMapGrid(gridSize) {
         this.levelObjects = [];
         this.levelMap.forEach(obj => {
@@ -46,6 +64,11 @@ class LevelService {
         });
     }
 
+    /**
+     * Генерирует сетку объектов на основе заданных объектов.
+     * @param {Array<Object>} objects - Массив объектов для генерации сетки.
+     * @returns {Array<Array<Array<Object>>>} - Сетка объектов.
+     */
     getObjectsGrid(objects) {
         const grid = [];
         objects.forEach(obj => {
@@ -58,22 +81,40 @@ class LevelService {
         return grid;
     }
 
+    /**
+     * Сбрасывает данные уровня до начального состояния.
+     * @param {string} levelName - Название уровня для сброса данных.
+     */
     async resetLevelData(levelName) {
         await this.downloadLevelMap(levelName);
         await this.getMapGrid(this.size);
     }
+
+    /**
+     * Проверяет коллизию игрока с заданными ячейками сетки и объектами.
+     * @param {Object} player - Объект игрока.
+     * @param {Array<Array<number>>} cellsToCheck - Ячейки сетки для проверки коллизии.
+     * @param {Array<Array<Array<Object>>>} objects - Сетка объектов для проверки коллизии.
+     */
     checkCellsCollision(player, cellsToCheck, objects) {
         for (let [y, x] of cellsToCheck) {
             if (objects[y] && objects[y][x]) {
                 for (let obj of objects[y][x]) {
-                    let collision = this.checkCollision(player, obj); // Проверка коллизии с объектом
+                    let collision = this.checkCollision(player, obj);
                     if (collision) {
-                        this.resolveCollision(player, obj, collision); // Разрешение коллизии
+                        this.resolveCollision(player, obj, collision);
                     }
                 }
             }
         }
     }
+
+    /**
+     * Проверяет коллизию между игроком и объектом.
+     * @param {Object} player - Объект игрока.
+     * @param {Object} obj - Объект для проверки коллизии с игроком.
+     * @returns {Object|null} - Объект, представляющий тип коллизии, или null, если коллизии нет.
+     */
     checkCollision(player, obj) {
         let collision = {
             left: false,
@@ -82,35 +123,61 @@ class LevelService {
             bottom: false
         };
 
-        // Проверка пересечения прямоугольников
-        if (player.x < obj.x + obj.size && player.x + player.size > obj.x && player.y < obj.y + obj.size && player.y + player.size > obj.y) {
-            collision.left = player.x + player.size > obj.x && player.x < obj.x; // Коллизия слева
-            collision.right = player.x < obj.x + obj.size && player.x + player.size > obj.x + obj.size; // Коллизия справа
-            collision.top = player.y + player.size > obj.y && player.y < obj.y; // Коллизия сверху
-            collision.bottom = player.y < obj.y + obj.size && player.y + player.size > obj.y + obj.size; // Коллизия снизу
+        if (player.x < obj.x + obj.size && player.x + player.size > obj.x &&
+            player.y < obj.y + obj.size && player.y + player.size > obj.y) {
+            collision.left = player.x + player.size > obj.x && player.x < obj.x;
+            collision.right = player.x < obj.x + obj.size && player.x + player.size > obj.x + obj.size;
+            collision.top = player.y + player.size > obj.y && player.y < obj.y;
+            collision.bottom = player.y < obj.y + obj.size && player.y + player.size > obj.y + obj.size;
             return collision;
         }
         return null;
     }
+
+    /**
+     * Разрешает коллизию между игроком и объектом.
+     * @param {Object} player - Объект игрока.
+     * @param {Object} obj - Объект, с которым произошла коллизия.
+     * @param {Object} collision - Типы коллизии.
+     */
     resolveCollision(player, obj, collision) {
-        if (collision.top && player.vy > 0) { // Коллизия сверху
+        if (collision.top && player.vy > 0) {
             player.y = obj.y - player.size;
             player.vy = 0;
             player.onGround = true;
-        } else if (collision.bottom && player.vy < 0) { // Коллизия снизу
+        } else if (collision.bottom && player.vy < 0) {
             player.y = obj.y + obj.size;
             player.vy = 0;
-        } else if (collision.left && player.vx > 0) { // Коллизия слева
+        } else if (collision.left && player.vx > 0) {
             player.x = obj.x - player.size;
             player.vx = 0;
-        } else if (collision.right && player.vx < 0) { // Коллизия справа
+        } else if (collision.right && player.vx < 0) {
             player.x = obj.x + player.size;
             player.vx = 0;
         }
     }
-    updateLevel(players, objects) {}
-    updateScore() {}
-    getStat() {}
+
+    /**
+     * Обновляет уровень (не реализовано).
+     * @param {Array<Object>} players - Массив игроков.
+     * @param {Array<Object>} objects - Массив объектов для обновления уровня.
+     */
+    updateLevel(players, objects) {
+    }
+
+    /**
+     * Обновляет счет (не реализовано).
+     */
+    updateScore() {
+    }
+
+    /**
+     * Получает статистику (не реализовано).
+     * @returns {Object} - Статистика уровня.
+     */
+    getStat() {
+        return {};
+    }
 
 }
 

@@ -22,7 +22,7 @@ class RoomManager {
                 roomController: new RoomController(this.io.to(roomName), roomName, services),
                 playerController: new PlayerController(this.io.of('/game').to(roomName), roomName, services),
                 gameController: new GameController(this.io.of('/game').to(roomName), roomName, services),
-                levelController: new LevelController(this.io.of('/game').to(roomName))
+                levelController: new LevelController(this.io.of('/game').to(roomName), roomName)
             };
             this.rooms[roomName].gameController.levelList = this.rooms[roomName].levelController.getLevelList();
             this.rooms[roomName].roomController.createRoom(socket, userName);
@@ -49,7 +49,6 @@ class RoomManager {
         for (let roomName in this.rooms) {
             this.rooms[roomName].roomController.disconnect(socket);
         }
-        // if (this.rooms[roomName].roomController.roomService.pl) {}
     }
 
     gameDisconnect(socket) {

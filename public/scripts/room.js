@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const userName = urlParams.get('name');
 
     if (!userName) {
-        window.location.href = `/enter-name?room=${roomName}`;
+        window.location.href = `/join?room=${roomName}`;
         return;
     }
 
@@ -41,8 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
             const serverIP = data.ip;
             const serverPORT = data.port;
-            roomLink.href = `http://${serverIP}:${serverPORT}/enter-name?room=${roomName}`;
-            roomLink.innerText = `http://${serverIP}:${serverPORT}/enter-name?room=${roomName}`;
+            roomLink.href = `http://${serverIP}:${serverPORT}/join?room=${roomName}`;
+            roomLink.innerText = `http://${serverIP}:${serverPORT}/join?room=${roomName}`;
         })
         .catch(error => {
             console.error('Error fetching IP:', error);
