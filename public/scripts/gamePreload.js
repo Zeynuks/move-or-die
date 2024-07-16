@@ -18,6 +18,8 @@ canvas.height = 800;
 
 const canvasHealth = document.getElementById('healthCanvas');
 const contextHealth = canvasHealth.getContext('2d');
+canvasHealth.width = 1400;
+canvasHealth.height = 100;
 
 let blue_block = new Image();
 let yellow_block = new Image();

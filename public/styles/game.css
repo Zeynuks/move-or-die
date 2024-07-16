@@ -33,7 +33,7 @@ body.page {
 .health__canvas {
     width: 60vw;
     background-size: cover;
-    height: calc(1 / 30 * 60vw);
+    /*height: calc(1 / 30 * 60vw);*/
 }
 
 .page__container {
