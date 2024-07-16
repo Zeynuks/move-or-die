@@ -31,6 +31,8 @@ let purple_player = new Image();
 
 let killing_block = new Image();
 
+let bomb_image = new Image();
+
 let blue_score = 0;
 let yellow_score = 0;
 let green_score = 0;
@@ -46,6 +48,13 @@ let previousPlayers = {};
 let lastUpdateTime = Date.now();
 let lastServerUpdateTime = Date.now();
 
+const COLORS = {
+    blue: '#46d7f4',
+    yellow: '#e2c233',
+    purple: '#f591f4',
+    green: '#51e255'
+}
+
 function preload() {
     blue_block.src = '../images/blue-block.png';
     yellow_block.src = '../images/yellow-block.png';
@@ -58,7 +67,9 @@ function preload() {
     green_player.src = '../images/character_green.png';
     purple_player.src = '../images/character_red.png';
 
-    killing_block.src = '../images/DeathSheet.png'
+    killing_block.src = '../images/DeathSheet.png';
+
+    bomb_image.src = '../images/bomb.png';
 }
 
 const info_box = document.getElementById('page__info-box');

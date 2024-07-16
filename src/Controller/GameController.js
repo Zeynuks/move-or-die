@@ -22,8 +22,16 @@ class GameController {
     }
 
     async getCurrLevel() {
-        this.counter -= 1;
-        return new this.levelList[this.counter]
+        try {
+            this.counter -= 1;
+            if (this.counter <= 0) {
+                await this.gameEnd();
+                return null;
+            }
+            return new this.levelList[this.counter]
+        } catch (error) {
+            this.io.emit('error', 'Ошибка загрузки уровня');
+        }
     }
 
     async isStart(socket) {
@@ -80,6 +88,7 @@ class GameController {
         try {
             this.stopUpdateCycle()
             this.updatePlayersScore();
+            this.levelService.isEnd = true;
             this.io.emit('endRound', this.playersScore);
             setTimeout(async () => {
                 await this.startRound();
@@ -94,7 +103,7 @@ class GameController {
             if (this.gameState) {
                 this.cycleTimer = setInterval(async () => {
                     await this.playerService.updatePlayersPosition(this.roomName, gameObjects);
-                    await this.levelService.updateLevel(this.players, this.levelObjects);
+                    await this.levelService.updateLevel(this.players, this.levelObjects, this.io);
                     await this.playerService.updateHealth(this.players);
                     await this.levelService.updateScore(this.level, this.players);
                     await this.isRoundEnd();
@@ -109,7 +118,6 @@ class GameController {
 
     async isRoundEnd() {
         if (await this.playerService.isAllDie() || this.players.length === 0) {
-            this.stopUpdateCycle();
             this.stopGameCycle()
             this.endRound();
         }
@@ -130,13 +138,24 @@ class GameController {
     }
 
     async setGameData() {
-        await this.playerService.resetPlayersData();
-        await this.levelService.resetLevelData(this.levelService.levelName);
-        await this.playerService.setPlayersSpawnPoints(this.levelService.levelSpawnPoints)
-        this.players = this.playerService.players;
-        this.levelObjects = this.levelService.levelObjects;
-        this.level = this.levelService.levelMap;
-        this.specialObjects = this.levelService.specialObjects
+        try {
+            await this.playerService.resetPlayersData();
+            await this.levelService.resetLevelData(this.levelService.levelName);
+            await this.playerService.setPlayersSpawnPoints(this.levelService.levelSpawnPoints)
+            this.players = this.playerService.players;
+            this.levelObjects = this.levelService.levelObjects;
+            this.level = this.levelService.levelMap;
+            this.specialObjects = this.levelService.specialObjects
+        } catch (error) {
+            this.io.emit('error', 'Ошибка обновления данных');
+        }
+    }
+
+    async gameEnd(){
+        this.gameState = false
+        this.stopUpdateCycle();
+        this.stopGameCycle();
+        this.io.emit('endGame');
     }
 }
 

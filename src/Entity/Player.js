@@ -9,6 +9,7 @@ class Player extends Entity {
         this._statement = statement;
         this._health = 100;
         this._onGround = true;
+        this._active = false;
     }
 
     get ip() {
@@ -35,6 +36,10 @@ class Player extends Entity {
         return this._onGround;
     }
 
+    get active() {
+        return this._active;
+    }
+
     set ip(value) {
         this._ip = value;
     }
@@ -56,6 +61,10 @@ class Player extends Entity {
     }
     set onGround(value) {
         this._onGround = value;
+    }
+
+    set active(value) {
+        this._active = value;
     }
 }
 

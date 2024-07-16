@@ -51,25 +51,25 @@ document.addEventListener('DOMContentLoaded', () => {
         let x = 600;
         let y = 100;
 
-        context.fillStyle = 'rgba(156, 156, 156, 0.3)';
-        context.fillRect(x, y, 200, 30);
-
-        context.fillStyle = 'rgba(114, 218, 232, 0.53)';
+        context.fillStyle =  COLORS['blue'];
         context.fillRect(x, y, (blue_score / allPoints) * 200, 30);
 
-        context.fillStyle = 'rgba(255,211,0,0.53)';
+        context.fillStyle =  COLORS['yellow'];
         x += (blue_score / allPoints) * 200;
         context.fillRect(x, y, (yellow_score / allPoints) * 200, 30);
 
-        context.fillStyle = 'rgba(240, 84, 206, 0.53)';
+        context.fillStyle = COLORS['purple'];
         x += (yellow_score / allPoints) * 200;
         context.fillRect(x, y, (purple_score / allPoints) * 200, 30);
 
-        context.fillStyle = 'rgba(30, 199, 58, 0.53)';
+        context.fillStyle = COLORS['green'];
         x += (purple_score / allPoints) * 200;
         context.fillRect(x, y, (green_score / allPoints) * 200, 30);
     }
 
+    socket.on('endGame', () => {
+        window.location.href = `/`;
+    });
 
     function drawMap() {
         // Проходимся по каждому игровому объекту и рисуем его
@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 contextHealth.fillStyle = 'red';
             }
             contextHealth.fillRect(playerIndex * 55 + 10, 30, 50, 80);
-            contextHealth.fillStyle = player.color;
+            contextHealth.fillStyle = COLORS[player.color];
             contextHealth.fillRect(playerIndex * 55 + 10, 30, 50 * player.health / 100, 80);
         }
 
@@ -118,12 +118,73 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         }
 
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 5 + 1; // Размер частицы
+                this.speedX = Math.random() * 6 - 3; // Скорость по X
+                this.speedY = Math.random() * 6 - 3; // Скорость по Y
+                this.color = COLORS[color]; // Цвет
+                this.life = 50; // Время жизни частицы
+            }
+
+            // Обновление позиции частицы
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life--;
+            }
+
+            // Отрисовка частицы
+            draw(ctx) {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        let particles = [];
+
+        // Функция для создания взрыва
+        function explode(x, y, color) {
+            for (let i = 0; i < 50; i++) { // Создаем 50 частиц
+                particles.push(new Particle(x, y, color));
+            }
+        }
+
+        socket.on('explode', (data) => {
+            explode(data.x, data.y, data.color);
+        });
+
+        // Функция обновления и отрисовки частиц
+        function handleParticles(ctx) {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                particles[i].draw(ctx);
+
+                if (particles[i].life <= 0) { // Если время жизни частицы истекло, удаляем ее
+                    particles.splice(i, 1);
+                }
+
+                if (!state) {
+                    particles = [];
+                    break;
+                }
+            }
+        }
+
+
         // Функция для рисования всех игроков
         function drawPlayers() {
             const now = Date.now();
             const t = (now - lastServerUpdateTime) / (1000 / 60);
             context.clearRect(0, 0, canvas.width, canvas.height);
             contextHealth.clearRect(0, 0, canvas.width, canvas.height);
+
+            handleParticles(context);
+
             Object.entries(players).forEach(([ip, player], playerIndex) => {
                 const previous = previousPlayers[ip];
                 const current = player;
@@ -156,6 +217,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         context.restore();
 
                         drawHealth(player, playerIndex);
+
+                        if (player.active) {
+                            // context.fillStyle = 'red';
+                            // context.fillRect(player.x, player.y, 15, 15);
+                            context.drawImage(bomb_image, player.x-2.5, player.y+15, 55, 25);
+                        }
                     }
 
                     drawMap();

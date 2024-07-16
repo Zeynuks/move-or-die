@@ -52,22 +52,22 @@ class FallingBlocksService extends LevelService {
 
     setFallingBlocks() {
         let x = -this.size;
-        for (let i = 0; i < this.complexity; i++){
+        for (let i = 0; i < this.complexity; i++) {
             x += this.size;
             let y = Math.floor(Math.random() * -1500);
-            this.specialObjects.push(new FallingBlock(x + this.size, y -this.size, this.size));
+            this.specialObjects.push(new FallingBlock(x + this.size, y - this.size, this.size));
         }
     }
 
     fallingBlocksMovement() {
-        for (let i = 0; i < this.specialObjects.length; i++){
+        for (let i = 0; i < this.specialObjects.length; i++) {
             if (this.specialObjects[i].y <= this.size) {
                 this.specialObjects[i].vy = 5;
             } else {
                 this.specialObjects[i].vy += GRAVITY;
             }
             this.specialObjects[i].y += this.specialObjects[i].vy;
-            if (this.specialObjects[i].y >= 800)  {
+            if (this.specialObjects[i].y >= 800) {
                 this.specialObjects[i].y = -this.size + Math.floor(Math.random() * -1500);
             }
         }
@@ -88,7 +88,7 @@ class FallingBlocksService extends LevelService {
     getStat(players) {
         const sorted = Object.entries(this.levelScore)
             .sort((a, b) => b[1] - a[1])
-            .reduce((result, [key, value]) => ({ ...result, [key]: value }), {});
+            .reduce((result, [key, value]) => ({...result, [key]: value}), {});
 
         let count = 0;
         let bonus = [5, 2, 1, 0]
@@ -109,7 +109,12 @@ class FallingBlocksService extends LevelService {
     }
 
     getLevelScore() {
-        return this.levelScore;
+        return {
+            blue: Math.round(this.levelScore.blue),
+            green: Math.round(this.levelScore.green),
+            yellow: Math.round(this.levelScore.yellow),
+            purple: Math.round(this.levelScore.purple)
+        }
     }
 }
 
