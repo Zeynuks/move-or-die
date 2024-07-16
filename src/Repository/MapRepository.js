@@ -3,7 +3,15 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+/**
+ * @class MapRepository
+ * @description Класс для работы с картами уровней с использованием MySQL.
+ */
 class MapRepository {
+    /**
+     * Создает экземпляр MapRepository.
+     * Устанавливает соединение с базой данных.
+     */
     constructor() {
         this.connection = mysql.createPool({
             host: process.env.DB_HOST,
@@ -14,6 +22,12 @@ class MapRepository {
         this.initialize();
     }
 
+    /**
+     * Инициализирует базу данных.
+     * @private
+     * @async
+     * @throws {Error} Если произошла ошибка при инициализации.
+     */
     async initialize() {
         try {
             const connection = await this.connection.getConnection();
@@ -23,6 +37,13 @@ class MapRepository {
         }
     }
 
+    /**
+     * Ищет карту по названию уровня.
+     * @param {string} levelName - Название уровня.
+     * @returns {Promise<string>} Карта уровня.
+     * @async
+     * @throws {Error} Если произошла ошибка при поиске карты или данные не найдены.
+     */
     async findMapByLevelName(levelName) {
         try {
             const [results] = await this.connection.query('SELECT level_map FROM map WHERE level_name = ?', [levelName]);
@@ -36,6 +57,11 @@ class MapRepository {
         }
     }
 
+    /**
+     * Отключается от базы данных.
+     * @async
+     * @throws {Error} Если произошла ошибка при отключении от базы данных.
+     */
     async disconnect() {
         try {
             await this.connection.end();

@@ -1,9 +1,16 @@
 const mysql = require('mysql2/promise');
 const dotenv = require('dotenv');
-
 dotenv.config();
 
+/**
+ * @class RoomRepository
+ * @description Класс для управления комнатами с использованием MySQL.
+ */
 class RoomRepository {
+    /**
+     * Создает экземпляр RoomRepository.
+     * Устанавливает соединение с базой данных.
+     */
     constructor() {
         this.connection = mysql.createPool({
             host: process.env.DB_HOST,
@@ -14,6 +21,12 @@ class RoomRepository {
         this.initialize();
     }
 
+    /**
+     * Инициализирует базу данных.
+     * @private
+     * @async
+     * @throws {Error} Если произошла ошибка при инициализации.
+     */
     async initialize() {
         try {
             const connection = await this.connection.getConnection();
@@ -25,6 +38,12 @@ class RoomRepository {
         }
     }
 
+    /**
+     * Создает комнату.
+     * @param {Object} room - Объект комнаты.
+     * @async
+     * @throws {Error} Если произошла ошибка при создании комнаты.
+     */
     async createRoom(room) {
         try {
             await this.connection.query('INSERT INTO room SET ?', room);
@@ -33,6 +52,13 @@ class RoomRepository {
         }
     }
 
+    /**
+     * Обновляет хоста комнаты.
+     * @param {string} roomName - Имя комнаты.
+     * @param {string} newHostIp - Новый IP хоста.
+     * @async
+     * @throws {Error} Если произошла ошибка при обновлении хоста комнаты.
+     */
     async updateRoomHost(roomName, newHostIp) {
         try {
             await this.connection.query('UPDATE room SET creator_ip = ? WHERE name = ?', [newHostIp, roomName]);
@@ -41,15 +67,26 @@ class RoomRepository {
         }
     }
 
+    /**
+     * Удаляет комнату по имени.
+     * @param {string} roomName - Имя комнаты.
+     * @async
+     * @throws {Error} Если произошла ошибка при удалении комнаты.
+     */
     async deleteRoomByName(roomName) {
         try {
-            const [results] = await this.connection.query('DELETE FROM room WHERE name = ?', [roomName]);
-            return results;
+            await this.connection.query('DELETE FROM room WHERE name = ?', [roomName]);
         } catch (error) {
             throw new Error('Ошибка удаления комнаты: ' + error.message);
         }
     }
 
+    /**
+     * Добавляет пользователя в комнату.
+     * @param {Object} user - Объект пользователя.
+     * @async
+     * @throws {Error} Если произошла ошибка при добавлении пользователя в комнату.
+     */
     async addUserToRoom(user) {
         try {
             await this.connection.query('INSERT INTO room_user SET ?', user);
@@ -58,6 +95,13 @@ class RoomRepository {
         }
     }
 
+    /**
+     * Получает пользователей в комнате.
+     * @param {string} roomName - Имя комнаты.
+     * @returns {Promise<any[]>} Список пользователей.
+     * @async
+     * @throws {Error} Если произошла ошибка при получении данных пользователей.
+     */
     async getUsersInRoom(roomName) {
         try {
             const [users] = await this.connection.query('SELECT * FROM room_user WHERE room_name = ?', [roomName]);
@@ -67,6 +111,13 @@ class RoomRepository {
         }
     }
 
+    /**
+     * Удаляет пользователя из комнаты.
+     * @param {string} roomName - Имя комнаты.
+     * @param {string} userIp - IP пользователя.
+     * @async
+     * @throws {Error} Если произошла ошибка при удалении пользователя из комнаты.
+     */
     async removeUserFromRoom(roomName, userIp) {
         try {
             await this.connection.query('DELETE FROM room_user WHERE room_name = ? AND user_ip = ?', [roomName, userIp]);
@@ -75,6 +126,11 @@ class RoomRepository {
         }
     }
 
+    /**
+     * Отключается от базы данных.
+     * @async
+     * @throws {Error} Если произошла ошибка при отключении от базы данных.
+     */
     async disconnect() {
         try {
             await this.connection.end();
