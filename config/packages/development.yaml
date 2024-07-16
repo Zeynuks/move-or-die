@@ -30,5 +30,5 @@ routes:
     path: "/game"
     file: "pages/game.html"
   - method: GET
-    path: "/enter-name"
+    path: "/join"
     file: "pages/enter-name.html"

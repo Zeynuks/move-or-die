@@ -1,6 +1,20 @@
 server:
   port: 3000
   host: "localhost"
+  perMessageDeflate: {
+    zlibDeflateOptions: {
+      chunkSize: 1024,
+      memLevel: 7,
+      level: 3
+    },
+    zlibInflateOptions: {
+      chunkSize: 10 * 1024
+    },
+    clientNoContextTakeover: true,
+    serverNoContextTakeover: true,
+    serverMaxWindowBits: 10,
+    concurrencyLimit: 10
+  }
 socket:
   path: "/socket.io"
 paths:
@@ -16,5 +30,5 @@ routes:
     path: "/game"
     file: "pages/game.html"
   - method: GET
-    path: "/enter-name"
+    path: "/join"
     file: "pages/enter-name.html"
