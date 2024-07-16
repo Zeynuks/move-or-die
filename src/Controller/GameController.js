@@ -1,5 +1,8 @@
-class GameController {
+const BaseController = require("./BaseController");
+
+class GameController extends BaseController {
     constructor(io, roomName, services) {
+        super(io, roomName);
         this.io = io;
         this.roomName = roomName;
         this.gameService = services.gameService;

@@ -1,6 +1,8 @@
-class RoomController {
+const BaseController = require("./BaseController");
+
+class RoomController extends BaseController {
     constructor(io, roomName, services) {
-        this.io = io;
+        super(io, roomName);
         this.roomName = roomName;
         this.roomHost = null;
         this.roomService = services.roomService;
