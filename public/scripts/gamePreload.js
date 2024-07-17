@@ -8,7 +8,7 @@ if (!roomName) {
     window.location.href = '/';
 }
 
-document.getElementById('roomName').innerText = `Room: ${roomName}`;
+//document.getElementById('roomName').innerText = `Room: ${roomName}`;
 
 // Здесь можно добавить логику для инициализации canvas игры
 const canvas = document.getElementById('gameCanvas');
@@ -18,6 +18,11 @@ canvas.height = 800;
 
 const canvasHealth = document.getElementById('healthCanvas');
 const contextHealth = canvasHealth.getContext('2d');
+
+const canvasInfo = document.getElementById('infoCanvas');
+const contextInfo = canvasInfo.getContext('2d');
+canvasInfo.width = 1400;
+canvasInfo.height = 600;
 
 let blue_block = new Image();
 let yellow_block = new Image();
@@ -55,6 +60,21 @@ const COLORS = {
     green: '#51e255'
 }
 
+const PLAYERS = {
+    blue: blue_player,
+    yellow: yellow_player,
+    purple: purple_player,
+    green: green_player
+}
+
+const BLOCKS = {
+    blue: blue_block,
+    yellow: yellow_block,
+    purple: purple_block,
+    green: green_block,
+    grey: grey_block
+}
+
 function preload() {
     blue_block.src = '../images/blue-block.png';
     yellow_block.src = '../images/yellow-block.png';
@@ -74,3 +94,5 @@ function preload() {
 
 const info_box = document.getElementById('page__info-box');
 info_box.classList.add('hidden');
+
+let winnerList = {}

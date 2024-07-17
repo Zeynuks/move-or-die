@@ -33,10 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.on('endRound', (data) => {
         state = false;
+        renderWinnerList(data)
+        winnerList = data;
         if (info_box.classList.contains('hidden')) {
             info_box.classList.remove('hidden');
         }
-        renderWinnerList(data)
     });
 
     socket.on('levelScore', (data) => {
@@ -51,10 +52,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let x = 600;
         let y = 100;
 
-        context.fillStyle =  COLORS['blue'];
+        context.fillStyle = COLORS['blue'];
         context.fillRect(x, y, (blue_score / allPoints) * 200, 30);
 
-        context.fillStyle =  COLORS['yellow'];
+        context.fillStyle = COLORS['yellow'];
         x += (blue_score / allPoints) * 200;
         context.fillRect(x, y, (yellow_score / allPoints) * 200, 30);
 
@@ -72,27 +73,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function drawMap() {
-        // Проходимся по каждому игровому объекту и рисуем его
         for (let obj of blocks) {
-            switch (obj.color) {
-                case 'blue':
-                    context.drawImage(blue_block, obj.x, obj.y, obj.size, obj.size);
-                    break;
-                case 'yellow':
-                    context.drawImage(yellow_block, obj.x, obj.y, obj.size, obj.size);
-                    break;
-                case 'green':
-                    context.drawImage(green_block, obj.x, obj.y, obj.size, obj.size);
-                    break;
-                case 'purple':
-                    context.drawImage(purple_block, obj.x, obj.y, obj.size, obj.size);
-                    break;
-                case 'grey':
-                    context.drawImage(grey_block, obj.x, obj.y, obj.size, obj.size);
-                    break;
-                }
-            }
+            context.drawImage(BLOCKS[obj.color], obj.x, obj.y, obj.size, obj.size);
         }
+    }
 
         function drawHealth(player, playerIndex) {
             if (player.statement) {
@@ -181,6 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const now = Date.now();
             const t = (now - lastServerUpdateTime) / (1000 / 60);
             context.clearRect(0, 0, canvas.width, canvas.height);
+            contextInfo.clearRect(0, 0, canvas.width, canvas.height);
             contextHealth.clearRect(0, 0, canvas.width, canvas.height);
 
             handleParticles(context);
@@ -188,39 +173,27 @@ document.addEventListener('DOMContentLoaded', () => {
             Object.entries(players).forEach(([ip, player], playerIndex) => {
                 const previous = previousPlayers[ip];
                 const current = player;
-                if (state) {
+                //if (state) {
                     if (previous && current) {
                         let position;
                         if (t < 1) {
                             position = interpolatePlayer(previous, current, t);
-                        } else {
+                        } else if (state) {
                             position = extrapolatePlayer(current, t - 1);
+                        } else {
+                            position = interpolatePlayer(previous, current, t);
                         }
                         context.save();
                         if (!player.statement) {
                             context.globalAlpha = 0.3;
                         }
-                        switch (player.color) {
-                            case 'blue':
-                                context.drawImage(blue_player, position.x, position.y, player.size, player.size);
-                                break;
-                            case 'yellow':
-                                context.drawImage(yellow_player, position.x, position.y, player.size, player.size);
-                                break;
-                            case 'green':
-                                context.drawImage(green_player, position.x, position.y, player.size, player.size);
-                                break;
-                            case 'purple':
-                                context.drawImage(purple_player, position.x, position.y, player.size, player.size);
-                                break;
-                        }
+                        context.drawImage(PLAYERS[player.color], position.x, position.y, player.size, player.size);
                         context.restore();
-
-                        drawHealth(player, playerIndex);
+                        if (state) {
+                            drawHealth(player, playerIndex);
+                        }
 
                         if (player.active) {
-                            // context.fillStyle = 'red';
-                            // context.fillRect(player.x, player.y, 15, 15);
                             context.drawImage(bomb_image, player.x-2.5, player.y+15, 55, 25);
                         }
                     }
@@ -228,12 +201,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     drawMap();
                     drawSpecialObjects();
                     drawScore();
-                }
+
+                    if (!state) {
+                        renderWinnerList(winnerList);
+                    }
+                //}
             });
         }
 
     const keys = {};
-
         // Обработка нажатий клавиш для управления движением
         window.addEventListener('keydown', (event) => {
             if (event.key === 'ArrowUp' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
@@ -323,18 +299,32 @@ document.addEventListener('DOMContentLoaded', () => {
             drawPlayers(); // Рисуем всех игроков
         }
 
-        if (state) {
+        //if (state) {
             requestAnimationFrame(gameLoop); // Планируем следующий кадр игрового цикла
-        }
+        //}
     }
 
     function renderWinnerList(winnerlist) {
-        const list = document.getElementById('page__colored-blocks-list');
-        list.innerHTML = ''; // Очищаем список
-        for (const [color, count] of Object.entries(winnerlist)) {
-            const listItem = document.createElement('li');
-            listItem.textContent = `${color}: ${count}`;
-            list.appendChild(listItem);
+        let x = 300;
+        let y = 550;
+        const MAX_SCORE = 45;
+        for (const [color, score] of Object.entries(winnerlist)) {
+            contextInfo.fillStyle = COLORS[color];
+            contextInfo.fillRect(x, y - score * 300 / MAX_SCORE, 150, 300 / MAX_SCORE * score);
+
+            const found = Object.values(players).some(player => player.color === color);
+            if (found) {
+                contextInfo.drawImage(PLAYERS[color], x + 20, y - score * 300 / MAX_SCORE - 120, 100, 100);
+            }
+
+            if (score >= MAX_SCORE * 0.3) {
+                contextInfo.fillStyle = 'white';
+                contextInfo.font = '30px Arial';
+                contextInfo.fillText(`${score}`, x + 55, y - score * 300 / MAX_SCORE + (300 / MAX_SCORE * score / 2));
+            }
+
+
+            x += 200;
         }
     }
 
