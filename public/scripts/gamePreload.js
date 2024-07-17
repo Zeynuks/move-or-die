@@ -8,7 +8,7 @@ if (!roomName) {
     window.location.href = '/';
 }
 
-document.getElementById('roomName').innerText = `Room: ${roomName}`;
+//document.getElementById('roomName').innerText = `Room: ${roomName}`;
 
 // Здесь можно добавить логику для инициализации canvas игры
 const canvas = document.getElementById('gameCanvas');
@@ -20,6 +20,11 @@ const canvasHealth = document.getElementById('healthCanvas');
 const contextHealth = canvasHealth.getContext('2d');
 canvasHealth.width = 1400;
 canvasHealth.height = 100;
+
+const canvasInfo = document.getElementById('infoCanvas');
+const contextInfo = canvasInfo.getContext('2d');
+canvasInfo.width = 1400;
+canvasInfo.height = 600;
 
 let killing_block = new Image();
 
@@ -40,12 +45,12 @@ const blocksImages = {
     grey: new Image(),
 }
 
-let blue_score = document.getElementById('blue-score');
-let yellow_score = document.getElementById('yellow-score');
-let green_score = document.getElementById('green-score');
-let purple_score = document.getElementById('purple-score');
-
-
+const levelScores = {
+    blue: 0,
+    yellow: 0,
+    green: 0,
+    purple: 0,
+}
 
 let state = false
 let players = {};
@@ -54,6 +59,13 @@ let specialObjects = [];
 let previousPlayers = {};
 let lastUpdateTime = Date.now();
 let lastServerUpdateTime = Date.now();
+
+const COLORS = {
+    blue: '#46d7f4',
+    yellow: '#e2c233',
+    purple: '#f591f4',
+    green: '#51e255'
+}
 
 function preload() {
     blocksImages.blue.src = '../images/blue-block.png';
@@ -74,3 +86,5 @@ function preload() {
 
 const info_box = document.getElementById('page__info-box');
 info_box.classList.add('hidden');
+
+let winnerList = {}

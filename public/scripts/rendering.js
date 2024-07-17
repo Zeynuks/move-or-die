@@ -41,7 +41,7 @@ function drawHealth(context, player, playerIndex) {
     context.clip();
     context.fillStyle = player.statement ? 'grey' : 'red';
     context.fillRect(x, y, width, height);
-    context.fillStyle = player.color;
+    context.fillStyle = COLORS[player.color];
     context.fillRect(x, y, width * player.health / 100, height);
     context.restore();
 
