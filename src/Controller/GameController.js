@@ -14,6 +14,7 @@ class GameController extends BaseController {
         this.specialObjects = [];
         this.levelList = {}
         this.roundTimer = null;
+        this.roundTime = 20000;
         this.cycleTimer = null;
         this.gameState = false;
         this.playersScore = {
@@ -60,11 +61,11 @@ class GameController extends BaseController {
             setTimeout(async () => {
                 this.levelService = await this.getCurrLevel()
                 await this.setGameData();
-                this.io.emit('startRound', this.players, this.level);
+                this.io.emit('startRound', this.players, this.level, this.roundTime);
                 await this.updateCycle(this.levelObjects);
                 this.roundTimer = setTimeout(async () => {
                     this.endRound();
-                }, 20000);
+                }, this.roundTime);
             }, 3000);
         } catch (err) {
             this.io.emit('error', 'Ошибка запуска игры');

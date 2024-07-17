@@ -59,6 +59,9 @@ let specialObjects = [];
 let previousPlayers = {};
 let lastUpdateTime = Date.now();
 let lastServerUpdateTime = Date.now();
+let roundTimer = null
+let currentTime = null;
+let totalTime = null;
 
 const COLORS = {
     blue: '#46d7f4',

@@ -72,6 +72,26 @@ function drawScore(context, levelScores, COLORS) {
     context.fillRect(x, y, (levelScores.green / allPoints) * 200, 30);
 }
 
+function drawTimer(context, totalTime, currentTime) {
+    const x = 100;
+    const y = 100;
+    const radius = 50;
+    const startAngle = 1.5 * Math.PI; // Начало у верхней части круга
+    const endAngle = (1.5 - 2 * (currentTime / totalTime)) * Math.PI;
+
+    context.beginPath();
+    context.arc(x, y, radius, startAngle, endAngle, false)
+    context.lineTo(x, y);
+    context.fillStyle = 'rgba(200, 200, 200, 0.5)';
+    context.fill();
+
+    context.beginPath();
+    context.arc(x, y, radius, endAngle, startAngle, false);
+    context.lineTo(x, y);
+    context.fillStyle = 'rgba(0, 150, 136, 0.5)'; // Light gray for the remaining time
+    context.fill();
+}
+
 function renderWinnerList(winnerList) {
     let x = 300;
     let y = 550;
@@ -157,4 +177,4 @@ function drawBomb(context, bomb_image, player) {
     context.drawImage(bomb_image, player.x - 2.5, player.y + 15, 55, 25);
 }
 
-export { drawMap, drawPlayer, drawHealth, drawScore, drawBomb, explode, handleParticles, renderWinnerList, drawSpecialObjects};
+export { drawMap, drawPlayer, drawHealth, drawTimer, drawScore, drawBomb, explode, handleParticles, renderWinnerList, drawSpecialObjects};

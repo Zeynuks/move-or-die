@@ -1,6 +1,15 @@
 import {calculatePosition, transformKeys} from './utils.js';
 import {
-    drawMap, drawPlayer, drawHealth, drawScore, drawBomb, explode, handleParticles, renderWinnerList, drawSpecialObjects
+    drawMap,
+    drawPlayer,
+    drawHealth,
+    drawScore,
+    drawBomb,
+    explode,
+    handleParticles,
+    renderWinnerList,
+    drawSpecialObjects,
+    drawTimer
 } from "./rendering.js";
 
 const element = document.getElementById('colorLevelInfo');
@@ -26,15 +35,29 @@ document.addEventListener('DOMContentLoaded', () => {
             gameLoop();
         });
 
-        socket.on('startRound', (gamePlayers, levelBlocks) => {
+        socket.on('startRound', (gamePlayers, levelBlocks, roundTime) => {
             info_box.classList.add('hidden');
             players = transformKeys(gamePlayers);
             blocks = transformKeys(levelBlocks);
-            state = true
+            state = true;
+            startRoundTimer(roundTime);
             drawMap(context, blocks, blocksImages);
             preload();
             gameLoop();
         });
+
+        function startRoundTimer(roundTime) {
+            clearInterval(roundTimer);
+            totalTime = roundTime / 100;
+            currentTime = totalTime;
+            console.log(totalTime, currentTime)
+            roundTimer = setInterval(() => {
+                currentTime -= 1;
+                if (currentTime < 0) {
+                    currentTime = 0;
+                }
+            }, 100)
+        }
 
         socket.on('endRound', (data) => {
             state = false;
@@ -76,6 +99,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderWinnerList(winnerList);
                 return;
             }
+
+            drawTimer(context, totalTime, currentTime);
 
             Object.entries(players).forEach(([ip, player], playerIndex) => {
                 const previous = previousPlayers[ip];
