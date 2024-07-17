@@ -1,23 +1,7 @@
 function drawMap(context, blocks, blocksImages) {
     // Проходимся по каждому игровому объекту и рисуем его
     for (let obj of blocks) {
-        switch (obj.color) {
-            case 'blue':
-                context.drawImage(blocksImages.blue, obj.x, obj.y, obj.size, obj.size);
-                break;
-            case 'yellow':
-                context.drawImage(blocksImages.yellow, obj.x, obj.y, obj.size, obj.size);
-                break;
-            case 'green':
-                context.drawImage(blocksImages.green, obj.x, obj.y, obj.size, obj.size);
-                break;
-            case 'purple':
-                context.drawImage(blocksImages.purple, obj.x, obj.y, obj.size, obj.size);
-                break;
-            case 'grey':
-                context.drawImage(blocksImages.grey, obj.x, obj.y, obj.size, obj.size);
-                break;
-        }
+        context.drawImage(blocksImages[obj.color], obj.x, obj.y, obj.size, obj.size);
     }
 }
 
@@ -26,20 +10,7 @@ function drawPlayer(context, player, position, playersImages) {
     if (!player.statement) {
         context.globalAlpha = 0.3;
     }
-    switch (player.color) {
-        case 'blue':
-            context.drawImage(playersImages.blue, position.x, position.y, player.size, player.size);
-            break;
-        case 'yellow':
-            context.drawImage(playersImages.yellow, position.x, position.y, player.size, player.size);
-            break;
-        case 'green':
-            context.drawImage(playersImages.green, position.x, position.y, player.size, player.size);
-            break;
-        case 'purple':
-            context.drawImage(playersImages.purple, position.x, position.y, player.size, player.size);
-            break;
-    }
+    context.drawImage(playersImages[player.color], position.x, position.y, player.size, player.size);
     context.restore();
 }
 

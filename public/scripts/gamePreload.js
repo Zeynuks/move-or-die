@@ -21,17 +21,6 @@ const contextHealth = canvasHealth.getContext('2d');
 canvasHealth.width = 1400;
 canvasHealth.height = 100;
 
-let blue_block = new Image();
-let yellow_block = new Image();
-let green_block = new Image();
-let purple_block = new Image();
-let grey_block = new Image();
-
-let blue_player = new Image();
-let yellow_player = new Image();
-let green_player = new Image();
-let purple_player = new Image();
-
 let killing_block = new Image();
 
 let bomb_image = new Image();

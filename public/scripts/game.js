@@ -75,9 +75,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 let position = calculatePosition(previous, current, t);
 
-                drawPlayer(context, player, position, playersImages)
-                drawHealth(contextHealth, player, playerIndex);
+                drawPlayer(context, player, position, playersImages);
                 drawBomb(context, bomb_image, player);
+                drawHealth(contextHealth, player, playerIndex);
             });
         }
 
