@@ -31,6 +31,26 @@ let yellow_player = new Image();
 let green_player = new Image();
 let purple_player = new Image();
 
+//спрайты при движении персонажа
+const sy = 0;
+const sw = 50;
+const sh = 50;
+
+let spriteRunRightImageYellow = new Image();
+let spriteRunRightImageBlue = new Image();
+let spriteRunRightImageGreen = new Image();
+let spriteRunRightImageRed = new Image();
+
+let spriteRunLeftImageYellow = new Image();
+let spriteRunLeftImageBlue = new Image();
+let spriteRunLeftImageGreen = new Image();
+let spriteRunLeftImageRed = new Image();
+
+let spriteJumpImageYellow = new Image();
+let spriteJumpImageBlue = new Image();
+let spriteJumpImageGreen = new Image();
+let spriteJumpImageRed = new Image();
+
 let killing_block = new Image();
 
 let bomb_image = new Image();
@@ -57,10 +77,29 @@ function preload() {
     purple_block.src = '../images/purple-block.png';
     grey_block.src = '../images/grey-block.png';
 
+    //персонаж статичен
     blue_player.src = '../images/character_blue.png';
     yellow_player.src = '../images/character_yellow.png';
     green_player.src = '../images/character_green.png';
     purple_player.src = '../images/character_red.png';
+
+    //персонаж движется вправо
+    spriteRunRightImageYellow.src = '../images/spriteRunRightYellow.png';
+    spriteRunRightImageBlue.src = '../images/spriteRunRightBlue.png';
+    spriteRunRightImageGreen.src = '../images/spriteRunRightGreen.png';
+    spriteRunRightImageRed.src = '../images/spriteRunRightRed.png';
+
+    //персонаж движется влево
+    spriteRunLeftImageYellow.src = '../images/spriteRunLeftYellow.png';
+    spriteRunLeftImageBlue.src = '../images/spriteRunLeftBlue.png';
+    spriteRunLeftImageGreen.src = '../images/spriteRunLeftGreen.png';
+    spriteRunLeftImageRed.src = '../images/spriteRunLeftRed.png';
+
+    //персонаж движется вверх
+    spriteJumpImageYellow.src = '../images/spriteJumpYellow.png';
+    spriteJumpImageBlue.src = '../images/spriteJumpBlue.png';
+    spriteJumpImageGreen.src = '../images/spriteJumpGreen.png';
+    spriteJumpImageRed.src = '../images/spriteJumpRed.png';
 
     killing_block.src = '../images/DeathSheet.png';
 
