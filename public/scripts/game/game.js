@@ -20,7 +20,8 @@ setTimeout(function () {
 }, 3000);
 
 document.addEventListener('DOMContentLoaded', () => {
-        socket.emit('playerStart', roomName, userName);
+
+        socket.emit('playerJoin', roomName);
 
         socket.on('error', (error) => {
             console.log(error);

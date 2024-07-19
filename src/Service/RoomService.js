@@ -93,14 +93,32 @@ class RoomService {
      */
     async addUserToRoom(roomName, userName, userIp) {
         try {
-            const roomUser = {
+            const user = {
                 room_name: roomName,
-                user_name: userName,
                 user_ip: userIp,
+                user_name: userName,
+                user_color: 'yellow',
+                user_skin: 'default'
             };
-            await this.roomRepository.addUserToRoom(roomUser);
+            await this.roomRepository.addUserToRoom(user);
         } catch (error) {
             throw new Error('Ошибка добавления пользователя в комнату: ' + error.message);
+        }
+    }
+
+    /**
+     * Обновляет данные пользователя в комнате.
+     * @param {string} roomName - Имя комнаты.
+     * @param {string} userSkin - Скин пользователя.
+     * @param {string} userColor - Цвет пользователя.
+     * @param {string} userIp - IP пользователя.
+     * @async
+     */
+    async changeUserData(roomName, userSkin, userColor, userIp) {
+        try {
+            await this.roomRepository.changeUserData(roomName, userSkin, userColor, userIp);
+        } catch (error) {
+            console.error('Ошибка смены данных игрока: ' + error.message);
         }
     }
 

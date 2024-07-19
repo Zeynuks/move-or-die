@@ -12,7 +12,7 @@ class RoomManager {
         this.rooms = {};
     }
 
-    createRoom(socket, roomName, userName) {
+    async createRoom(socket, roomName, userName) {
         if (!this.rooms[roomName]) {
             const services = {
                 roomService: new RoomService(this.roomRepository),
@@ -24,59 +24,69 @@ class RoomManager {
                 gameController: new GameController(this.io.of('/game').to(roomName), roomName, services),
                 levelController: new LevelController(this.io.of('/game').to(roomName), roomName)
             };
+            await this.rooms[roomName].roomController.createRoom(socket, userName);
+        }
+    }
+
+    async joinRoom(socket, roomName, userName) {
+        if (this.rooms[roomName]) {
+            await this.rooms[roomName].roomController.joinRoom(socket, userName);
+        }
+    }
+
+    async applySettings(socket, roomName, userData) {
+        if (this.rooms[roomName]) {
+            await this.rooms[roomName].roomController.changeUserData(socket, userData);
+        }
+    }
+
+    async playerReady(socket, roomName, userName) {
+        if (this.rooms[roomName]) {
+            await this.rooms[roomName].roomController.playerReady(socket, userName);
+        }
+    }
+
+    async disconnect(socket) {
+        for (let roomName in this.rooms) {
+            await this.rooms[roomName].roomController.disconnect(socket);
+        }
+    }
+
+    async gameDisconnect(socket) {
+        for (let roomName in this.rooms) {
+            await this.rooms[roomName].playerController.disconnect(socket);
+        }
+    }
+
+    async closeAllRooms() {
+        for (let roomName in this.rooms) {
+            await this.rooms[roomName].roomController.closeAllRooms();
+        }
+    }
+
+    async gameStart(roomName, users) {
+        if (this.rooms[roomName]) {
             this.rooms[roomName].gameController.levelList = this.rooms[roomName].levelController.getLevelList();
-            this.rooms[roomName].roomController.createRoom(socket, userName);
+            await this.rooms[roomName].playerController.setPlayersData(users);
+            await this.rooms[roomName].gameController.gameStart();
+
         }
     }
 
-    joinRoom(socket, roomName, userName) {
+    async handleMove(socket, roomName, moveData) {
         if (this.rooms[roomName]) {
-            this.rooms[roomName].roomController.joinRoom(socket, userName);
-        } else {
-            socket.emit('error', 'Room does not exist');
+            await this.rooms[roomName].playerController.handleMovePlayer(socket, moveData);
         }
     }
 
-    playerReady(socket, roomName, userName) {
+    async playerJoin(socket, roomName) {
         if (this.rooms[roomName]) {
-            this.rooms[roomName].roomController.playerReady(socket, userName);
-        } else {
-            socket.emit('error', 'Room does not exist');
+            await this.rooms[roomName].playerController.connect(socket);
+            await this.rooms[roomName].gameController.gameDataLoad(socket);
         }
     }
 
-    disconnect(socket) {
-        for (let roomName in this.rooms) {
-            this.rooms[roomName].roomController.disconnect(socket);
-        }
-    }
-
-    gameDisconnect(socket) {
-        for (let roomName in this.rooms) {
-            this.rooms[roomName].playerController.disconnect(socket);
-        }
-    }
-
-    closeAllRooms() {
-        for (let roomName in this.rooms) {
-            this.rooms[roomName].roomController.closeAllRooms();
-        }
-    }
-
-    handleMove(socket, roomName, moveData) {
-        if (this.rooms[roomName]) {
-            this.rooms[roomName].playerController.handleMovePlayer(socket, moveData);
-        }
-    }
-
-    playerStart(socket, roomName, userName) {
-        if (this.rooms[roomName]) {
-            this.rooms[roomName].playerController.addPlayerToGame(socket, userName);
-            this.rooms[roomName].gameController.isStart(socket);
-        }
-    }
-
-    removeRoom() {
+    async removeRoom(roomName) {
         if (this.rooms[roomName]) {
             delete this.rooms[roomName];
         }

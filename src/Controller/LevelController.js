@@ -7,7 +7,6 @@ const LEVEL_ARRAY = [levelColorService, fallingBlocksService, bombTagService];
 class LevelController extends BaseController {
     constructor(io, roomName) {
         super(io, roomName);
-        this.io = io;
     }
 
     getLevelList() {

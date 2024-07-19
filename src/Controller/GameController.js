@@ -3,8 +3,6 @@ const BaseController = require("./BaseController");
 class GameController extends BaseController {
     constructor(io, roomName, services) {
         super(io, roomName);
-        this.io = io;
-        this.roomName = roomName;
         this.gameService = services.gameService;
         this.playerService = services.playerService;
         this.levelService = {}
@@ -29,7 +27,7 @@ class GameController extends BaseController {
         try {
             this.counter -= 1;
             if (this.counter <= 0) {
-                await this.gameEnd();
+                await this.gameEnd(this.roomName);
                 return null;
             }
             return new this.levelList[this.counter]
@@ -38,21 +36,17 @@ class GameController extends BaseController {
         }
     }
 
-    async isStart(socket) {
+    async gameStart() {
         try {
-            if (!this.gameState) {
-                this.gameState = true
-                this.counter = this.levelList.length;
-                await this.startRound();
-            } else {
-                this.gameLoad(socket)
-            }
+            this.gameState = true
+            this.counter = this.levelList.length;
+            await this.startRound();
         } catch (err) {
-            socket.emit('error', 'Ошибка подготовки к игре');
+            this.io.emit('error', 'Ошибка старта игры');
         }
     }
 
-    gameLoad(socket) {
+    async gameDataLoad(socket) {
         socket.emit('gameLoad', this.players, this.level);
     }
 
@@ -68,7 +62,7 @@ class GameController extends BaseController {
                 }, this.roundTime);
             }, 3000);
         } catch (err) {
-            this.io.emit('error', 'Ошибка запуска игры');
+            this.io.emit('error', 'Ошибка старта раунда');
         }
     }
 
@@ -155,11 +149,11 @@ class GameController extends BaseController {
         }
     }
 
-    async gameEnd(){
+    async gameEnd(roomName) {
         this.gameState = false
         this.stopUpdateCycle();
         this.stopGameCycle();
-        this.io.emit('endGame');
+        this.io.emit('endGame', roomName);
     }
 }
 

@@ -1,7 +1,6 @@
 const Player = require("../Entity/Player");
 
 const JUMP_FORCE = -13;
-let colorArray = ['blue', 'green', 'yellow', 'purple'];
 
 /**
  * Сервис для управления игроками.
@@ -39,34 +38,37 @@ class PlayerService {
     }
 
     /**
+     * Загружает игроков в систему.
+     * @param {Object} users - Объект пользователей.
+     * @async
+     */
+    async playersLoad(users) {
+        Object.values(users).forEach(user => {
+            this.leftPlayers[user.user_ip] = this.newPlayer(user.user_ip, user.user_name, user.user_color);
+        });
+    }
+
+    /**
      * Создает нового игрока.
      * @param {string} clientIp - IP клиента.
      * @param {string} userName - Имя игрока.
-     * @param {number} x - Начальная координата X.
-     * @param {number} y - Начальная координата Y.
-     * @param {number} size - Размер игрока.
      * @param {string} color - Цвет игрока.
      * @returns {Player} Новый объект игрока.
      */
-    newPlayer(clientIp, userName, x, y, size, color) {
-        return new Player(clientIp, userName, x, y, size, color, true, true);
+    newPlayer(clientIp, userName, color) {
+        return new Player(clientIp, userName, 0, 0, 50, color, true, true);
     }
 
     /**
      * Добавляет игрока в игру.
      * @param {string} roomName - Имя комнаты.
-     * @param {string} userName - Имя игрока.
-     * @param {string} clientIp - IP клиента.
+     * @param {string} playerIp - Ip игрока
      * @async
      */
-    async addPlayerToGame(roomName, userName, clientIp) {
+    async addPlayerToGame(roomName, playerIp) {
         try {
-            if (this.leftPlayers[clientIp] === undefined) {
-                this.players[clientIp] = this.newPlayer(clientIp, userName, 200, 200, 50, this.randomColor());
-            } else {
-                this.players[clientIp] = this.leftPlayers[clientIp];
-                delete this.leftPlayers[clientIp];
-            }
+            this.players[playerIp] = this.leftPlayers[playerIp];
+            delete this.leftPlayers[playerIp];
         } catch (error) {
             console.error('Ошибка добавления игрока в игру: ' + error.message);
         }
@@ -82,7 +84,7 @@ class PlayerService {
      */
     async handleMovePlayer(clientIp, movementData) {
         try {
-            if (this.players[clientIp].isCarrier && movementData.x) {
+            if (this.players[clientIp].active && movementData.x) {
                 movementData.x = movementData.x  > 0 ? movementData.x  + 1 : movementData.x  - 1;
             }
             this.players[clientIp].vx = movementData.x;
@@ -144,22 +146,6 @@ class PlayerService {
     }
 
     /**
-     * Возвращает случайный цвет из массива цветов.
-     * @returns {string} Случайный цвет.
-     */
-    randomColor() {
-        let colorInd = Math.floor(Math.random() * colorArray.length);
-        let color = colorArray[colorInd];
-        colorArray.splice(colorInd, 1);
-
-        if (colorArray.length === 0) {
-            colorArray = ['blue', 'green', 'yellow', 'purple'];
-        }
-
-        return color;
-    }
-
-    /**
      * Проверяет, все ли игроки погибли.
      * @returns {boolean} Все ли игроки погибли.
      * @async
@@ -177,7 +163,7 @@ class PlayerService {
      * @param {string} clientIp - IP клиента.
      * @async
      */
-    async disconnect(clientIp) {
+    async removePlayerFromGame(clientIp) {
         try {
             this.leftPlayers[clientIp] = this.players[clientIp];
             delete this.players[clientIp];

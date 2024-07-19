@@ -3,7 +3,6 @@ const BaseController = require("./BaseController");
 class RoomController extends BaseController {
     constructor(io, roomName, services) {
         super(io, roomName);
-        this.roomName = roomName;
         this.roomHost = null;
         this.roomService = services.roomService;
     }
@@ -39,19 +38,29 @@ class RoomController extends BaseController {
         }
     }
 
+    async changeUserData(socket, userData) {
+        try {
+            await this.roomService.changeUserData(userData.skin, userData.color, socket.handshake.address);
+        } catch (err) {
+            socket.emit('error', 'Ошибка смены данных игрока');
+        }
+    }
+
     async playerReady(socket, userName) {
         try {
             const playersReadyStates = await this.roomService.playerReady(userName);
             const users = await this.roomService.getUsersInRoom(this.roomName);
             this.io.emit('updateRoom', users, this.roomHost, playersReadyStates);
-            await this.isAllReady();
+            await this.isAllReady(socket);
         } catch (err) {
             socket.emit('error', 'Ошибка смены статуса');
         }
     }
 
-    async isAllReady() {
+    async isAllReady(socket) {
         if (await this.roomService.isAllReady()) {
+            const users = await this.roomService.getUsersInRoom(this.roomName);
+            socket.emit('loadGame', this.roomName, users);
             this.io.emit('gameStarted');
         } else {
             throw new Error('Не удалось проверить статус игроков');

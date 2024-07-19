@@ -18,6 +18,10 @@ module.exports = (io) => {
             roomManager.createRoom(socket, roomName, userName);
         });
 
+        socket.on('gameStart', (roomName, users) => {
+            roomManager.gameStart(roomName, users);
+        });
+
         socket.on('joinRoom', (roomName, userName) => {
             if (!userName) {
                 console.error('Error: userName is null or undefined.');
@@ -25,6 +29,10 @@ module.exports = (io) => {
                 return;
             }
             roomManager.joinRoom(socket, roomName, userName);
+        });
+
+        socket.on('applySettings', (roomName, userData) => {
+            roomManager.applySettings(socket, roomName, userData);
         });
 
         socket.on('playerReady', (roomName, userName) => {
@@ -40,8 +48,8 @@ module.exports = (io) => {
     const gameNamespace = io.of('/game');
     gameNamespace.on('connection', (socket) => {
 
-        socket.on('playerStart', (roomName, userName) => {
-            roomManager.playerStart(socket, roomName, userName);
+        socket.on('playerJoin', (roomName) => {
+            roomManager.playerJoin(socket, roomName);
         });
 
         socket.on('playerMovement', (roomName, moveData) => {
@@ -52,8 +60,8 @@ module.exports = (io) => {
             roomManager.gameDisconnect(socket);
         });
 
-        socket.on('endGame', () => {
-            roomManager.removeRoom(socket);
+        socket.on('endGame', (roomName) => {
+            roomManager.removeRoom(socket, roomName);
         });
     });
 

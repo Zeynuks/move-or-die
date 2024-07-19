@@ -96,6 +96,22 @@ class RoomRepository {
     }
 
     /**
+     * Обновляет данные пользователя в комнате.
+     * @param {string} userIp - IP пользователя.
+     * @param {string} userSkin - Скин пользователя.
+     * @param {string} userColor - Цвет пользователя.
+     * @throws {Error} Если произошла ошибка при обновлении данных пользователя.
+     * @async
+     */
+    async changeUserData(userIp, userSkin, userColor) {
+        try {
+            await this.connection.query('UPDATE room_user SET user_color = ? && user_skin = ? WHERE user_ip = ?', [userColor, userSkin, userIp]);
+        } catch (error) {
+            throw new Error('Ошибка обновления данных игрока: ' + error.message);
+        }
+    }
+
+    /**
      * Получает пользователей в комнате.
      * @param {string} roomName - Имя комнаты.
      * @returns {Promise<any[]>} Список пользователей.
