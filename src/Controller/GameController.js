@@ -155,7 +155,7 @@ class GameController extends BaseController {
         }
     }
 
-    async gameEnd(){
+    async gameEnd() {
         this.gameState = false
         this.stopUpdateCycle();
         this.stopGameCycle();
