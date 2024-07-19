@@ -48,7 +48,7 @@ class MapRepository {
         try {
             const [results] = await this.connection.query('SELECT level_map FROM map WHERE level_name = ?', [levelName]);
             if (results.length > 0) {
-                return results[0].level_map;
+                return results[Math.floor(Math.random() * 2)].level_map;
             } else {
                 throw new Error('Данные не найдены');
             }
