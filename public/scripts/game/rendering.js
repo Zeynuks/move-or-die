@@ -123,7 +123,6 @@ function drawSpecialObjects() {
 
 let particles = [];
 
-// Функция для создания взрыва
 function explode(x, y, color) {
     for (let i = 0; i < 50; i++) { // Создаем 50 частиц
         particles.push(new Particle(x, y, color));
@@ -141,14 +140,12 @@ class Particle {
         this.life = 50; // Время жизни частицы
     }
 
-    // Обновление позиции частицы
     update() {
         this.x += this.speedX;
         this.y += this.speedY;
         this.life--;
     }
 
-    // Отрисовка частицы
     draw(context) {
         context.fillStyle = this.color;
         context.beginPath();

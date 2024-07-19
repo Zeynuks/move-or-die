@@ -1,4 +1,3 @@
-// development.yaml-game/public/scripts/client.js
 const socket = io();
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -30,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     createRoomBtn.addEventListener('click', () => {
         const username = nameInput.value;
         if (username) {
-            const newRoomName = Math.random().toString(36).substring(7); // Генерация случайного имени комнаты
+            const newRoomName = Math.random().toString(36).substring(7);
             socket.emit('createRoom', newRoomName, username);
             socket.on('roomCreated', (roomName) => {
                 window.location.href = `/room?room=${roomName}&name=${username}`;

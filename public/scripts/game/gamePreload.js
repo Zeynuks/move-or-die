@@ -8,9 +8,6 @@ if (!roomName) {
     window.location.href = '/';
 }
 
-//document.getElementById('roomName').innerText = `Room: ${roomName}`;
-
-// Здесь можно добавить логику для инициализации canvas игры
 const canvas = document.getElementById('gameCanvas');
 const context = canvas.getContext('2d');
 canvas.width = 1400;

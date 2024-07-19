@@ -61,7 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         socket.on('endRound', (data) => {
             state = false;
-            // renderWinnerList(data)
             winnerList = data;
             if (info_box.classList.contains('hidden')) {
                 info_box.classList.remove('hidden');
@@ -83,7 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
             explode(data.x, data.y, data.color);
         });
 
-        // Функция для рисования всех игроков
         function drawPlayers() {
             const now = Date.now();
             const t = (now - lastServerUpdateTime) / (1000 / 60);
@@ -139,7 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let sound = null;
 
-        // Отправка данных о движении на сервер
         function sendMovement() {
             const movementData = {x: 0, y: 0, jump: false};
 
@@ -147,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (keys['ArrowUp']) {
                 movementData.jump = true;
                 sound = upMoveSound;
-                playSound(sound); // Вызываем функцию для воспроизведения звука
+                playSound(sound);
             }
             if (keys['ArrowDown']) {
                 movementData.y += 5;
@@ -168,7 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         socket.on('gameUpdate', (playersData, objectsData, specialObjectsData) => {
             previousPlayers = players;
-            // players = playersData;
             blocks = transformKeys(objectsData);
             specialObjects = transformKeys(specialObjectsData);
             Object.entries(playersData).forEach(([ip, playerData]) => {
@@ -181,11 +177,9 @@ document.addEventListener('DOMContentLoaded', () => {
         })
 
         function playSound(sound) {
-            // Проверяем, что звук не воспроизводится в данный момент
             if (!sound.currentTime) {
                 sound.play();
             } else {
-                // Если звук уже воспроизводится, то перезапускаем его
                 sound.currentTime = 0;
                 sound.play();
             }
@@ -205,12 +199,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function gameLoop() {
             if (Object.keys(players).length !== 0) {
-                drawPlayers(); // Рисуем всех игроков
+                drawPlayers();
             }
-
-            // if (state) {
-            requestAnimationFrame(gameLoop); // Планируем следующий кадр игрового цикла
-            // }
+            requestAnimationFrame(gameLoop);
         }
     }
 );
