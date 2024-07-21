@@ -68,7 +68,7 @@ class RoomManager {
         if (this.rooms[roomName]) {
             this.rooms[roomName].gameController.levelList = this.rooms[roomName].levelController.getLevelList();
             await this.rooms[roomName].playerController.setPlayersData(users);
-            await this.rooms[roomName].gameController.gameStart();
+            await this.rooms[roomName].gameController.startGame();
 
         }
     }

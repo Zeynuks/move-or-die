@@ -1,7 +1,7 @@
 const LevelService = require("../LevelService");
 class LevelColorService extends LevelService {
-    constructor() {
-        super();
+    constructor(io) {
+        super(io);
         this.levelName = 'ColorLevel';
         this.coloredblocks = {};
     }
@@ -19,22 +19,12 @@ class LevelColorService extends LevelService {
         }
     }
 
-    checkProximity(player, obj) {
-        const proximityDistance = 1;
-        return (
-            player.x < obj.x + obj.size + proximityDistance &&
-            player.x + player.size > obj.x - proximityDistance &&
-            player.y < obj.y + obj.size + proximityDistance &&
-            player.y + player.size > obj.y - proximityDistance
-        );
-    }
-
-    updateLevel(players, objects) {
+    updateLevelData(players) {
         Object.values(players).forEach(player => {
             if (player.statement) {
-                this.paintBlock(player, player.getGrid(), objects);
+                this.paintBlock(player, player.getGrid(), this.levelObjects);
             }
-            this.checkCellsCollision(player, player.getGrid(), objects);
+            this.checkCellsCollision(player, player.getGrid(), this.levelObjects);
         });
     }
 

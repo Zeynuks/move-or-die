@@ -2,20 +2,29 @@ const levelColorService = require('../Service/Level/LevelColorService');
 const fallingBlocksService = require('../Service/Level/FallingBlocksService');
 const bombTagService = require('../Service/Level/BombTagService');
 const BaseController = require("./BaseController");
-const LEVEL_ARRAY = [levelColorService, fallingBlocksService, bombTagService];
-
+const GAME_LENGTH = 10;
 class LevelController extends BaseController {
+    LEVEL_ARRAY = [this.constructLevelService(levelColorService), this.constructLevelService(fallingBlocksService), this.constructLevelService(bombTagService)];
+
     constructor(io, roomName) {
         super(io, roomName);
     }
 
+    constructLevelService(service) {
+        return new service(this.io);
+    }
+
+    getRandomOrder(array) {
+        return array.sort(() => 0.5 - Math.random());
+    }
+
     getLevelList() {
-        const shuffled = LEVEL_ARRAY.sort(() => 0.5 - Math.random());
+        const shuffled = this.getRandomOrder(this.LEVEL_ARRAY);
         const result = [];
-        while (result.length < 10) {
+        while (result.length < GAME_LENGTH) {
             result.push(...shuffled);
         }
-        return result.slice(0, 10);
+        return result.slice(0, GAME_LENGTH);
     }
 }
 

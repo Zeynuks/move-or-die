@@ -1,28 +1,48 @@
 const BaseController = require("./BaseController");
 
+/**
+ * Контроллер для управления действиями игроков.
+ * @extends BaseController
+ */
 class PlayerController extends BaseController {
+    /**
+     * Создает экземпляр PlayerController.
+     * @param {Object} io - Экземпляр Socket.io.
+     * @param {string} roomName - Название комнаты.
+     * @param {Object} services - Сервисы, необходимые для PlayerController.
+     * @param {Object} services.playerService - Экземпляр сервиса игроков.
+     */
     constructor(io, roomName, services) {
         super(io, roomName);
         this.playerService = services.playerService;
-        this.users = {}
+        this.users = {};
     }
 
+    /**
+     * Обрабатывает подключение игрока.
+     * @param {Object} socket - Экземпляр Socket.
+     */
     async connect(socket) {
         try {
             socket.join(this.roomName);
             if (this.users[socket.handshake.address] !== undefined) {
                 await this.playerService.addPlayerToGame(this.roomName, socket.handshake.address);
             } else {
-                throw new Error('Пользоватeля нет в игре');
+                throw new Error('Пользователь не в игре');
             }
         } catch (err) {
             socket.emit('error', 'Ошибка подключения');
         }
     }
 
+    /**
+     * Устанавливает данные игроков.
+     * @param {Array<Object>} users - Массив объектов с данными игроков.
+     * @param {string} users[].user_ip - IP-адрес пользователя.
+     */
     async setPlayersData(users) {
         try {
-            await this.playerService.playersLoad(users)
+            await this.playerService.playersLoad(users);
             users.forEach((user) => {
                 this.users[user.user_ip] = user;
             });
@@ -31,6 +51,11 @@ class PlayerController extends BaseController {
         }
     }
 
+    /**
+     * Обрабатывает перемещение игрока.
+     * @param {Object} socket - Экземпляр Socket.
+     * @param {Object} moveData - Данные о перемещении.
+     */
     async handleMovePlayer(socket, moveData) {
         try {
             await this.playerService.handleMovePlayer(socket.handshake.address, moveData);
@@ -39,6 +64,10 @@ class PlayerController extends BaseController {
         }
     }
 
+    /**
+     * Обрабатывает отключение игрока.
+     * @param {Object} socket - Экземпляр Socket.
+     */
     async disconnect(socket) {
         try {
             await this.playerService.removePlayerFromGame(socket.handshake.address);
@@ -46,7 +75,6 @@ class PlayerController extends BaseController {
             socket.emit('error', 'Ошибка отключения');
         }
     }
-
 }
 
 module.exports = PlayerController;

@@ -3,8 +3,8 @@ const FallingBlock = require("../../Entity/FallingBlock");
 const GRAVITY = 0.08;
 
 class FallingBlocksService extends LevelService {
-    constructor() {
-        super();
+    constructor(io) {
+        super(io);
         this.levelName = 'FallingBlocks';
         this.complexity = 26;
         this.size = 50;
@@ -30,22 +30,12 @@ class FallingBlocksService extends LevelService {
         }
     }
 
-    checkProximity(player, obj) {
-        const proximityDistance = 1; // Расстояние до объекта для изменения цвета
-        return (
-            player.x < obj.x + obj.size + proximityDistance &&
-            player.x + player.size > obj.x - proximityDistance &&
-            player.y < obj.y + obj.size + proximityDistance &&
-            player.y + player.size > obj.y - proximityDistance
-        );
-    }
-
-    updateLevel(players, objects) {
+    updateLevelData(players) {
         Object.values(players).forEach(player => {
             if (player.statement) {
                 this.playerDeath(player, player.getGrid(), this.getObjectsGrid(this.specialObjects));
             }
-            this.checkCellsCollision(player, player.getGrid(), objects);
+            this.checkCellsCollision(player, player.getGrid(), this.levelObjects);
         });
         this.fallingBlocksMovement();
     }

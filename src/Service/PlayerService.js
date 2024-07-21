@@ -15,13 +15,15 @@ class PlayerService {
 
     /**
      * Сбрасывает данные всех игроков.
+     * @param {Array<{x: number, y: number}>} spawnPoints - Массив с точками спавна всех игроков.
      * @async
      */
-    async resetPlayersData() {
+    async setPlayersData(spawnPoints) {
         try {
-            Object.values(this.players).forEach(player => {
-                player.x = 200;
-                player.y = 200;
+            Object.values(this.players).forEach((player, index) => {
+                const spawnPoint = spawnPoints[index];
+                player.x = spawnPoint.x;
+                player.y = spawnPoint.y;
                 player.collision = true;
                 player.visible = true;
                 player.statement = true;
@@ -97,6 +99,11 @@ class PlayerService {
         }
     }
 
+    async updatePlayersData() {
+        await this.updatePlayersPosition();
+        await this.updateHealth()
+    }
+
     /**
      * Обновляет здоровье всех игроков.
      * @async
@@ -134,23 +141,11 @@ class PlayerService {
     }
 
     /**
-     * Устанавливает точки спавна для всех игроков.
-     * @param {Array<{x: number, y: number}>} spawnPoints - Массив точек спавна.
-     */
-    async setPlayersSpawnPoints(spawnPoints) {
-        Object.values(this.players).forEach(player => {
-            const spawnPoint = spawnPoints.pop();
-            player.x = spawnPoint.x;
-            player.y = spawnPoint.y;
-        });
-    }
-
-    /**
      * Проверяет, все ли игроки погибли.
      * @returns {boolean} Все ли игроки погибли.
      * @async
      */
-    async isAllDie() {
+    isAllDie() {
         try {
             return Object.values(this.players).every(player => player.statement === false);
         } catch (error) {

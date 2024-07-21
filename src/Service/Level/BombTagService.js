@@ -1,14 +1,13 @@
 const LevelService = require("../LevelService");
 
 class BombTagService extends LevelService {
-    constructor() {
-        super();
+    constructor(io) {
+        super(io);
         this.levelName = 'BombTag';
         this.bombState = false;
         this.bombPlayer = null;
         this.bombTimer = null;
         this.lastBombTime = null;
-        this.io = null;
         this.isEnd = false;
         this.levelScore = {
             blue: 0,
@@ -16,16 +15,6 @@ class BombTagService extends LevelService {
             yellow: 0,
             purple: 0,
         }
-    }
-
-checkProximity(player, obj) {
-        const proximityDistance = 2; // Расстояние до объекта для изменения цвета
-        return (
-            player.x < obj.x + obj.size + proximityDistance &&
-            player.x + player.size > obj.x - proximityDistance &&
-            player.y < obj.y + obj.size + proximityDistance &&
-            player.y + player.size > obj.y - proximityDistance
-        );
     }
 
     // Раскраска блоков при приближении
@@ -62,16 +51,15 @@ checkProximity(player, obj) {
         }
     }
 
-    updateLevel(players, objects, io) {
+    updateLevelData(players) {
         let currentTime = Date.now()
-        if (!this.io) this.io = io;
         this.setBombPlayer(players);
         Object.values(players).forEach(player => {
             if (!player.statement) player.active = false;
             if (this.bombPlayer && this.bombPlayer !== player && this.bombPlayer.active) {
                 this.bombTransfer(player, currentTime)
             }
-            this.checkCellsCollision(player, player.getGrid(), objects);
+            this.checkCellsCollision(player, player.getGrid(), this.levelObjects);
         });
     }
 
