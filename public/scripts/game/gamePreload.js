@@ -28,10 +28,10 @@ let killing_block = new Image();
 let bomb_image = new Image();
 
 const playersImages = {
-    blue: new Image(),
-    yellow: new Image(),
-    green: new Image(),
-    purple: new Image(),
+    blue: [new Image(), new Image(), new Image(), new Image()],
+    yellow: [new Image(), new Image(), new Image(), new Image()],
+    green: [new Image(), new Image(), new Image(), new Image()],
+    purple: [new Image(), new Image(), new Image(), new Image()],
 };
 
 const blocksImages = {
@@ -74,10 +74,35 @@ function preload() {
     blocksImages.purple.src = '../images/purple-block.png';
     blocksImages.grey.src = '../images/grey-block.png';
 
-    playersImages.blue.src = '../images/character_blue.png';
-    playersImages.yellow.src = '../images/character_yellow.png';
-    playersImages.green.src = '../images/character_green.png';
-    playersImages.purple.src = '../images/character_red.png';
+    /**
+     * Массив изображений игроков.
+     *
+     * @type {Array}
+     * @property {HTMLImageElement} playersImage[0] - статичная картинка
+     * @property {HTMLImageElement} playersImage[1] - бег вправо
+     * @property {HTMLImageElement} playersImage[2] - бег влево
+     * @property {HTMLImageElement} playersImage[3] - прыжок
+     */
+
+    playersImages.blue[0].src = '../images/character_blue.png';
+    playersImages.blue[1].src = '../images/spriteRunRightBlue.png';
+    playersImages.blue[2].src = '../images/spriteRunLeftBlue.png';
+    playersImages.blue[3].src = '../images/spriteJumpBlue.png';
+
+    playersImages.yellow[0].src = '../images/character_yellow.png';
+    playersImages.yellow[1].src = '../images/spriteRunRightYellow.png';
+    playersImages.yellow[2].src = '../images/spriteRunLeftYellow.png';
+    playersImages.yellow[3].src = '../images/spriteJumpYellow.png';
+
+    playersImages.green[0].src = '../images/character_green.png';
+    playersImages.green[1].src = '../images/spriteRunRightGreen.png';
+    playersImages.green[2].src = '../images/spriteRunLeftGreen.png';
+    playersImages.green[3].src = '../images/spriteJumpGreen.png';
+
+    playersImages.purple[0].src = '../images/character_red.png';
+    playersImages.purple[1].src = '../images/spriteRunRightRed.png';
+    playersImages.purple[2].src = '../images/spriteRunLeftRed.png';
+    playersImages.purple[3].src = '../images/spriteJumpRed.png';
 
     killing_block.src = '../images/DeathSheet.png';
 

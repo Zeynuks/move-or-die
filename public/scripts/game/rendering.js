@@ -5,14 +5,33 @@ function drawMap(context, blocks, blocksImages) {
     }
 }
 
+
+
 function drawPlayer(context, player, position, playersImages) {
     context.save();
+    const now = Date.now();
+    const sy = 0;
+    const sw = 50;
+    const sh = 50;
     if (!player.statement) {
         context.globalAlpha = 0.3;
     }
-    context.drawImage(playersImages[player.color], position.x, position.y, player.size, player.size);
+    if (player.vx > 0) {
+        console.log(playersImages[player.color][1]);
+        context.drawImage(playersImages[player.color][1], Math.floor(now / 250) % 2 * 50, sy, sw, sh, position.x, position.y, player.size, player.size);
+    } else if (player.vx < 0) {
+        console.log(playersImages[player.color][2]);
+        context.drawImage(playersImages[player.color][2], Math.floor(now / 250) % 2 * 50, sy, sw, sh, position.x, position.y, player.size, player.size);
+    } else if (player.vy < 0) {
+        console.log(playersImages[player.color][3]);
+        context.drawImage(playersImages[player.color][3], Math.floor(now / 250) % 2 * 50, sy, sw, sh, position.x, position.y, player.size, player.size);
+    } else {
+        console.log(playersImages[player.color][0]);
+        context.drawImage(playersImages[player.color][0], position.x, position.y, player.size, player.size);
+    }
     context.restore();
 }
+
 
 function drawRoundedRect(context, x, y, width, height, radius) {
     context.beginPath();
