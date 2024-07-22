@@ -6,6 +6,8 @@ function drawMap(context, blocks, blocksImages) {
 }
 
 
+let bloodDisplayed = false; // Флаг, чтобы отслеживать, отображалась ли кровь
+
 
 function drawPlayer(context, player, position, playersImages) {
     context.save();
@@ -13,21 +15,18 @@ function drawPlayer(context, player, position, playersImages) {
     const sy = 0;
     const sw = 50;
     const sh = 50;
+
     if (!player.statement) {
         context.globalAlpha = 0.3;
     }
     if (player.vx > 0) {
-        console.log(playersImages[player.color][1]);
-        context.drawImage(playersImages[player.color][1], Math.floor(now / 250) % 2 * 50, sy, sw, sh, position.x, position.y, player.size, player.size);
+        context.drawImage(playersImages[player.color][1], Math.floor(now / 250) % 7 * 50, sy, sw, sh, position.x, position.y, player.size, player.size);
     } else if (player.vx < 0) {
-        console.log(playersImages[player.color][2]);
-        context.drawImage(playersImages[player.color][2], Math.floor(now / 250) % 2 * 50, sy, sw, sh, position.x, position.y, player.size, player.size);
+        context.drawImage(playersImages[player.color][2], Math.floor(now / 250) % 7 * 50, sy, sw, sh, position.x, position.y, player.size, player.size);
     } else if (player.vy < 0) {
-        console.log(playersImages[player.color][3]);
         context.drawImage(playersImages[player.color][3], Math.floor(now / 250) % 2 * 50, sy, sw, sh, position.x, position.y, player.size, player.size);
     } else {
-        console.log(playersImages[player.color][0]);
-        context.drawImage(playersImages[player.color][0], position.x, position.y, player.size, player.size);
+        context.drawImage(playersImages[player.color][0], Math.floor(now / 250) % 4 * 50, sy, sw, sh, position.x, position.y, player.size, player.size);
     }
     context.restore();
 }
@@ -188,9 +187,21 @@ function handleParticles(context, state) {
         }
     }
 }
+
 function drawBomb(context, bomb_image, player) {
     if (!player.active) return;
     context.drawImage(bomb_image, player.x - 2.5, player.y + 15, 55, 25);
 }
 
-export { drawMap, drawPlayer, drawHealth, drawTimer, drawScore, drawBomb, explode, handleParticles, renderWinnerList, drawSpecialObjects};
+export {
+    drawMap,
+    drawPlayer,
+    drawHealth,
+    drawTimer,
+    drawScore,
+    drawBomb,
+    explode,
+    handleParticles,
+    renderWinnerList,
+    drawSpecialObjects
+};
