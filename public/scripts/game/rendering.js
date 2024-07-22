@@ -147,7 +147,7 @@ class Particle {
     }
 
     draw(context) {
-        context.fillStyle = this.color;
+        context.fillStyle = COLORS[this.color];
         context.beginPath();
         context.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         context.fill();

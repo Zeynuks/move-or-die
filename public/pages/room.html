@@ -1,24 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+    <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Room</title>
         <link rel="stylesheet" href="/styles/room.css">
     </head>
-    <body class="page">
-      <audio src="../sound/waitingroom.mp3" autoplay="autoplay" loop="loop"></audio>
-      <h1 class="page__title">Комната: <span id="roomName"></span></h1>
-      <p class="room__share">Пригласи своих друзей: </p>
-      <a id="roomLink" class="room__link" href="#"></a>
-      <button id="copyLinkBtn" class="button">Скопировать</button>
-      <ul id="playersList" class="room__players-list"></ul>
-      <button id="readyBtn" class="button">Готов</button>
-      <p id="creator" class="room__creator"></p>
-      <div id="copyNotification" class="notification"></div>
-      <div id="readyNotification" class="notification"></div>
-      <script src="/socket.io/socket.io.js"></script>
-      <script src="/scripts/waitroom.js"></script>
-      <script src="/scripts/room.js"></script>
+    <body class="room">
+        <div class="room__lobby-box">
+            <div class="room__lobby-container">
+                <h1 class="room__title">Лобби: <span id="roomName"></span></h1>
+                <a id="roomLink" class="room__link" href="#"></a>
+                <button id="copyLinkBtn" class="button" title="Скопировать ссылку на комнату в буфер обмена">Пригласить друзей</button>
+            </div>
+
+        </div>
+        <div class="room__players-box">
+            <ul id="playersList" class="room__players-list">
+            </ul>
+        </div>
+        <audio src="../sound/waitingroom.mp3" autoplay="autoplay" loop="loop"></audio>
+           <button id="readyBtn" class="button">Готов</button>
+            <p id="creator" class="room__creator"></p>
+            <div id="copyNotification" class="notification"></div>
+            <div id="readyNotification" class="notification"></div>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="/scripts/room.js"></script>
     </body>
 </html>

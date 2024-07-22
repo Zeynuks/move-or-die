@@ -1,31 +1,52 @@
-body {
-    font-family: 'Arial', sans-serif;
+* {
     margin: 0;
     padding: 0;
-    background-color: #0c1428;
-    color: white;
 }
 
-.page {
+.room {
+    background-color: #0c1428;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    background-image: url("../images/background2.png");
+    background-size: cover;
     height: 100vh;
+    font-family: 'Arial', sans-serif;
+    color: white;
 }
 
-.page__logo {
-    position: absolute;
-    top: 60px;
-    left: 450px;
-    height: 160px;
-    width: 650px;
-    margin: 50px auto;
+.room__shadow {
+   /* background-color: #2a2a2bcc; */
+    height: 100vh;
+    width: 100vw;
+
 }
 
-.page__title {
-    font-size: 24px;
-    margin: 200px 0 20px;
+.room__lobby-box {
+    background-color: #000000c9;
+    width: 100vw;
+    min-height: 12vh;
+    margin: 7vh 0 5vh;
+
+}
+
+.room__lobby-container {
+    width: 80vw;
+    min-height: 12vh;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.room__players-box {
+    background-color: #000000c9;
+    width: 100vw;
+    min-height: 60vh;
+}
+
+.room__title {
+
 }
 
 .room__share, .room__creator {
@@ -37,6 +58,7 @@ body {
     color: #c5c5ca;
     text-decoration: none;
     font-size: 18px;
+    display: none;
 }
 
 .room__players-list {
@@ -55,7 +77,7 @@ body {
     font-size: 18px;
     cursor: pointer;
     border: none;
-    background-color: #007bff;
+    background-color: #d43d3f;
     color: white;
     border-radius: 5px;
     margin: 10px 0;
@@ -63,7 +85,7 @@ body {
 }
 
 .button:hover {
-    background-color: #0056b3;
+    background-color: #af3133;
 }
 
 .button:active {
