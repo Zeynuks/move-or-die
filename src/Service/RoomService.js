@@ -1,4 +1,3 @@
-const mysql = require('mysql2/promise');
 const dotenv = require('dotenv');
 dotenv.config();
 /**
@@ -75,7 +74,7 @@ class RoomService {
 
     /**
      * Проверяет емкость комнаты.
-     * @param {Array<RoomUser>} users - Пользователи в комнате.
+     * @param {Array<User>} users - Пользователи в комнате.
      * @returns {boolean} Достигнута ли емкость комнаты.
      * @async
      */
@@ -97,8 +96,6 @@ class RoomService {
                 room_name: roomName,
                 user_ip: userIp,
                 user_name: userName,
-                user_color: 'yellow',
-                user_skin: 'default'
             };
             await this.roomRepository.addUserToRoom(user);
         } catch (error) {

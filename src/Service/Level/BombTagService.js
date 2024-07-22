@@ -9,12 +9,6 @@ class BombTagService extends LevelService {
         this.bombTimer = null;
         this.lastBombTime = null;
         this.isEnd = false;
-        this.levelScore = {
-            blue: 0,
-            green: 0,
-            yellow: 0,
-            purple: 0,
-        }
     }
 
     // Раскраска блоков при приближении

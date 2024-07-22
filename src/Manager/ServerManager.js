@@ -69,7 +69,6 @@ class ServerManager {
             this.rooms[roomName].gameController.levelList = this.rooms[roomName].levelController.getLevelList(10);
             await this.rooms[roomName].playerController.setPlayersData(users);
             await this.rooms[roomName].gameController.startGame();
-
         }
     }
 

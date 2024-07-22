@@ -3,7 +3,6 @@ class LevelColorService extends LevelService {
     constructor(io) {
         super(io);
         this.levelName = 'ColorLevel';
-        this.coloredblocks = {};
     }
 
     paintBlock(player, cellsToCheck, objects) {
@@ -29,11 +28,11 @@ class LevelColorService extends LevelService {
     }
 
     updateScore(players) {
-        let blue =  this.levelObjects.filter(block => block.color === 'blue').length;
-        let green = this.levelObjects.filter(block => block.color === 'green').length;
-        let yellow = this.levelObjects.filter(block => block.color === 'yellow').length;
-        let purple = this.levelObjects.filter(block => block.color === 'purple').length;
-        this.coloredblocks = {blue: blue, green: green, yellow: yellow, purple: purple}
+        Object.values(players).forEach(player => {
+            if (player.statement) {
+                this.levelScore[player.color] = this.levelObjects.filter(block => (block.color === player.color)).length;
+            }
+        });
     }
 
     getStat(players) {

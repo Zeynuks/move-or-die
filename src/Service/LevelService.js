@@ -13,6 +13,12 @@ class LevelService {
         this.levelSpawnPoints = [];
         this.levelObjects = [];
         this.specialObjects = [];
+        this.levelScore = {
+            blue: 0,
+            green: 0,
+            yellow: 0,
+            purple: 0,
+        }
     }
 
     /**

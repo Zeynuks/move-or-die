@@ -9,12 +9,6 @@ class FallingBlocksService extends LevelService {
         this.complexity = 26;
         this.size = 50;
         this.setFallingBlocks();
-        this.levelScore = {
-            blue: 0,
-            green: 0,
-            yellow: 0,
-            purple: 0,
-        }
     }
 
     playerDeath(player, cellsToCheck, objects) {
