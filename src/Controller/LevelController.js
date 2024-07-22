@@ -4,8 +4,6 @@ const bombTagService = require('../Service/Level/BombTagService');
 const BaseController = require("./BaseController");
 const ErrorHandler = require("../Utils/ErrorHandler");
 
-const GAME_LENGTH = 10;
-
 /**
  * Контроллер уровней.
  * @extends BaseController

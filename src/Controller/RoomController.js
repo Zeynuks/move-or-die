@@ -89,7 +89,7 @@ class RoomController extends BaseController {
             const playersReadyStates = await this.roomService.playerReady(userName);
             const users = await this.roomService.getUsersInRoom(this.roomName);
             this.io.emit('updateRoom', users, this.roomHost, playersReadyStates);
-            await this.isAllReady(socket);
+            await this.isAllReady(socket, users);
         } catch (err) {
             socket.emit('error', 'Ошибка смены статуса');
         }
@@ -98,11 +98,11 @@ class RoomController extends BaseController {
     /**
      * Проверяет, все ли пользователи готовы, и начинает игру, если да.
      * @param {Object} socket - Экземпляр Socket.
+     * @param {Array<Object>} users - Массив с данными игроков.
      * @throws Выбрасывает ошибку, если не удалось проверить статус всех пользователей.
      */
-    async isAllReady(socket) {
+    async isAllReady(socket, users) {
         if (await this.roomService.isAllReady()) {
-            const users = await this.roomService.getUsersInRoom(this.roomName);
             socket.emit('loadGame', this.roomName, users);
             this.io.emit('gameStarted');
         } else {
@@ -129,7 +129,7 @@ class RoomController extends BaseController {
      */
     async closeAllRooms() {
         try {
-            await this.roomService.disconnect();
+            await this.roomService.closeAllRooms();
             process.exit(0);
         } catch (err) {
             console.error('Ошибка отключения базы данных:', err);

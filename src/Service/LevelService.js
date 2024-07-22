@@ -21,7 +21,6 @@ class LevelService {
      */
     async downloadLevelMap(levelName) {
         try {
-            console.log(levelName);
             const map = await this.mapRepository.findMapByLevelName(levelName);
             this.setMap(map);
         } catch (error) {

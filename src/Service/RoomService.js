@@ -188,7 +188,7 @@ class RoomService {
     /**
      * Отключается от сервиса комнаты.
      */
-    disconnect() {
+    closeAllRooms() {
         this.roomRepository.disconnect();
     }
 }

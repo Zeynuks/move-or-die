@@ -16,7 +16,6 @@ class GameController extends BaseController {
      */
     constructor(io, roomName, services) {
         super(io, roomName);
-        this.gameService = services.gameService;
         this.playerService = services.playerService;
         this.levelService = {};
         this.levelList = [];

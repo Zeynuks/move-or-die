@@ -5,7 +5,7 @@ const RoomService = require("../Service/RoomService");
 const PlayerService = require("../Service/PlayerService");
 const LevelController = require("../Controller/LevelController");
 
-class RoomManager {
+class ServerManager {
     constructor(io, roomRepository) {
         this.io = io;
         this.roomRepository = roomRepository;
@@ -94,4 +94,4 @@ class RoomManager {
 
 }
 
-module.exports = RoomManager;
+module.exports = ServerManager;

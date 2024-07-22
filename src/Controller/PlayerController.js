@@ -24,12 +24,12 @@ class PlayerController extends BaseController {
      */
     async connect(socket) {
         try {
-            socket.join(this.roomName);
             if (this.users[socket.handshake.address] !== undefined) {
                 await this.playerService.addPlayerToGame(this.roomName, socket.handshake.address);
             } else {
                 throw new Error('Пользователь не в игре');
             }
+            socket.join(this.roomName);
         } catch (err) {
             socket.emit('error', 'Ошибка подключения');
         }
