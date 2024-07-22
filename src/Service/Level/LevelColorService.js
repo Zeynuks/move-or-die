@@ -28,11 +28,11 @@ class LevelColorService extends LevelService {
         });
     }
 
-    updateScore(objects, players) {
-        let blue =  objects.filter(block => block.color === 'blue').length;
-        let green = objects.filter(block => block.color === 'green').length;
-        let yellow = objects.filter(block => block.color === 'yellow').length;
-        let purple = objects.filter(block => block.color === 'purple').length;
+    updateScore(players) {
+        let blue =  this.levelObjects.filter(block => block.color === 'blue').length;
+        let green = this.levelObjects.filter(block => block.color === 'green').length;
+        let yellow = this.levelObjects.filter(block => block.color === 'yellow').length;
+        let purple = this.levelObjects.filter(block => block.color === 'purple').length;
         this.coloredblocks = {blue: blue, green: green, yellow: yellow, purple: purple}
     }
 
@@ -50,7 +50,6 @@ class LevelColorService extends LevelService {
                 count++;
             }
         }
-
         return updatedSortedColoredBlocks;
     }
 

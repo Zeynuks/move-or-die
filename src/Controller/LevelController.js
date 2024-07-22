@@ -16,9 +16,9 @@ class LevelController extends BaseController {
      * @type {Array<LevelService>}
      */
     LEVEL_ARRAY = [
-        this.constructLevelService(levelColorService),
-        this.constructLevelService(fallingBlocksService),
-        this.constructLevelService(bombTagService)
+        levelColorService,
+        fallingBlocksService,
+        bombTagService
     ];
 
     /**
@@ -43,32 +43,26 @@ class LevelController extends BaseController {
     }
 
     /**
-     * Перемешивает элементы массива случайным образом.
-     * @param {Array} array - Массив для перемешивания.
-     * @returns {Array} - Перемешанный массив.
-     */
-    getRandomOrder(array) {
-        if (!Array.isArray(array)) {
-            throw new TypeError('Аргумент должен быть массивом');
-        }
-        return array.sort(() => 0.5 - Math.random());
-    }
-
-    /**
      * Получает список уровней для игры.
      * @returns {Array<LevelService>} - Список уровней для игры.
      */
-    getLevelList() {
-        try {
-            const shuffled = this.getRandomOrder(this.LEVEL_ARRAY);
-            const result = [];
-            while (result.length < GAME_LENGTH) {
-                result.push(...shuffled);
+    getLevelList(length) {
+        let source = [...this.LEVEL_ARRAY];
+        let result = [];
+        let lastElement = null;
+
+        while (result.length < length && source.length >= 0) {
+            if (source.length === 0) {
+                source = [...this.LEVEL_ARRAY];
             }
-            return result.slice(0, GAME_LENGTH);
-        } catch (error) {
-            ErrorHandler(this.io, this.roomName, 'Не удалось получить список уровней', error.message);
+            let randomIndex = Math.floor(Math.random() * source.length);
+            let element = source.splice(randomIndex, 1)[0];
+            if (element === lastElement) {
+                continue;
+            }
+            result.push(this.constructLevelService(element));
         }
+        return result;
     }
 }
 

@@ -120,8 +120,8 @@ class GameController extends BaseController {
         try {
             this.cycleTimer = setInterval(async () => {
                 await this.playerService.updatePlayersData();
-                await this.levelService.updateLevelData(this.playerService.players, this.io);
-                await this.levelService.updateScore(this.levelService.levelObjects, this.playerService.players);
+                await this.levelService.updateLevelData(this.playerService.players);
+                await this.levelService.updateScore(this.playerService.players);
                 await this.isRoundEnd();
                 this.io.emit('gameUpdate', this.playerService.players, this.levelService.levelMap, this.levelService.specialObjects);
                 this.io.emit('levelScore', this.levelService.getLevelScore());

@@ -63,7 +63,7 @@ class BombTagService extends LevelService {
         });
     }
 
-    updateScore(objects, players) {
+    updateScore(players) {
         Object.values(players).forEach(player => {
             if (player.statement) {
                 this.levelScore[player.color] += 0.1;
