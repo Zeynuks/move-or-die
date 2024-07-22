@@ -63,13 +63,23 @@
 
 .room__players-list {
     list-style-type: none;
-    padding: 0;
-    margin: 20px 0;
+    width: 80vw;
+    min-height: 60vh;
+    /* padding: 5vw 0; */
+    margin: 0 auto;
+    display: flex;
+    gap: 2.5vw;
+    align-items: center;
 }
 
 .room__players-list li {
     font-size: 18px;
-    margin: 5px 0;
+    width: 14vw;
+    padding: 2vw;
+    display: flex;
+    border: 3px solid #ffffff;
+    border-radius: 20px;
+    min-height: 40vh;
 }
 
 .button {
