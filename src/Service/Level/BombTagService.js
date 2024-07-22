@@ -60,36 +60,9 @@ class BombTagService extends LevelService {
     updateScore(players) {
         Object.values(players).forEach(player => {
             if (player.statement) {
-                this.levelScore[player.color] += 0.1;
+                this.levelScore[player.color] += 1;
             }
         });
-    }
-
-    getStat() {
-        const sortedScore = Object.entries(this.levelScore)
-            .sort((a, b) => b[1] - a[1])
-            .reduce((result, [key, value]) => ({ ...result, [key]: value }), {});
-
-        let count = 0;
-        let bonus =  [5, 2, 1, 0]
-        const updatedSortedScore = {};
-        for (const color in sortedScore) {
-            if (sortedScore[color] !== 0) {
-                updatedSortedScore[color] = bonus[count];
-                count++;
-            }
-        }
-
-        return updatedSortedScore;
-    }
-
-    getLevelScore() {
-        return {
-            blue: Math.round(this.levelScore.blue),
-            green: Math.round(this.levelScore.green),
-            yellow: Math.round(this.levelScore.yellow),
-            purple: Math.round(this.levelScore.purple)
-        }
     }
 
     getRandomAlivePlayer = (players) => {

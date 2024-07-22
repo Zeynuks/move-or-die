@@ -62,7 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
         users.forEach(user => {
             const li = document.createElement('li');
             li.innerText = `${user.user_name} - ${playersReadyStates[user.user_name] ? 'Ready' : 'Not Ready'}`;
-            console.log(user.user_ip, creatorIp)
             if (user.user_ip === creatorIp) {
                 li.innerText += ' (Host)';
             }

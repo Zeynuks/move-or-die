@@ -123,7 +123,7 @@ class GameController extends BaseController {
                 await this.levelService.updateScore(this.playerService.players);
                 await this.isRoundEnd();
                 this.io.emit('gameUpdate', this.playerService.players, this.levelService.levelMap, this.levelService.specialObjects);
-                this.io.emit('levelScore', this.levelService.getLevelScore());
+                this.io.emit('levelScore', this.levelService.levelScore);
             }, 1000 / 60);
         } catch (error) {
             throw new Error(`Ошибка игрового цикла: ${error.message}`);

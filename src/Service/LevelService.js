@@ -182,17 +182,31 @@ class LevelService {
     }
 
     /**
-     * Обновляет счет (не реализовано).
-     */
-    updateScore() {
-    }
-
-    /**
      * Получает статистику (не реализовано).
      * @returns {Object} - Статистика уровня.
      */
     getStat() {
-        return {};
+        const sortedScore = Object.entries(this.levelScore)
+            .sort((a, b) => b[1] - a[1])
+            .reduce((result, [key, value]) => ({ ...result, [key]: value }), {});
+
+        let count = 0;
+        let bonus =  [5, 2, 1, 0]
+        const updatedSortedScore = {};
+        for (const color in sortedScore) {
+            if (sortedScore[color] !== 0) {
+                updatedSortedScore[color] = bonus[count];
+                count++;
+            }
+        }
+
+        return updatedSortedScore;
+    }
+
+    /**
+     * Обновляет счет (не реализовано).
+     */
+    updateScore() {
     }
 
 }

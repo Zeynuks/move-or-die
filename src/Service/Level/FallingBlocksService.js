@@ -57,48 +57,12 @@ class FallingBlocksService extends LevelService {
         }
     }
 
-    getSpecialObjects() {
-        return this.specialObjects;
-    }
-
     updateScore(players) {
         Object.values(players).forEach(player => {
             if (player.statement) {
-                this.levelScore[player.color] += 0.1;
+                this.levelScore[player.color] += 1;
             }
         });
-    }
-
-    getStat(players) {
-        const sorted = Object.entries(this.levelScore)
-            .sort((a, b) => b[1] - a[1])
-            .reduce((result, [key, value]) => ({...result, [key]: value}), {});
-
-        let count = 0;
-        let bonus = [5, 2, 1, 0]
-        const updateLevelScore = {};
-        for (const color in sorted) {
-            if (sorted[color] !== 0) {
-                updateLevelScore[color] = bonus[count];
-                count++;
-            }
-        }
-        Object.values(players).forEach(player => {
-            if (player.statement) {
-                updateLevelScore[player.color] = 5;
-            }
-        });
-
-        return updateLevelScore;
-    }
-
-    getLevelScore() {
-        return {
-            blue: Math.round(this.levelScore.blue),
-            green: Math.round(this.levelScore.green),
-            yellow: Math.round(this.levelScore.yellow),
-            purple: Math.round(this.levelScore.purple)
-        }
     }
 }
 

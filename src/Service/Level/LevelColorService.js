@@ -1,18 +1,16 @@
 const LevelService = require("../LevelService");
+
 class LevelColorService extends LevelService {
     constructor(io) {
         super(io);
         this.levelName = 'ColorLevel';
     }
 
-    paintBlock(player, cellsToCheck, objects) {
+    paintBlock(player, cellsToCheck) {
         for (let [y, x] of cellsToCheck) {
-            if (objects[y] && objects[y][x]) {
-                for (let obj of objects[y][x]) {
-                    let proximity = this.checkProximity(player, obj);
-                    if (proximity) {
-                        obj.color = player.color;
-                    }
+            if (this.levelObjects[y] && this.levelObjects[y][x]) {
+                if (this.checkProximity(player, this.levelObjects[y][x][0])) {
+                    this.levelObjects[y][x][0].color = player.color;
                 }
             }
         }
@@ -21,7 +19,7 @@ class LevelColorService extends LevelService {
     updateLevelData(players) {
         Object.values(players).forEach(player => {
             if (player.statement) {
-                this.paintBlock(player, player.getGrid(), this.levelObjects);
+                this.paintBlock(player, player.getGrid());
             }
             this.checkCellsCollision(player, player.getGrid(), this.levelObjects);
         });
@@ -29,31 +27,15 @@ class LevelColorService extends LevelService {
 
     updateScore(players) {
         Object.values(players).forEach(player => {
-            if (player.statement) {
-                this.levelScore[player.color] = this.levelObjects.filter(block => (block.color === player.color)).length;
-            }
+            this.levelScore[player.color] = 0;
+            this.levelObjects.forEach(row => {
+                row.forEach(block => {
+                    if (block[0].color === player.color) {
+                        this.levelScore[player.color] += 1;
+                    }
+                });
+            });
         });
-    }
-
-    getStat(players) {
-        const sortedColoredBlocks = Object.entries(this.coloredblocks)
-            .sort((a, b) => b[1] - a[1])
-            .reduce((result, [key, value]) => ({ ...result, [key]: value }), {});
-
-        let count = 0;
-        let bonus = [5, 2, 1, 0]
-        const updatedSortedColoredBlocks = {};
-        for (const color in sortedColoredBlocks) {
-            if (sortedColoredBlocks[color] !== 0) {
-                updatedSortedColoredBlocks[color] = bonus[count];
-                count++;
-            }
-        }
-        return updatedSortedColoredBlocks;
-    }
-
-    getLevelScore() {
-        return this.coloredblocks
     }
 }
 
