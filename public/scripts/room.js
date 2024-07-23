@@ -62,13 +62,14 @@ document.addEventListener('DOMContentLoaded', () => {
         users.forEach(user => {
             const li = document.createElement('li');
             li.innerText = `${user.user_name} - ${playersReadyStates[user.user_name] ? 'Ready' : 'Not Ready'}`;
-            console.log(user.user_ip, creatorIp)
             if (user.user_ip === creatorIp) {
                 li.innerText += ' (Host)';
             }
             playersList.appendChild(li);
         });
     });
+    let userData = {skin: 'smth_skin', color: 'smth_color'}
+    socket.emit('applySettings', roomName, userData);
 
     socket.on('fullRoom', () => {
         window.location.href = `/?name=${userName}`;
@@ -82,6 +83,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.on('gameStarted', () => {
         window.location.href = `/game?room=${roomName}&name=${userName}`;
+    });
+
+    socket.on('loadGame', (roomName, users) => {
+        socket.emit('gameStart', roomName, users);
     });
 
     copyLinkBtn.addEventListener('click', () => {

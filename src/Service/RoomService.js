@@ -1,4 +1,3 @@
-const mysql = require('mysql2/promise');
 const dotenv = require('dotenv');
 dotenv.config();
 /**
@@ -28,7 +27,7 @@ class RoomService {
         try {
             await this.roomRepository.createRoom(room);
         } catch (error) {
-            console.error('Ошибка создания комнаты: ' + error.message);
+            throw new Error('Ошибка создания комнаты: ' + error.message);
         }
     }
 
@@ -44,7 +43,7 @@ class RoomService {
             this.playersReadyStates[userName] = false;
             await this.addUserToRoom(roomName, userName, userIp);
         } catch (error) {
-            console.error('Ошибка подключения к комнате: ' + error.message);
+            throw new Error('Ошибка подключения к комнате: ' + error.message);
         }
     }
 
@@ -56,10 +55,14 @@ class RoomService {
      */
     async playerReady(userName) {
         try {
-            this.playersReadyStates[userName] = true;
-            return this.playersReadyStates;
+            if (this.playersReadyStates.length > 1) {
+                this.playersReadyStates[userName] = true;
+                return this.playersReadyStates;
+            } else {
+                throw new Error('Недостаточно игроков для запуска игры');
+            }
         } catch (error) {
-            console.error('Ошибка установки готовности игрока: ' + error.message);
+            throw new Error('Ошибка установки готовности игрока: ' + error.message);
         }
     }
 
@@ -75,7 +78,7 @@ class RoomService {
 
     /**
      * Проверяет емкость комнаты.
-     * @param {Array<RoomUser>} users - Пользователи в комнате.
+     * @param {Array<User>} users - Пользователи в комнате.
      * @returns {boolean} Достигнута ли емкость комнаты.
      * @async
      */
@@ -93,14 +96,30 @@ class RoomService {
      */
     async addUserToRoom(roomName, userName, userIp) {
         try {
-            const roomUser = {
+            const user = {
                 room_name: roomName,
-                user_name: userName,
                 user_ip: userIp,
+                user_name: userName,
             };
-            await this.roomRepository.addUserToRoom(roomUser);
+            await this.roomRepository.addUserToRoom(user);
         } catch (error) {
             throw new Error('Ошибка добавления пользователя в комнату: ' + error.message);
+        }
+    }
+
+    /**
+     * Обновляет данные пользователя в комнате.
+     * @param {string} roomName - Имя комнаты.
+     * @param {string} userSkin - Скин пользователя.
+     * @param {string} userColor - Цвет пользователя.
+     * @param {string} userIp - IP пользователя.
+     * @async
+     */
+    async changeUserData(roomName, userSkin, userColor, userIp) {
+        try {
+            await this.roomRepository.changeUserData(roomName, userSkin, userColor, userIp);
+        } catch (error) {
+            throw new Error('Ошибка смены данных игрока: ' + error.message);
         }
     }
 
@@ -114,7 +133,7 @@ class RoomService {
         try {
             return await this.roomRepository.getUsersInRoom(roomName);
         } catch (error) {
-            console.error('Ошибка получения пользователей в комнате: ' + error.message);
+            throw new Error('Ошибка получения пользователей в комнате: ' + error.message);
         }
     }
 
@@ -129,7 +148,7 @@ class RoomService {
             await this.roomRepository.removeUserFromRoom(roomName, userIp);
             await this.deleteRoomIfEmpty(roomName);
         } catch (error) {
-            console.error('Ошибка отключения пользователя от комнаты: ' + error.message);
+            throw new Error('Ошибка отключения пользователя от комнаты: ' + error.message);
         }
     }
 
@@ -149,7 +168,7 @@ class RoomService {
             }
             return roomHost;
         } catch (error) {
-            console.error('Ошибка смены хоста комнаты: ' + error.message);
+            throw new Error('Ошибка смены хоста комнаты: ' + error.message);
         }
     }
 
@@ -170,8 +189,13 @@ class RoomService {
     /**
      * Отключается от сервиса комнаты.
      */
-    disconnect() {
-        this.roomRepository.disconnect();
+    closeAllRooms() {
+        try {
+            this.roomRepository.disconnect();
+        } catch (error) {
+            throw new Error('Ошибка отключения базы данных: ' + error.message);
+        }
+
     }
 }
 

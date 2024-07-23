@@ -5,14 +5,14 @@ const RoomService = require("../Service/RoomService");
 const PlayerService = require("../Service/PlayerService");
 const LevelController = require("../Controller/LevelController");
 
-class RoomManager {
+class ServerManager {
     constructor(io, roomRepository) {
         this.io = io;
         this.roomRepository = roomRepository;
         this.rooms = {};
     }
 
-    createRoom(socket, roomName, userName) {
+    async createRoom(socket, roomName, userName) {
         if (!this.rooms[roomName]) {
             const services = {
                 roomService: new RoomService(this.roomRepository),
@@ -24,59 +24,68 @@ class RoomManager {
                 gameController: new GameController(this.io.of('/game').to(roomName), roomName, services),
                 levelController: new LevelController(this.io.of('/game').to(roomName), roomName)
             };
-            this.rooms[roomName].gameController.levelList = this.rooms[roomName].levelController.getLevelList();
-            this.rooms[roomName].roomController.createRoom(socket, userName);
+            await this.rooms[roomName].roomController.createRoom(socket, userName);
         }
     }
 
-    joinRoom(socket, roomName, userName) {
+    async joinRoom(socket, roomName, userName) {
         if (this.rooms[roomName]) {
-            this.rooms[roomName].roomController.joinRoom(socket, userName);
-        } else {
-            socket.emit('error', 'Room does not exist');
+            await this.rooms[roomName].roomController.joinRoom(socket, userName);
         }
     }
 
-    playerReady(socket, roomName, userName) {
+    async applySettings(socket, roomName, userData) {
         if (this.rooms[roomName]) {
-            this.rooms[roomName].roomController.playerReady(socket, userName);
-        } else {
-            socket.emit('error', 'Room does not exist');
+            await this.rooms[roomName].roomController.changeUserData(socket, userData);
         }
     }
 
-    disconnect(socket) {
+    async playerReady(socket, roomName, userName) {
+        if (this.rooms[roomName]) {
+            await this.rooms[roomName].roomController.playerReady(socket, userName);
+        }
+    }
+
+    async disconnect(socket) {
         for (let roomName in this.rooms) {
-            this.rooms[roomName].roomController.disconnect(socket);
+            await this.rooms[roomName].roomController.disconnect(socket);
         }
     }
 
-    gameDisconnect(socket) {
+    async gameDisconnect(socket) {
         for (let roomName in this.rooms) {
-            this.rooms[roomName].playerController.disconnect(socket);
+            await this.rooms[roomName].playerController.disconnect(socket);
         }
     }
 
-    closeAllRooms() {
+    async closeAllRooms() {
         for (let roomName in this.rooms) {
-            this.rooms[roomName].roomController.closeAllRooms();
+            await this.rooms[roomName].roomController.closeAllRooms();
         }
     }
 
-    handleMove(socket, roomName, moveData) {
+    async gameStart(roomName, users) {
         if (this.rooms[roomName]) {
-            this.rooms[roomName].playerController.handleMovePlayer(socket, moveData);
+            this.rooms[roomName].gameController.levelList = this.rooms[roomName].levelController.getLevelList(10);
+            await this.rooms[roomName].playerController.setPlayersData(users);
+            await this.rooms[roomName].gameController.startGame();
         }
     }
 
-    playerStart(socket, roomName, userName) {
+    async handleMove(socket, roomName, moveData) {
         if (this.rooms[roomName]) {
-            this.rooms[roomName].playerController.addPlayerToGame(socket, userName);
-            this.rooms[roomName].gameController.isStart(socket);
+            await this.rooms[roomName].playerController.handleMovePlayer(socket, moveData);
         }
     }
 
-    removeRoom() {
+    async playerJoin(socket, roomName) {
+        if (this.rooms[roomName]) {
+            await this.rooms[roomName].playerController.connect(socket);
+            await this.rooms[roomName].gameController.gameDataLoad(socket);
+        }
+    }
+
+    async removeRoom(roomName) {
         if (this.rooms[roomName]) {
             delete this.rooms[roomName];
         }
@@ -84,4 +93,4 @@ class RoomManager {
 
 }
 
-module.exports = RoomManager;
+module.exports = ServerManager;

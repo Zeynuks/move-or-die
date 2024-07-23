@@ -1,22 +1,26 @@
 const BaseController = require("./BaseController");
+const ErrorHandler = require("../Utils/ErrorHandler");
+const ROUND_TIME = 1000 * 60;
+const WAIT_TIME = 1000 * 3;
 
+/**
+ * Контроллер игры.
+ * @extends BaseController
+ */
 class GameController extends BaseController {
+    /**
+     * Создает экземпляр GameController.
+     * @param {Object} io - Объект Socket.IO.
+     * @param {string} roomName - Имя комнаты.
+     * @param {Object} services - Сервисы, необходимые для игры.
+     */
     constructor(io, roomName, services) {
         super(io, roomName);
-        this.io = io;
-        this.roomName = roomName;
-        this.gameService = services.gameService;
         this.playerService = services.playerService;
-        this.levelService = {}
-        this.players = {};
-        this.levelObjects = [];
-        this.level = [];
-        this.specialObjects = [];
-        this.levelList = {}
+        this.levelService = {};
+        this.levelList = [];
         this.roundTimer = null;
-        this.roundTime = 20000;
         this.cycleTimer = null;
-        this.gameState = false;
         this.playersScore = {
             blue: 0,
             green: 0,
@@ -25,55 +29,112 @@ class GameController extends BaseController {
         }
     }
 
-    async getCurrLevel() {
+    /**
+     * Устанавливает уровень игры из списка доступных уровней.
+     * @throws {Error} Если нет доступных уровней.
+     */
+    async setLevelService() {
+        if (this.levelList.length === 0) {
+            throw new Error('Нет доступных уровней');
+        }
+        this.levelService = this.levelList.pop();
+    }
+
+    /**
+     * Запускает игру.
+     * @returns {Promise<void>}
+     */
+    async startGame() {
         try {
-            this.counter -= 1;
-            if (this.counter <= 0) {
-                await this.gameEnd();
-                return null;
-            }
-            return new this.levelList[this.counter]
+            await this.startRound();
         } catch (error) {
-            this.io.emit('error', 'Ошибка загрузки уровня');
+            ErrorHandler(this.io, this.roomName, 'Ошибка старта игры', error.message);
         }
     }
 
-    async isStart(socket) {
-        try {
-            if (!this.gameState) {
-                this.gameState = true
-                this.counter = this.levelList.length;
-                await this.startRound();
-            } else {
-                this.gameLoad(socket)
-            }
-        } catch (err) {
-            socket.emit('error', 'Ошибка подготовки к игре');
-        }
+    /**
+     * Загружает данные игры для клиента.
+     * @param {Object} socket - Объект сокета клиента.
+     * @returns {Promise<void>}
+     */
+    async gameDataLoad(socket) {
+        socket.emit('gameLoad', this.playerService.players, this.levelService.levelMap);
     }
 
-    gameLoad(socket) {
-        socket.emit('gameLoad', this.players, this.level);
-    }
-
+    /**
+     * Запускает раунд игры.
+     * @returns {Promise<void>}
+     */
     async startRound() {
         try {
-            setTimeout(async () => {
-                this.levelService = await this.getCurrLevel()
-                await this.setGameData();
-                this.io.emit('startRound', this.players, this.level, this.roundTime);
-                await this.updateCycle(this.levelObjects);
-                this.roundTimer = setTimeout(async () => {
-                    this.endRound();
-                }, this.roundTime);
-            }, 3000);
-        } catch (err) {
-            this.io.emit('error', 'Ошибка запуска игры');
+            await this.sleep(WAIT_TIME);
+            await this.setGameData();
+            this.io.emit('startRound', this.playerService.players, this.levelService.levelMap, ROUND_TIME);
+            await this.updateCycle(this.levelObjects);
+            this.roundTimer = setTimeout(async () => {
+                await this.endRound();
+            }, ROUND_TIME);
+        } catch (error) {
+            ErrorHandler(this.io, this.roomName, 'Ошибка старта раунда', error.message);
         }
     }
 
+    /**
+     * Устанавливает данные игры, включая уровень и игроков.
+     * @returns {Promise<void>}
+     * @throws {Error} Если произошла ошибка при установке данных.
+     */
+    async setGameData() {
+        try {
+            await this.setLevelService();
+            await this.levelService.setLevelData(this.levelService.levelName);
+            await this.playerService.setPlayersData(this.levelService.levelSpawnPoints);
+        } catch (error) {
+            throw new Error(`Ошибка установки данных игры: ${error.message}`);
+        }
+    }
+
+    /**
+     * Завершает текущий раунд игры.
+     * @returns {Promise<void>}
+     */
+    async endRound() {
+        try {
+            this.stopUpdateCycle()
+            this.updatePlayersScore();
+            this.levelService.isEnd = true;
+            this.io.emit('endRound', this.playersScore);
+            await this.isGameEnd();
+        } catch (error) {
+            ErrorHandler(this.io, this.roomName, 'Ошибка конца раунда', error.message);
+        }
+    }
+
+    /**
+     * Обновляет игровой цикл.
+     * @returns {Promise<void>}
+     * @throws {Error} Если произошла ошибка в игровом цикле.
+     */
+    async updateCycle() {
+        try {
+            this.cycleTimer = setInterval(async () => {
+                await this.playerService.updatePlayersData();
+                await this.levelService.updateLevelData(this.playerService.players);
+                await this.levelService.updateScore(this.playerService.players);
+                await this.isRoundEnd();
+                this.io.emit('gameUpdate', this.playerService.players, this.levelService.levelMap, this.levelService.specialObjects);
+                this.io.emit('levelScore', this.levelService.levelScore);
+            }, 1000 / 60);
+        } catch (error) {
+            throw new Error(`Ошибка игрового цикла: ${error.message}`);
+        }
+    }
+
+    /**
+     * Обновляет счет игроков на основе данных уровня.
+     */
     updatePlayersScore() {
-        const score = this.levelService.getStat(this.players);
+        const score = this.levelService.getStat(this.playerService.players);
         const total = {};
         for (const color in this.playersScore) {
             total[color] = (this.playersScore[color] || 0) + (score[color] || 0);
@@ -82,84 +143,72 @@ class GameController extends BaseController {
         this.sortPlayersScore();
     }
 
+    /**
+     * Сортирует счет игроков по убыванию.
+     */
     sortPlayersScore() {
         this.playersScore = Object.entries(this.playersScore)
             .sort((a, b) => b[1] - a[1])
             .reduce((result, [key, value]) => ({...result, [key]: value}), {});
     }
 
-    endRound() {
-        try {
-            this.stopUpdateCycle()
-            this.updatePlayersScore();
-            this.levelService.isEnd = true;
-            this.io.emit('endRound', this.playersScore);
-            setTimeout(async () => {
-                await this.startRound();
-            }, 2000);
-        } catch (err) {
-            this.io.emit('error', 'Ошибка остановки игры');
-        }
-    }
-
-    async updateCycle(gameObjects) {
-        try {
-            if (this.gameState) {
-                this.cycleTimer = setInterval(async () => {
-                    await this.playerService.updatePlayersPosition(this.roomName, gameObjects);
-                    await this.levelService.updateLevel(this.players, this.levelObjects, this.io);
-                    await this.playerService.updateHealth(this.players);
-                    await this.levelService.updateScore(this.level, this.players);
-                    await this.isRoundEnd();
-                    this.io.emit('gameUpdate', this.players, this.level, this.specialObjects);
-                    this.io.emit('levelScore', this.levelService.getLevelScore());
-                }, 1000 / 60);
-            }
-        } catch (err) {
-            this.io.emit('error', 'Ошибка игрового цикла');
-        }
-    }
-
+    /**
+     * Проверяет, закончился ли раунд.
+     * @returns {Promise<void>}
+     */
     async isRoundEnd() {
-        if (await this.playerService.isAllDie() || this.players.length === 0) {
+        if (this.playerService.isAllDie() || this.playerService.players.length === 0) {
             this.stopGameCycle()
-            this.endRound();
+            await this.endRound();
         }
     }
 
+    /**
+     * Проверяет, закончилась ли игра.
+     * @returns {Promise<void>}
+     */
+    async isGameEnd() {
+        if (this.levelList.length === 0) {
+            this.io.emit('endGame', this.roomName);
+        } else {
+            await this.sleep(WAIT_TIME);
+            await this.startRound();
+        }
+    }
+
+    /**
+     * Возвращает промис, который завершается через указанное количество миллисекунд.
+     * @param {number} ms - Количество миллисекунд.
+     * @returns {Promise<void>}
+     */
+    async sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    /**
+     * Останавливает цикл обновления игры.
+     * @throws {Error} Если таймер не существует.
+     */
     stopUpdateCycle() {
         if (this.cycleTimer) {
             clearInterval(this.cycleTimer);
             this.cycleTimer = null;
+        } else {
+            throw new Error('Таймер не существует');
         }
     }
 
+    /**
+     * Останавливает таймер раунда.
+     * @throws {Error} Если таймер не существует.
+     */
     stopGameCycle() {
         if (this.roundTimer) {
             clearTimeout(this.roundTimer)
             this.roundTimer = null;
+        } else {
+            throw new Error('Таймер не существует');
         }
-    }
-
-    async setGameData() {
-        try {
-            await this.playerService.resetPlayersData();
-            await this.levelService.resetLevelData(this.levelService.levelName);
-            await this.playerService.setPlayersSpawnPoints(this.levelService.levelSpawnPoints)
-            this.players = this.playerService.players;
-            this.levelObjects = this.levelService.levelObjects;
-            this.level = this.levelService.levelMap;
-            this.specialObjects = this.levelService.specialObjects
-        } catch (error) {
-            this.io.emit('error', 'Ошибка обновления данных');
-        }
-    }
-
-    async gameEnd(){
-        this.gameState = false
-        this.stopUpdateCycle();
-        this.stopGameCycle();
-        this.io.emit('endGame');
     }
 }
 

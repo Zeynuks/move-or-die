@@ -1,71 +1,41 @@
 const LevelService = require("../LevelService");
+
 class LevelColorService extends LevelService {
-    constructor() {
-        super();
+    constructor(io) {
+        super(io);
         this.levelName = 'ColorLevel';
-        this.coloredblocks = {};
     }
 
-    paintBlock(player, cellsToCheck, objects) {
+    paintBlock(player, cellsToCheck) {
         for (let [y, x] of cellsToCheck) {
-            if (objects[y] && objects[y][x]) {
-                for (let obj of objects[y][x]) {
-                    let proximity = this.checkProximity(player, obj);
-                    if (proximity) {
-                        obj.color = player.color;
-                    }
+            if (this.levelObjects[y] && this.levelObjects[y][x]) {
+                if (this.checkProximity(player, this.levelObjects[y][x][0])) {
+                    this.levelObjects[y][x][0].color = player.color;
                 }
             }
         }
     }
 
-    checkProximity(player, obj) {
-        const proximityDistance = 1;
-        return (
-            player.x < obj.x + obj.size + proximityDistance &&
-            player.x + player.size > obj.x - proximityDistance &&
-            player.y < obj.y + obj.size + proximityDistance &&
-            player.y + player.size > obj.y - proximityDistance
-        );
-    }
-
-    updateLevel(players, objects) {
+    updateLevelData(players) {
         Object.values(players).forEach(player => {
             if (player.statement) {
-                this.paintBlock(player, player.getGrid(), objects);
+                this.paintBlock(player, player.getGrid());
             }
-            this.checkCellsCollision(player, player.getGrid(), objects);
+            this.checkCellsCollision(player, player.getGrid(), this.levelObjects);
         });
     }
 
-    updateScore(objects, players) {
-        let blue =  objects.filter(block => block.color === 'blue').length;
-        let green = objects.filter(block => block.color === 'green').length;
-        let yellow = objects.filter(block => block.color === 'yellow').length;
-        let purple = objects.filter(block => block.color === 'purple').length;
-        this.coloredblocks = {blue: blue, green: green, yellow: yellow, purple: purple}
-    }
-
-    getStat(players) {
-        const sortedColoredBlocks = Object.entries(this.coloredblocks)
-            .sort((a, b) => b[1] - a[1])
-            .reduce((result, [key, value]) => ({ ...result, [key]: value }), {});
-
-        let count = 0;
-        let bonus = [5, 2, 1, 0]
-        const updatedSortedColoredBlocks = {};
-        for (const color in sortedColoredBlocks) {
-            if (sortedColoredBlocks[color] !== 0) {
-                updatedSortedColoredBlocks[color] = bonus[count];
-                count++;
-            }
-        }
-
-        return updatedSortedColoredBlocks;
-    }
-
-    getLevelScore() {
-        return this.coloredblocks
+    updateScore(players) {
+        Object.values(players).forEach(player => {
+            this.levelScore[player.color] = 0;
+            this.levelObjects.forEach(row => {
+                row.forEach(block => {
+                    if (block[0].color === player.color) {
+                        this.levelScore[player.color] += 1;
+                    }
+                });
+            });
+        });
     }
 }
 

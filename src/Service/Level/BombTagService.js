@@ -1,31 +1,14 @@
 const LevelService = require("../LevelService");
 
 class BombTagService extends LevelService {
-    constructor() {
-        super();
+    constructor(io) {
+        super(io);
         this.levelName = 'BombTag';
         this.bombState = false;
         this.bombPlayer = null;
         this.bombTimer = null;
         this.lastBombTime = null;
-        this.io = null;
         this.isEnd = false;
-        this.levelScore = {
-            blue: 0,
-            green: 0,
-            yellow: 0,
-            purple: 0,
-        }
-    }
-
-checkProximity(player, obj) {
-        const proximityDistance = 2; // Расстояние до объекта для изменения цвета
-        return (
-            player.x < obj.x + obj.size + proximityDistance &&
-            player.x + player.size > obj.x - proximityDistance &&
-            player.y < obj.y + obj.size + proximityDistance &&
-            player.y + player.size > obj.y - proximityDistance
-        );
     }
 
     // Раскраска блоков при приближении
@@ -62,52 +45,24 @@ checkProximity(player, obj) {
         }
     }
 
-    updateLevel(players, objects, io) {
+    updateLevelData(players) {
         let currentTime = Date.now()
-        if (!this.io) this.io = io;
         this.setBombPlayer(players);
         Object.values(players).forEach(player => {
             if (!player.statement) player.active = false;
             if (this.bombPlayer && this.bombPlayer !== player && this.bombPlayer.active) {
                 this.bombTransfer(player, currentTime)
             }
-            this.checkCellsCollision(player, player.getGrid(), objects);
+            this.checkCellsCollision(player, player.getGrid(), this.levelObjects);
         });
     }
 
-    updateScore(objects, players) {
+    updateScore(players) {
         Object.values(players).forEach(player => {
             if (player.statement) {
-                this.levelScore[player.color] += 0.1;
+                this.levelScore[player.color] += 1;
             }
         });
-    }
-
-    getStat() {
-        const sortedScore = Object.entries(this.levelScore)
-            .sort((a, b) => b[1] - a[1])
-            .reduce((result, [key, value]) => ({ ...result, [key]: value }), {});
-
-        let count = 0;
-        let bonus =  [5, 2, 1, 0]
-        const updatedSortedScore = {};
-        for (const color in sortedScore) {
-            if (sortedScore[color] !== 0) {
-                updatedSortedScore[color] = bonus[count];
-                count++;
-            }
-        }
-
-        return updatedSortedScore;
-    }
-
-    getLevelScore() {
-        return {
-            blue: Math.round(this.levelScore.blue),
-            green: Math.round(this.levelScore.green),
-            yellow: Math.round(this.levelScore.yellow),
-            purple: Math.round(this.levelScore.purple)
-        }
     }
 
     getRandomAlivePlayer = (players) => {

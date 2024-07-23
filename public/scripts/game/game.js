@@ -20,7 +20,8 @@ setTimeout(function () {
 }, 3000);
 
 document.addEventListener('DOMContentLoaded', () => {
-        socket.emit('playerStart', roomName, userName);
+
+        socket.emit('playerJoin', roomName);
 
         socket.on('error', (error) => {
             console.log(error);
@@ -30,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
             players = transformKeys(gamePlayers);
             blocks = transformKeys(levelBlocks);
             state = true
-            drawMap(context, blocks, blocksImages);
             preload();
             gameLoop();
         });
@@ -41,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
             blocks = transformKeys(levelBlocks);
             state = true;
             startRoundTimer(roundTime);
-            drawMap(context, blocks, blocksImages);
             preload();
             gameLoop();
         });
@@ -90,9 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
             contextInfo.clearRect(0, 0, canvas.width, canvas.height);
 
             handleParticles(context, state);
-            drawMap(context, blocks, blocksImages);
-            drawSpecialObjects();
-            drawScore(context, levelScores, COLORS);
             if (!state) {
                 renderWinnerList(winnerList);
                 return;
@@ -200,6 +196,9 @@ document.addEventListener('DOMContentLoaded', () => {
         function gameLoop() {
             if (Object.keys(players).length !== 0) {
                 drawPlayers();
+                drawMap(context, blocks, blocksImages);
+                drawSpecialObjects();
+                drawScore(context, levelScores, COLORS);
             }
             requestAnimationFrame(gameLoop);
         }
