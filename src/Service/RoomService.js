@@ -1,5 +1,6 @@
 const dotenv = require('dotenv');
 dotenv.config();
+
 /**
  * Сервис для управления комнатами.
  * @class RoomService
@@ -55,12 +56,8 @@ class RoomService {
      */
     async playerReady(userName) {
         try {
-            if (this.playersReadyStates.length > 1) {
-                this.playersReadyStates[userName] = true;
-                return this.playersReadyStates;
-            } else {
-                throw new Error('Недостаточно игроков для запуска игры');
-            }
+            this.playersReadyStates[userName] = true;
+            return this.playersReadyStates;
         } catch (error) {
             throw new Error('Ошибка установки готовности игрока: ' + error.message);
         }
