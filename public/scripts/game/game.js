@@ -21,110 +21,111 @@ setTimeout(function () {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-        socket.emit('playerJoin', roomName);
+    socket.emit('playerJoin', roomName);
 
-        socket.on('error', (error) => {
-            console.log(error);
-        });
+    socket.on('error', (error) => {
+        console.log(error);
+    });
 
-        socket.on('gameLoad', (gamePlayers, levelBlocks) => {
-            players = transformKeys(gamePlayers);
-            blocks = transformKeys(levelBlocks);
-            state = true
-            preload();
-            gameLoop();
-        });
+    socket.on('gameLoad', (gamePlayers, levelBlocks) => {
+        players = transformKeys(gamePlayers);
+        blocks = transformKeys(levelBlocks);
+        state = true
+        preload();
+        gameLoop();
+    });
 
-        socket.on('startRound', (gamePlayers, levelBlocks, roundTime) => {
-            info_box.classList.add('hidden');
-            players = transformKeys(gamePlayers);
-            blocks = transformKeys(levelBlocks);
-            state = true;
-            startRoundTimer(roundTime);
-            preload();
-            gameLoop();
-        });
+    socket.on('startRound', (gamePlayers, levelBlocks, roundTime) => {
+        info_box.classList.add('hidden');
+        players = transformKeys(gamePlayers);
+        blocks = transformKeys(levelBlocks);
+        state = true;
+        startRoundTimer(roundTime);
+        preload();
+        gameLoop();
+    });
 
-        function startRoundTimer(roundTime) {
-            clearInterval(roundTimer);
-            totalTime = roundTime / 100;
-            currentTime = totalTime;
-            console.log(totalTime, currentTime)
-            roundTimer = setInterval(() => {
-                currentTime -= 1;
-                if (currentTime < 0) {
-                    currentTime = 0;
-                }
-            }, 100)
+    function startRoundTimer(roundTime) {
+        clearInterval(roundTimer);
+        totalTime = roundTime / 100;
+        currentTime = totalTime;
+        console.log(totalTime, currentTime)
+        roundTimer = setInterval(() => {
+            currentTime -= 1;
+            if (currentTime < 0) {
+                currentTime = 0;
+            }
+        }, 100)
+    }
+
+    socket.on('endRound', (data) => {
+        state = false;
+        winnerList = data;
+        if (info_box.classList.contains('hidden')) {
+            info_box.classList.remove('hidden');
+        }
+    });
+
+    socket.on('levelScore', (data) => {
+        levelScores.blue = data.blue;
+        levelScores.yellow = data.yellow;
+        levelScores.green = data.green;
+        levelScores.purple = data.purple;
+    });
+
+    socket.on('endGame', () => {
+        window.location.href = `/`;
+    });
+
+    socket.on('explode', (data) => {
+        explode(data.x, data.y, data.color);
+    });
+
+    function drawPlayers() {
+        const now = Date.now();
+        const t = (now - lastServerUpdateTime) / (1000 / 60);
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        contextHealth.clearRect(0, 0, canvas.width, canvas.height);
+        contextInfo.clearRect(0, 0, canvas.width, canvas.height);
+
+        handleParticles(context, state);
+        if (!state) {
+            renderWinnerList(winnerList);
+            return;
         }
 
-        socket.on('endRound', (data) => {
-            state = false;
-            winnerList = data;
-            if (info_box.classList.contains('hidden')) {
-                info_box.classList.remove('hidden');
-            }
+        drawTimer(context, totalTime, currentTime);
+
+        Object.entries(players).forEach(([ip, player], playerIndex) => {
+            const previous = previousPlayers[ip];
+            const current = player;
+            if (!previous || !current) return;
+
+            let position = calculatePosition(previous, current, t);
+
+            drawPlayer(context, player, position, playersImages);
+            drawBomb(context, bomb_image, player);
+            drawHealth(contextHealth, player, playerIndex);
         });
+    }
 
-        socket.on('levelScore', (data) => {
-            levelScores.blue = data.blue;
-            levelScores.yellow = data.yellow;
-            levelScores.green = data.green;
-            levelScores.purple = data.purple;
-        });
+    const keys = {};
 
-        socket.on('endGame', () => {
-            window.location.href = `/`;
-        });
-
-        socket.on('explode', (data) => {
-            explode(data.x, data.y, data.color);
-        });
-
-        function drawPlayers() {
-            const now = Date.now();
-            const t = (now - lastServerUpdateTime) / (1000 / 60);
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            contextHealth.clearRect(0, 0, canvas.width, canvas.height);
-            contextInfo.clearRect(0, 0, canvas.width, canvas.height);
-
-            handleParticles(context, state);
-            if (!state) {
-                renderWinnerList(winnerList);
-                return;
-            }
-
-            drawTimer(context, totalTime, currentTime);
-
-            Object.entries(players).forEach(([ip, player], playerIndex) => {
-                const previous = previousPlayers[ip];
-                const current = player;
-                if (!previous || !current) return;
-
-                let position = calculatePosition(previous, current, t);
-
-                drawPlayer(context, player, position, playersImages);
-                drawBomb(context, bomb_image, player);
-                drawHealth(contextHealth, player, playerIndex);
-            });
+    // Обработка нажатий клавиш для управления движением
+    window.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowUp' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+            keys[event.key] = true;
+            sendMovement();
         }
+    });
 
-        const keys = {};
+    window.addEventListener('keyup', (event) => {
+        if (event.key === 'ArrowUp' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+            delete keys[event.key];
+            sendMovement();
+        }
+    });
 
-        // Обработка нажатий клавиш для управления движением
-        window.addEventListener('keydown', (event) => {
-            if (event.key === 'ArrowUp' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-                keys[event.key] = true;
-                sendMovement();
-            }
-        });
-
-        window.addEventListener('keyup', (event) => {
-            if (event.key === 'ArrowUp' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-                delete keys[event.key];
-                sendMovement();
-            }
-        });
 
         //подгружаем звуки для движения
         const upMoveSound = new Audio('../sound/up.mp3');
