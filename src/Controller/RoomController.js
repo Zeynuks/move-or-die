@@ -1,4 +1,5 @@
 const BaseController = require("./BaseController");
+const ErrorHandler = require("../Utils/ErrorHandler");
 /**
  * Контроллер для управления комнатами.
  * @class BaseController
@@ -27,8 +28,8 @@ class RoomController extends BaseController {
             this.roomHost = socket.handshake.address;
             await this.roomService.createRoom(this.roomName, userName, this.roomHost);
             socket.emit('roomCreated', this.roomName);
-        } catch (err) {
-            socket.emit('error', 'Ошибка создания комнаты');
+        } catch (error) {
+            ErrorHandler(socket, this.roomName, 'Ошибка создания комнаты', error);
         }
     }
 
@@ -45,8 +46,8 @@ class RoomController extends BaseController {
             socket.join(this.roomName);
             socket.emit('joinedRoom', this.roomName);
             this.io.emit('updateRoom', users, this.roomHost, {});
-        } catch (err) {
-            socket.emit('error', 'Ошибка присоединения к комнате');
+        } catch (error) {
+            ErrorHandler(socket, this.roomName, 'Ошибка присоединения к комнате', error);
         }
     }
 
@@ -74,8 +75,8 @@ class RoomController extends BaseController {
     async changeUserData(socket, userData) {
         try {
             await this.roomService.changeUserData(this.roomName, userData.skin, userData.color, socket.handshake.address);
-        } catch (err) {
-            socket.emit('error', 'Ошибка смены данных игрока');
+        } catch (error) {
+            ErrorHandler(socket, this.roomName, 'Ошибка смены данных игрока', error);
         }
     }
 
@@ -90,8 +91,8 @@ class RoomController extends BaseController {
             const users = await this.roomService.getUsersInRoom(this.roomName);
             this.io.emit('updateRoom', users, this.roomHost, playersReadyStates);
             await this.isAllReady(socket, users);
-        } catch (err) {
-            socket.emit('error', 'Ошибка смены статуса');
+        } catch (error) {
+            ErrorHandler(socket, this.roomName, 'Ошибка смены статуса', error);
         }
     }
 
@@ -105,8 +106,6 @@ class RoomController extends BaseController {
         if (await this.roomService.isAllReady()) {
             socket.emit('loadGame', this.roomName, users);
             this.io.emit('gameStarted');
-        } else {
-            throw new Error('Не удалось проверить статус игроков');
         }
     }
 
@@ -119,8 +118,8 @@ class RoomController extends BaseController {
             await this.roomService.userDisconnect(this.roomName, socket.handshake.address);
             this.roomHost = await this.roomService.getRoomHost(this.roomName, this.roomHost, socket.handshake.address);
             this.io.emit('userDisconnected', socket.handshake.address);
-        } catch (err) {
-            socket.emit('error', 'Ошибка отключения');
+        } catch (error) {
+            ErrorHandler(socket, this.roomName, 'Ошибка отключения', error);
         }
     }
 
@@ -131,8 +130,8 @@ class RoomController extends BaseController {
         try {
             await this.roomService.closeAllRooms();
             process.exit(0);
-        } catch (err) {
-            console.error('Ошибка отключения базы данных:', err);
+        } catch (error) {
+            console.error('Ошибка отключения базы данных:', error);
         }
     }
 
