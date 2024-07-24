@@ -1,6 +1,7 @@
 import {calculatePosition, transformKeys} from './utils.js';
 import {
     drawMap,
+    drawBloodSpots,
     drawPlayer,
     drawHealth,
     drawScore,
@@ -103,13 +104,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let position = calculatePosition(previous, current, t);
 
-            drawPlayer(context, player, position, playersImages);
-            drawBomb(context, bomb_image, player);
-            drawHealth(contextHealth, player, playerIndex);
-        });
-    }
+                drawPlayer(context, player, position, playersImages);
+                drawBomb(context, bomb_image, player);
+                drawHealth(contextHealth, player, playerIndex);
+                drawBloodSpots(context);
+            });
+        }
 
-    const keys = {};
+        const keys = {};
 
     // Обработка нажатий клавиш для управления движением
     window.addEventListener('keydown', (event) => {
