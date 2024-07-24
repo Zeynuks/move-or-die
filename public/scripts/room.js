@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const roomLink = document.getElementById('roomLink');
     const roomNameElement = document.getElementById('roomName');
     const playersList = document.getElementById('playersList');
-    const readyBtn = document.getElementById('readyBtn');
+    let readyBtn = document.getElementById('readyBtn');
     const copyLinkBtn = document.getElementById('copyLinkBtn');
     const copyNotification = document.getElementById('copyNotification');
     const creatorElement = document.getElementById('creator');
@@ -61,10 +61,37 @@ document.addEventListener('DOMContentLoaded', () => {
         playersList.innerHTML = '';
         users.forEach(user => {
             const li = document.createElement('li');
-            li.innerText = `${user.user_name} - ${playersReadyStates[user.user_name] ? 'Ready' : 'Not Ready'}`;
+            const name = document.createElement('h2');
+            const image = document.createElement('img');
+            const isReady = document.createElement('p');
+            readyBtn = document.createElement('button');
+            name.innerText = `${user.user_name}`;
+
+            li.appendChild(name);
+            li.appendChild(image);
+            if (userName === user.user_name && getUserIpByName(users, userName) === user.user_ip) {
+                const test = document.createElement('p');
+                //test.innerText = 'Im here';
+                readyBtn.classList.add('button');
+                readyBtn.id = 'readyBtn';
+                readyBtn.innerText = 'Готов';
+                li.appendChild(test);
+                li.appendChild(readyBtn);
+
+                readyBtn.addEventListener('click', () => {
+                    socket.emit('playerReady', roomName, userName);
+                    readyBtn.disabled = true;
+                    showNotification('You are ready!', readyNotification);
+                });
+
+            } else {
+                isReady.innerText = `${playersReadyStates[user.user_name] ? 'Ready' : 'Not Ready'}`;
+                li.appendChild(isReady);
+            }
+
             console.log(user.user_ip, creatorIp)
             if (user.user_ip === creatorIp) {
-                li.innerText += ' (Host)';
+                //li.innerText += ' (Host)';
             }
             playersList.appendChild(li);
         });
@@ -74,11 +101,11 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = `/?name=${userName}`;
     });
 
-    readyBtn.addEventListener('click', () => {
-        socket.emit('playerReady', roomName, userName);
-        readyBtn.disabled = true;
-        showNotification('You are ready!', readyNotification);
-    });
+    // readyBtn.addEventListener('click', () => {
+    //     socket.emit('playerReady', roomName, userName);
+    //     readyBtn.disabled = true;
+    //     showNotification('You are ready!', readyNotification);
+    // });
 
     socket.on('gameStarted', () => {
         window.location.href = `/game?room=${roomName}&name=${userName}`;
@@ -112,4 +139,9 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.removeChild(textarea);
         }
     });
+
+    function getUserIpByName(users, userName) {
+        const user = users.find(user => user.user_name === userName);
+        return user ? user.user_ip : null;
+    }
 });
