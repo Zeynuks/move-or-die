@@ -73,7 +73,7 @@ class RoomController extends BaseController {
      */
     async changeUserData(socket, userData) {
         try {
-            await this.roomService.changeUserData(userData.skin, userData.color, socket.handshake.address);
+            await this.roomService.changeUserData(this.roomName, userData.skin, userData.color, socket.handshake.address);
         } catch (err) {
             socket.emit('error', 'Ошибка смены данных игрока');
         }

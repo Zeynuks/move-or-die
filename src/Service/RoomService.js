@@ -114,7 +114,8 @@ class RoomService {
      */
     async changeUserData(roomName, userSkin, userColor, userIp) {
         try {
-            await this.roomRepository.changeUserData(roomName, userSkin, userColor, userIp);
+            console.log(userColor)
+            await this.roomRepository.changeUserData(userIp, userSkin, userColor);
         } catch (error) {
             throw new Error('Ошибка смены данных игрока: ' + error.message);
         }

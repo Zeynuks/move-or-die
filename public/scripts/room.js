@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const roomName = urlParams.get('room');
     const userName = urlParams.get('name');
-
+    const usersData = [];
     if (!userName) {
         window.location.href = `/join?room=${roomName}`;
         return;
@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const roomNameElement = document.getElementById('roomName');
     const playersList = document.getElementById('playersList');
     let readyBtn = document.getElementById('readyBtn');
+    let colorBtn = document.getElementById('colorBtn');
     const copyLinkBtn = document.getElementById('copyLinkBtn');
     const copyNotification = document.getElementById('copyNotification');
     const creatorElement = document.getElementById('creator');
@@ -65,19 +66,25 @@ document.addEventListener('DOMContentLoaded', () => {
             const image = document.createElement('img');
             const isReady = document.createElement('p');
             readyBtn = document.createElement('button');
+            colorBtn = document.createElement('button');
             name.innerText = `${user.user_name}`;
 
             li.appendChild(name);
             li.appendChild(image);
             if (userName === user.user_name && getUserIpByName(users, userName) === user.user_ip) {
                 const test = document.createElement('p');
-                //test.innerText = 'Im here';
                 readyBtn.classList.add('button');
                 readyBtn.id = 'readyBtn';
                 readyBtn.innerText = 'Готов';
+                colorBtn.classList.add('button');
+                colorBtn.id = 'colorBtn';
+                colorBtn.innerText = 'Сменить цвет';
                 li.appendChild(test);
                 li.appendChild(readyBtn);
-
+                li.appendChild(colorBtn);
+                colorBtn.addEventListener('click', () => {
+                    getUserColor(user, users);
+                });
                 readyBtn.addEventListener('click', () => {
                     socket.emit('playerReady', roomName, userName);
                     readyBtn.disabled = true;
@@ -136,5 +143,21 @@ document.addEventListener('DOMContentLoaded', () => {
     function getUserIpByName(users, userName) {
         const user = users.find(user => user.user_name === userName);
         return user ? user.user_ip : null;
+    }
+
+    function getRandomUniqueColor(objects) {
+        const colorArray = ['blue', 'green', 'yellow', 'purple'];
+        const usedColors = objects.map(obj => obj.user_color);
+        const availableColors = colorArray.filter(color => !usedColors.includes(color));
+        const randomIndex = Math.floor(Math.random() * availableColors.length);
+        return availableColors[randomIndex];
+    }
+
+    function getUserColor(user, users) {
+        if (user.user_name === userName) {
+            user.user_color = getRandomUniqueColor(users)
+            let userData = {skin: 'default', color: user.user_color}
+            socket.emit('applySettings', roomName, userData);
+        }
     }
 });

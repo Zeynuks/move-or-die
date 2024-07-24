@@ -80,7 +80,7 @@ class RoomRepository {
      * @async
      */
     async changeUserData(userIp, userSkin, userColor) {
-        await this.connection.query('UPDATE room_user SET user_color = ? && user_skin = ? WHERE user_ip = ?', [userColor, userSkin, userIp]);
+        await this.connection.query('UPDATE room_user SET user_color = ?, user_skin = ? WHERE user_ip = ?', [userColor, userSkin, userIp]);
     }
 
     /**
