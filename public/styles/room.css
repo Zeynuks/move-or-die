@@ -42,7 +42,7 @@
 .room__players-box {
     background-color: #000000c9;
     width: 100vw;
-    min-height: 60vh;
+    height: 70vh;
 }
 
 .room__title {
@@ -64,7 +64,7 @@
 .room__players-list {
     list-style-type: none;
     width: 80vw;
-    min-height: 60vh;
+    height: 70vh;
     /* padding: 5vw 0; */
     margin: 0 auto;
     display: flex;
@@ -75,11 +75,26 @@
 .room__players-list li {
     font-size: 18px;
     width: 14vw;
+    height: 50vh;
     padding: 2vw;
     display: flex;
     border: 3px solid #ffffff;
     border-radius: 20px;
     min-height: 40vh;
+    flex-direction: column;
+}
+
+.room__players-list li h2{
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-wrap: nowrap;
+}
+
+.room__players-list li img{
+    min-height: 14vw;
+    width: 14vw;
+    margin: 3vh 0;
 }
 
 .button {
