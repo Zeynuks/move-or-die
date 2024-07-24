@@ -1,9 +1,16 @@
 const socket = io();
 document.addEventListener('DOMContentLoaded', () => {
+    let playersImages = {
+        blue: '../images/character_blue.png',
+        yellow: '../images/character_yellow.png',
+        green: '../images/character_green.png',
+        purple: '../images/character_red.png'
+    };
+
+
     const urlParams = new URLSearchParams(window.location.search);
     const roomName = urlParams.get('room');
     const userName = urlParams.get('name');
-    const usersData = [];
     if (!userName) {
         window.location.href = `/join?room=${roomName}`;
         return;
@@ -16,7 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let colorBtn = document.getElementById('colorBtn');
     const copyLinkBtn = document.getElementById('copyLinkBtn');
     const copyNotification = document.getElementById('copyNotification');
-    const creatorElement = document.getElementById('creator');
     const readyNotification = document.getElementById('readyNotification');
 
     const showNotification = (message, notificationElement) => {
@@ -71,6 +77,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             li.appendChild(name);
             li.appendChild(image);
+            image.src = playersImages[user.user_color];
+            image.id = 'colorImg' + user.user_name;
             if (userName === user.user_name && getUserIpByName(users, userName) === user.user_ip) {
                 const test = document.createElement('p');
                 readyBtn.classList.add('button');
@@ -109,6 +117,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.on('loadGame', (roomName, users) => {
         socket.emit('gameStart', roomName, users);
+    });
+
+    socket.on('error', () => {
+        window.location.href = `/join?room=${roomName}`;
     });
 
     copyLinkBtn.addEventListener('click', () => {
@@ -156,6 +168,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function getUserColor(user, users) {
         if (user.user_name === userName) {
             user.user_color = getRandomUniqueColor(users)
+            let colorImg = document.getElementById('colorImg' + user.user_name);
+            colorImg.src = playersImages[user.user_color];
             let userData = {skin: 'default', color: user.user_color}
             socket.emit('applySettings', roomName, userData);
         }

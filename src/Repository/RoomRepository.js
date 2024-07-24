@@ -58,9 +58,7 @@ class RoomRepository {
      * @async
      */
     async deleteRoomByName(roomName) {
-
         await this.connection.query('DELETE FROM room WHERE name = ?', [roomName]);
-
     }
 
     /**
@@ -86,7 +84,7 @@ class RoomRepository {
     /**
      * Получает пользователей в комнате.
      * @param {string} roomName - Имя комнаты.
-     * @returns {Promise<any[]>} Список пользователей.
+     * @returns {Promise<Array[]>} Список пользователей.
      * @async
      */
     async getUsersInRoom(roomName) {

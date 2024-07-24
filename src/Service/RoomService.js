@@ -41,6 +41,8 @@ class RoomService {
      */
     async joinRoom(roomName, userName, userIp) {
         try {
+            await this.isUserInRoom(roomName, userIp);
+            await this.isUserNameTaken(roomName, userName);
             this.playersReadyStates[userName] = false;
             await this.addUserToRoom(roomName, userName, userIp);
         } catch (error) {
@@ -71,6 +73,33 @@ class RoomService {
     async isAllReady() {
         const values = Object.values(this.playersReadyStates);
         return values.every(isReady => isReady === true);
+    }
+
+    /**
+     * Проверяет, находится ли пользователь с указанным IP-адресом в заданной комнате.
+     * @async
+     * @param {string} roomName - Название комнаты.
+     * @param {string} userIp - IP-адрес пользователя.
+     */
+    async isUserInRoom(roomName, userIp) {
+        const users = await this.getUsersInRoom(roomName);
+        if (users !== undefined && users.find(user => user.user_ip === userIp)) {
+            console.log(users.find(user => user.user_ip === userIp))
+            throw new Error('Пользователь уже присоединился к этой комнате');
+        }
+    }
+
+    /**
+     * Проверяет, находится ли пользователь c таким именем в заданной комнате.
+     * @async
+     * @param {string} roomName - Название комнаты.
+     * @param {string} userName - IP-адрес пользователя.
+     */
+    async isUserNameTaken(roomName, userName) {
+        const users = await this.getUsersInRoom(roomName);
+        if (users !== undefined && users.find(user => user.user_name === userName)) {
+            throw new Error('Пользователь с таким именем уже существует');
+        }
     }
 
     /**
@@ -114,7 +143,6 @@ class RoomService {
      */
     async changeUserData(roomName, userSkin, userColor, userIp) {
         try {
-            console.log(userColor)
             await this.roomRepository.changeUserData(userIp, userSkin, userColor);
         } catch (error) {
             throw new Error('Ошибка смены данных игрока: ' + error.message);
@@ -129,7 +157,7 @@ class RoomService {
      */
     async getUsersInRoom(roomName) {
         try {
-            return await this.roomRepository.getUsersInRoom(roomName);
+            return await this.roomRepository.getUsersInRoom(roomName)
         } catch (error) {
             throw new Error('Ошибка получения пользователей в комнате: ' + error.message);
         }
