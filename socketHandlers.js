@@ -1,38 +1,36 @@
 const RoomRepository = require("./src/Repository/RoomRepository");
-const RoomManager = require('./src/Manager/RoomManager');
+const ServerManager = require('./src/Manager/ServerManager');
 
 module.exports = (io) => {
 
     const roomRepository = new RoomRepository(io);
 
-    const roomManager = new RoomManager(io, roomRepository);
+    const serverManager = new ServerManager(io, roomRepository);
 
     io.on('connection', (socket) => {
 
         socket.on('createRoom', (roomName, userName) => {
-            if (!userName) {
-                console.error('Error: userName is null or undefined.');
-                socket.emit('error', 'User name cannot be null or undefined');
-                return;
-            }
-            roomManager.createRoom(socket, roomName, userName);
+            serverManager.createRoom(socket, roomName, userName);
+        });
+
+        socket.on('gameStart', (roomName, users) => {
+            serverManager.gameStart(roomName, users);
         });
 
         socket.on('joinRoom', (roomName, userName) => {
-            if (!userName) {
-                console.error('Error: userName is null or undefined.');
-                socket.emit('error', 'User name cannot be null or undefined');
-                return;
-            }
-            roomManager.joinRoom(socket, roomName, userName);
+            serverManager.joinRoom(socket, roomName, userName);
+        });
+
+        socket.on('applySettings', (roomName, userData) => {
+            serverManager.applySettings(socket, roomName, userData);
         });
 
         socket.on('playerReady', (roomName, userName) => {
-            roomManager.playerReady(socket, roomName, userName);
+            serverManager.playerReady(socket, roomName, userName);
         });
 
         socket.on('disconnect', () => {
-            roomManager.disconnect(socket);
+            serverManager.disconnect(socket);
         });
 
     });
@@ -40,25 +38,25 @@ module.exports = (io) => {
     const gameNamespace = io.of('/game');
     gameNamespace.on('connection', (socket) => {
 
-        socket.on('playerStart', (roomName, userName) => {
-            roomManager.playerStart(socket, roomName, userName);
+        socket.on('playerJoin', (roomName) => {
+            serverManager.playerJoin(socket, roomName);
         });
 
         socket.on('playerMovement', (roomName, moveData) => {
-            roomManager.handleMove(socket, roomName, moveData);
+            serverManager.handleMove(socket, roomName, moveData);
         });
 
         socket.on('disconnect', () => {
-            roomManager.gameDisconnect(socket);
+            serverManager.gameDisconnect(socket);
         });
 
-        socket.on('endGame', () => {
-            roomManager.removeRoom(socket);
+        socket.on('endGame', (roomName) => {
+            serverManager.removeRoom(socket, roomName);
         });
     });
 
     process.on('SIGINT', () => {
-        roomManager.closeAllRooms();
+        serverManager.closeAllRooms();
         process.exit();
     });
 };

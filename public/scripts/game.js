@@ -1,4 +1,3 @@
-
 const element = document.getElementById('colorLevelInfo');
 
 setTimeout(function () {

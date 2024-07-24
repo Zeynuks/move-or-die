@@ -5,13 +5,20 @@ const Block = require("../Entity/Block");
  * Сервис для работы с уровнями игры.
  */
 class LevelService {
-    constructor() {
+    constructor(io) {
+        this.io = io;
         this.mapRepository = new MapRepository();
         this.size = 50;
         this.levelMap = [];
         this.levelSpawnPoints = [];
         this.levelObjects = [];
         this.specialObjects = [];
+        this.levelScore = {
+            blue: 0,
+            green: 0,
+            yellow: 0,
+            purple: 0,
+        }
     }
 
     /**
@@ -85,7 +92,7 @@ class LevelService {
      * Сбрасывает данные уровня до начального состояния.
      * @param {string} levelName - Название уровня для сброса данных.
      */
-    async resetLevelData(levelName) {
+    async setLevelData(levelName) {
         await this.downloadLevelMap(levelName);
         await this.getMapGrid(this.size);
     }
@@ -157,18 +164,21 @@ class LevelService {
         }
     }
 
-    /**
-     * Обновляет уровень (не реализовано).
-     * @param {Array<Object>} players - Массив игроков.
-     * @param {Array<Object>} objects - Массив объектов для обновления уровня.
-     */
-    updateLevel(players, objects) {
+    checkProximity(player, object) {
+        const proximityDistance = 1;
+        return (
+            player.x < object.x + object.size + proximityDistance &&
+            player.x + player.size > object.x - proximityDistance &&
+            player.y < object.y + object.size + proximityDistance &&
+            player.y + player.size > object.y - proximityDistance
+        );
     }
 
     /**
-     * Обновляет счет (не реализовано).
+     * Обновляет уровень (не реализовано).
+     * @param {Array<Object>} players - Массив игроков.
      */
-    updateScore() {
+    updateLevelData(players) {
     }
 
     /**
@@ -176,7 +186,27 @@ class LevelService {
      * @returns {Object} - Статистика уровня.
      */
     getStat() {
-        return {};
+        const sortedScore = Object.entries(this.levelScore)
+            .sort((a, b) => b[1] - a[1])
+            .reduce((result, [key, value]) => ({ ...result, [key]: value }), {});
+
+        let count = 0;
+        let bonus =  [5, 2, 1, 0]
+        const updatedSortedScore = {};
+        for (const color in sortedScore) {
+            if (sortedScore[color] !== 0) {
+                updatedSortedScore[color] = bonus[count];
+                count++;
+            }
+        }
+
+        return updatedSortedScore;
+    }
+
+    /**
+     * Обновляет счет (не реализовано).
+     */
+    updateScore() {
     }
 
 }

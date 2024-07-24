@@ -11,7 +11,9 @@ body.page {
     align-items: center;
     text-align: center;
     position: relative;
-    /*background-image: url("../images/back.png");*/
+    background-image: url("../images/background2.png");
+    background-size: cover;
+    height: 100vh;
 }
 
 .page__title {
@@ -26,14 +28,14 @@ body.page {
 
 .game__canvas {
     border: 2px solid #000000;
-    width: 90vw;
+    width: calc(7 / 4 * 90vh);
     background-image: url("../images/game.png");
     background-size: cover;
-    height: calc(4 / 7 * 90vw);
+    height: 90vh;
 }
 
 .health__canvas {
-    width: 90vw;
+    width: calc(7 / 4 * 90vh);
     background-size: cover;
     /*height: calc(1 / 30 * 60vw);*/
 }
@@ -45,18 +47,18 @@ body.page {
 
 #page__info-box {
     position: absolute;
-    width: 90vw;
-    height: 40vw;
+    width: calc(7 / 4 * 90vh);
+    height:  calc(7 / 4 * 90vh * 3 / 7);
     background-color: #21242AE2;
     border-left: 2px solid #000000;
     border-right: 2px solid #000000;
-    top: 5vw;
+    top: 11.5vh;
 }
 
 .page__info-canvas {
     position: absolute;
-    width: 90vw;
-    height: 40vw;
+    width: calc(7 / 4 * 90vh);
+    height: calc(7 / 4 * 90vh * 3 / 7);
     border-left: 2px solid #000000;
     border-right: 2px solid #000000;
     top: 5vw;
@@ -110,7 +112,7 @@ body.page {
     position: absolute;
     top: 0;
     left: 0;
-    width: 90vw;
-    height: calc(4 / 7 * 90vw);
+    width: calc(7 / 4 * 90vh);
+    height: 90vh;
     border: 2px solid #000000;
 }
