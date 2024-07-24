@@ -88,11 +88,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 isReady.innerText = `${playersReadyStates[user.user_name] ? 'Ready' : 'Not Ready'}`;
                 li.appendChild(isReady);
             }
-
-            console.log(user.user_ip, creatorIp)
-            if (user.user_ip === creatorIp) {
-                //li.innerText += ' (Host)';
-            }
             playersList.appendChild(li);
         });
     });
@@ -101,14 +96,12 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = `/?name=${userName}`;
     });
 
-    // readyBtn.addEventListener('click', () => {
-    //     socket.emit('playerReady', roomName, userName);
-    //     readyBtn.disabled = true;
-    //     showNotification('You are ready!', readyNotification);
-    // });
-
     socket.on('gameStarted', () => {
         window.location.href = `/game?room=${roomName}&name=${userName}`;
+    });
+
+    socket.on('loadGame', (roomName, users) => {
+        socket.emit('gameStart', roomName, users);
     });
 
     copyLinkBtn.addEventListener('click', () => {
