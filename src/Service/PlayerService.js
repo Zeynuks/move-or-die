@@ -116,7 +116,6 @@ class PlayerService {
         }
     }
 
-
     /**
      * Обновляет позиции всех игроков.
      * @async
@@ -178,6 +177,7 @@ class PlayerService {
      * @param {string} clientIp - IP клиента.
      * @async
      */
+
     async disconnect(clientIp) {
         try {
             this.leftPlayers[clientIp] = this.players[clientIp];

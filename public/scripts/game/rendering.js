@@ -5,10 +5,29 @@ function drawMap(context, blocks, blocksImages) {
     }
 }
 
+let bloodSpots = [];
+const bloodLifetime = 5000; // Время жизни пятна крови в миллисекундах
 
-let bloodDisplayed = false; // Флаг, чтобы отслеживать, отображалась ли кровь
+// Функция для отрисовки пятна крови
+function drawBloodSpot(context, spot) {
+    context.drawImage(playersImages[spot.color][4], spot.x, spot.y, spot.size, spot.size);
+}
 
+// Функция для отрисовки всех пятен крови
+function drawBloodSpots(context) {
+    const now = Date.now();
+    for (let i = bloodSpots.length - 1; i >= 0; i--) {
+        const spot = bloodSpots[i];
+        // Проверяем, устарело ли пятно крови
+        if (now - spot.createdAt >= bloodLifetime) {
+            bloodSpots.splice(i, 1); // Удаляем устаревшее пятно
+        } else {
+            drawBloodSpot(context, spot); // Рисуем пятно крови
+        }
+    }
+}
 
+// Функция для отрисовки игрока
 function drawPlayer(context, player, position, playersImages) {
     context.save();
     const now = Date.now();
@@ -16,9 +35,20 @@ function drawPlayer(context, player, position, playersImages) {
     const sw = 50;
     const sh = 50;
 
+    // Отрисовка состояния игрока
     if (!player.statement) {
-        context.globalAlpha = 0.3;
+        context.globalAlpha = 0.3; // Прозрачность для мертвого игрока
+
+        if (!bloodSpots.length)// Создаем новое пятно крови, если игрок умер
+        bloodSpots.push({
+            x: position.x,
+            y: position.y,
+            createdAt: now,
+            color: player.color, // Сохраняем цвет игрока для отображения пятна
+            size: player.size // Сохраняем размер для отображения пятна
+        });
     }
+
     if (player.vx > 0) {
         context.drawImage(playersImages[player.color][1], Math.floor(now / 250) % 7 * 50, sy, sw, sh, position.x, position.y, player.size, player.size);
     } else if (player.vx < 0) {
@@ -120,7 +150,7 @@ function renderWinnerList(winnerList) {
 
         const found = Object.values(players).some(player => player.color === color);
         if (found) {
-            contextInfo.drawImage(playersImages[color], x + 20, y - score * 300 / MAX_SCORE - 120, 100, 100);
+            contextInfo.drawImage(playersImages[color][0], x + 20, y - score * 300 / MAX_SCORE - 120, 100, 100);
         }
 
         if (score >= MAX_SCORE * 0.3) {
@@ -195,6 +225,7 @@ function drawBomb(context, bomb_image, player) {
 
 export {
     drawMap,
+    drawBloodSpots,
     drawPlayer,
     drawHealth,
     drawTimer,

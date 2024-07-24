@@ -1,6 +1,7 @@
 import {calculatePosition, transformKeys} from './utils.js';
 import {
     drawMap,
+    drawBloodSpots,
     drawPlayer,
     drawHealth,
     drawScore,
@@ -110,6 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 drawPlayer(context, player, position, playersImages);
                 drawBomb(context, bomb_image, player);
                 drawHealth(contextHealth, player, playerIndex);
+                drawBloodSpots(context);
             });
         }
 
