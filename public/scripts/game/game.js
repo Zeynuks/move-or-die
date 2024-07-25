@@ -80,9 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.on('endGame', (player) => {
         player = transformKeys(player);
-        const winName = document.createElement('span');
         const endList = document.getElementById('endList_' + player.color);
-        console.log(player.username)
         endList.removeAttribute('hidden', '');
         setTimeout(function () {
             window.location.href = `/`;
