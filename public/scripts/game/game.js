@@ -1,7 +1,6 @@
 import {calculatePosition, transformKeys} from './utils.js';
 import {
     drawMap,
-    drawBloodSpots,
     drawPlayer,
     drawHealth,
     drawScore,
@@ -61,6 +60,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.on('endRound', (data) => {
         state = false;
+        bloodSpots = {
+            blue: null,
+            green: null,
+            yellow: null,
+            purple: null,
+        }
         winnerList = data;
         if (info_box.classList.contains('hidden')) {
             info_box.classList.remove('hidden');
@@ -107,7 +112,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 drawPlayer(context, player, position, playersImages);
                 drawBomb(context, bomb_image, player);
                 drawHealth(contextHealth, player, playerIndex);
-                drawBloodSpots(context);
             });
         }
 

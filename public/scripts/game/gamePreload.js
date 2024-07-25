@@ -28,10 +28,17 @@ let killing_block = new Image();
 let bomb_image = new Image();
 
 const playersImages = {
-    blue: [new Image(), new Image(), new Image(), new Image(), new Image()],
-    yellow: [new Image(), new Image(), new Image(), new Image(), new Image()],
-    green: [new Image(), new Image(), new Image(), new Image(), new Image()],
-    purple: [new Image(), new Image(), new Image(), new Image(), new Image()],
+    [Color.BLUE]: createPlayerImages(Color.BLUE),
+    [Color.GREEN]:createPlayerImages(Color.GREEN),
+    [Color.YELLOW]:createPlayerImages(Color.YELLOW),
+    [Color.PURPLE]:createPlayerImages(Color.PURPLE),
+};
+
+const  bloodSpotsImages = {
+    blue: new Image(),
+    yellow: new Image(),
+    green: new Image(),
+    purple: new Image(),
 };
 
 const blocksImages = {
@@ -40,16 +47,16 @@ const blocksImages = {
     green: new Image(),
     purple: new Image(),
     grey: new Image(),
-}
+};
 
 const levelScores = {
     blue: 0,
     yellow: 0,
     green: 0,
     purple: 0,
-}
+};
 
-let state = false
+let state = false;
 let players = {};
 let blocks = [];
 let specialObjects = [];
@@ -60,12 +67,19 @@ let roundTimer = null
 let currentTime = null;
 let totalTime = null;
 
+let bloodSpots = {
+    blue: null,
+    green: null,
+    yellow: null,
+    purple: null,
+};
+
 const COLORS = {
     blue: '#46d7f4',
     yellow: '#e2c233',
     purple: '#f591f4',
     green: '#51e255'
-}
+};
 
 function preload() {
     blocksImages.blue.src = '../images/blue-block.png';
@@ -74,43 +88,10 @@ function preload() {
     blocksImages.purple.src = '../images/purple-block.png';
     blocksImages.grey.src = '../images/grey-block.png';
 
-    /**
-     * Массив изображений игроков.
-     *
-     * @type {Array}
-     * @property {HTMLImageElement} playersImage[0] - статичная картинка
-     * @property {HTMLImageElement} playersImage[1] - бег вправо
-     * @property {HTMLImageElement} playersImage[2] - бег влево
-     * @property {HTMLImageElement} playersImage[3] - прыжок
-     *@property {HTMLImageElement} playersImage[4] - смерть
-     */
-
-    playersImages.blue[0].src = '../images/character_blue.png';
-    playersImages.blue[1].src = '../images/spriteRunRightBlue.png';
-    playersImages.blue[2].src = '../images/spriteRunLeftBlue.png';
-    playersImages.blue[3].src = '../images/spriteJumpBlue.png';
-    playersImages.blue[4].src = '../images/bloodBlue.png';
-
-    playersImages.yellow[0].src = '../images/character_yellow.png';
-    playersImages.yellow[1].src = '../images/spriteRunRightYellow.png';
-    playersImages.yellow[2].src = '../images/spriteRunLeftYellow.png';
-    playersImages.yellow[3].src = '../images/spriteJumpYellow.png';
-    playersImages.yellow[4].src = '../images/bloodYellow.png';
-
-
-    playersImages.green[0].src = '../images/character_green.png';
-    playersImages.green[1].src = '../images/spriteRunRightGreen.png';
-    playersImages.green[2].src = '../images/spriteRunLeftGreen.png';
-    playersImages.green[3].src = '../images/spriteJumpGreen.png';
-    playersImages.green[4].src = '../images/bloodGreen.png';
-
-
-    playersImages.purple[0].src = '../images/character_red.png';
-    playersImages.purple[1].src = '../images/spriteRunRightRed.png';
-    playersImages.purple[2].src = '../images/spriteRunLeftRed.png';
-    playersImages.purple[3].src = '../images/spriteJumpRed.png';
-    playersImages.purple[4].src = '../images/bloodRed.png';
-
+    bloodSpotsImages.blue.src = '../images/bloodBlue.png';
+    bloodSpotsImages.green.src = '../images/bloodGreen.png';
+    bloodSpotsImages.purple.src = '../images/bloodRed.png';
+    bloodSpotsImages.yellow.src = '../images/bloodYellow.png';
 
     killing_block.src = '../images/DeathSheet.png';
 
@@ -120,4 +101,4 @@ function preload() {
 const info_box = document.getElementById('page__info-box');
 info_box.classList.add('hidden');
 
-let winnerList = {}
+let winnerList = {};
