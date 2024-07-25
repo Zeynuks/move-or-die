@@ -14,9 +14,9 @@ function drawBloodSpot(context, spot) {
 function drawPlayer(context, player, position, playersImages) {
     context.save();
     const now = Date.now();
-    const sy = 0;
-    const sw = 50;
-    const sh = 50;
+    const offsetByY = 0;
+    const frameWidth = 50;
+    const frameHeight = 50;
 
     if (!player.statement) {
         context.globalAlpha = 0.3;
@@ -37,13 +37,13 @@ function drawPlayer(context, player, position, playersImages) {
      * @param {!Sprite} sprite
      */
     function drawPlayerSprite(sprite) {
-        const currentSpriteOffset = Math.floor(now / 250) % sprite.frames * 50;
+        const spriteOffsetByX = Math.floor(now / 250) % sprite.frames * 50;
         context.drawImage(
             sprite.image,
-            currentSpriteOffset,
-            sy,
-            sw,
-            sh,
+            spriteOffsetByX,
+            offsetByY,
+            frameWidth,
+            frameHeight,
             position.x,
             position.y,
             player.size,
@@ -101,26 +101,39 @@ function drawHealth(context, player, playerIndex) {
     context.stroke();
 }
 
-function drawScore(context, levelScores, COLORS) {
-    let allPoints = levelScores.blue + levelScores.yellow + levelScores.purple + levelScores.green;
-    let x = 600;
-    let y = 100;
-
-    context.fillStyle = COLORS['blue'];
-    context.fillRect(x, y, (levelScores.blue / allPoints) * 200, 30);
-
-    context.fillStyle = COLORS['yellow'];
-    x += (levelScores.blue / allPoints) * 200;
-    context.fillRect(x, y, (levelScores.yellow / allPoints) * 200, 30);
-
-    context.fillStyle = COLORS['purple'];
-    x += (levelScores.yellow / allPoints) * 200;
-    context.fillRect(x, y, (levelScores.purple / allPoints) * 200, 30);
-
-    context.fillStyle = COLORS['green'];
-    x += (levelScores.purple / allPoints) * 200;
-    context.fillRect(x, y, (levelScores.green / allPoints) * 200, 30);
-}
+// function drawScore(context, levelScores, COLORS) {
+//     let allPoints = levelScores.blue + levelScores.yellow + levelScores.purple + levelScores.green;
+//     let x = 600;
+//     let y = 100;
+//
+//     /**
+//      * @param {!number} x
+//      */
+//     function drawPlayerPedestal(x) {
+//         context.fillRect(
+//             x,
+//             y,
+//             (levelScores.blue / allPoints) * 200,
+//             30
+//         );
+//
+//     }
+//
+//     context.fillStyle = COLORS['blue'];
+//     context.fillRect(x, y, (levelScores.blue / allPoints) * 200, 30);
+//
+//     context.fillStyle = COLORS['yellow'];
+//     x += (levelScores.blue / allPoints) * 200;
+//     context.fillRect(x, y, (levelScores.yellow / allPoints) * 200, 30);
+//
+//     context.fillStyle = COLORS['purple'];
+//     x += (levelScores.yellow / allPoints) * 200;
+//     context.fillRect(x, y, (levelScores.purple / allPoints) * 200, 30);
+//
+//     context.fillStyle = COLORS['green'];
+//     x += (levelScores.purple / allPoints) * 200;
+//     context.fillRect(x, y, (levelScores.green / allPoints) * 200, 30);
+// }
 
 function drawTimer(context, totalTime, currentTime) {
     const x = 100;
@@ -152,7 +165,24 @@ function renderWinnerList(winnerList) {
 
         const found = Object.values(players).some(player => player.color === color);
         if (found) {
-            contextInfo.drawImage(playersImages[color].spriteStatic.image, x + 20, y - score * 300 / MAX_SCORE - 120, 100, 100);
+            const now = Date.now();
+            const frameDuration = 200;
+            const frames = 4;
+            const currentFrame = Math.floor((now / frameDuration) % frames);
+            const offsetByY = 0;
+            const frameWidth = 50;
+            const frameHeight = 50;
+            contextInfo.drawImage(
+                playersImages[color].spriteStatic.image,
+                currentFrame * 50,
+                offsetByY,
+                frameWidth,
+                frameHeight,
+                x + 20,
+                y - score * 300 / MAX_SCORE - 120,
+                100,
+                100
+            );
         }
 
         if (score >= MAX_SCORE * 0.3) {
@@ -230,7 +260,7 @@ export {
     drawPlayer,
     drawHealth,
     drawTimer,
-    drawScore,
+    //drawScore,
     drawBomb,
     explode,
     handleParticles,

@@ -3,7 +3,6 @@ import {
     drawMap,
     drawPlayer,
     drawHealth,
-    drawScore,
     drawBomb,
     explode,
     handleParticles,
@@ -205,7 +204,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 drawPlayers();
                 drawMap(context, blocks, blocksImages);
                 drawSpecialObjects();
-                drawScore(context, levelScores, COLORS);
             }
             requestAnimationFrame(gameLoop);
         }
