@@ -174,7 +174,16 @@ class GameController extends BaseController {
      */
     async isGameEnd() {
         if (this.levelList.length === 0) {
-            this.io.emit('endGame', this.roomName);
+            let maxKey = null;
+            let maxValue = -Infinity;
+            for (const [key, value] of Object.entries(this.playersScore)) {
+                if (value > maxValue) {
+                    maxValue = value;
+                    maxKey = key;
+                }
+            }
+            const winner = Object.values(this.playerService.players).find(player => player.color === maxKey)
+            this.io.emit('endGame', winner);
         } else {
             await this.sleep(WAIT_TIME);
             await this.startRound();
