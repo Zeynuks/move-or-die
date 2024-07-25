@@ -13,7 +13,7 @@ import {
 } from "./rendering.js";
 
 const element = document.getElementById('colorLevelInfo');
-
+const endList = document.getElementById('endList');
 setTimeout(function () {
     // Добавляем свойство "hidden" к элементу
     element.setAttribute('hidden', '');
@@ -79,9 +79,12 @@ document.addEventListener('DOMContentLoaded', () => {
             levelScores.purple = data.purple;
         });
 
-        socket.on('endGame', () => {
+    socket.on('endGame', () => {
+        endList.removeAttribute('hidden', '');
+        setTimeout(function () {
             window.location.href = `/`;
-        });
+        }, 5000);
+    });
 
         socket.on('explode', (data) => {
             explode(data.x, data.y, data.color);
