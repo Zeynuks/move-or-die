@@ -4,6 +4,7 @@ import {
     drawPlayer,
     drawHealth,
     drawBomb,
+    drawScoreLine,
     explode,
     handleParticles,
     renderWinnerList,
@@ -109,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let position = calculatePosition(previous, current, t);
 
                 drawPlayer(context, player, position, playersImages);
+                drawScoreLine(context, levelScores, COLORS);
                 drawBomb(context, bomb_image, player);
                 drawHealth(contextHealth, player, playerIndex);
             });

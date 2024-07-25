@@ -101,39 +101,39 @@ function drawHealth(context, player, playerIndex) {
     context.stroke();
 }
 
-// function drawScore(context, levelScores, COLORS) {
-//     let allPoints = levelScores.blue + levelScores.yellow + levelScores.purple + levelScores.green;
-//     let x = 600;
-//     let y = 100;
-//
-//     /**
-//      * @param {!number} x
-//      */
-//     function drawPlayerPedestal(x) {
-//         context.fillRect(
-//             x,
-//             y,
-//             (levelScores.blue / allPoints) * 200,
-//             30
-//         );
-//
-//     }
-//
-//     context.fillStyle = COLORS['blue'];
-//     context.fillRect(x, y, (levelScores.blue / allPoints) * 200, 30);
-//
-//     context.fillStyle = COLORS['yellow'];
-//     x += (levelScores.blue / allPoints) * 200;
-//     context.fillRect(x, y, (levelScores.yellow / allPoints) * 200, 30);
-//
-//     context.fillStyle = COLORS['purple'];
-//     x += (levelScores.yellow / allPoints) * 200;
-//     context.fillRect(x, y, (levelScores.purple / allPoints) * 200, 30);
-//
-//     context.fillStyle = COLORS['green'];
-//     x += (levelScores.purple / allPoints) * 200;
-//     context.fillRect(x, y, (levelScores.green / allPoints) * 200, 30);
-// }
+function drawScoreLine(context, levelScores, COLORS) {
+    let allPoints = levelScores.blue + levelScores.yellow + levelScores.purple + levelScores.green;
+    let x = 600;
+    let y = 100;
+
+    /**
+     * @param {!number} x
+     */
+    function drawPlayerPedestal(x) {
+        context.fillRect(
+            x,
+            y,
+            (levelScores.blue / allPoints) * 200,
+            30
+        );
+
+    }
+
+    context.fillStyle = COLORS['blue'];
+    context.fillRect(x, y, (levelScores.blue / allPoints) * 200, 30);
+
+    context.fillStyle = COLORS['yellow'];
+    x += (levelScores.blue / allPoints) * 200;
+    context.fillRect(x, y, (levelScores.yellow / allPoints) * 200, 30);
+
+    context.fillStyle = COLORS['purple'];
+    x += (levelScores.yellow / allPoints) * 200;
+    context.fillRect(x, y, (levelScores.purple / allPoints) * 200, 30);
+
+    context.fillStyle = COLORS['green'];
+    x += (levelScores.purple / allPoints) * 200;
+    context.fillRect(x, y, (levelScores.green / allPoints) * 200, 30);
+}
 
 function drawTimer(context, totalTime, currentTime) {
     const x = 100;
@@ -260,7 +260,7 @@ export {
     drawPlayer,
     drawHealth,
     drawTimer,
-    //drawScore,
+    drawScoreLine,
     drawBomb,
     explode,
     handleParticles,

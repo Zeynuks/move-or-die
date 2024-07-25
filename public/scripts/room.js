@@ -1,10 +1,10 @@
 const socket = io();
 document.addEventListener('DOMContentLoaded', () => {
     let playersImages = {
-        blue: '../images/character_blue.png',
-        yellow: '../images/character_yellow.png',
-        green: '../images/character_green.png',
-        purple: '../images/character_red.png'
+        blue: '../images/skinBlue.png',
+        yellow: '../images/skinYellow.png',
+        green: '../images/skinGreen.png',
+        purple: '../images/skinRed.png'
     };
 
 
