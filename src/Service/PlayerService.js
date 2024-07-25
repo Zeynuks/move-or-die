@@ -87,7 +87,7 @@ class PlayerService {
     async handleMovePlayer(clientIp, movementData) {
         try {
             if (this.players[clientIp].active && movementData.x) {
-                movementData.x = movementData.x  > 0 ? movementData.x  + 1 : movementData.x  - 1;
+                movementData.x = movementData.x  > 0 ? movementData.x  + 2 : movementData.x  - 2;
             }
             this.players[clientIp].vx = movementData.x;
             if (movementData.jump && this.players[clientIp].onGround) {

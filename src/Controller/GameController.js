@@ -1,8 +1,10 @@
 const BaseController = require("./BaseController");
 const ErrorHandler = require("../Utils/ErrorHandler");
-const ROUND_TIME = 1000 * 60;
-const WAIT_TIME = 1000 * 3;
 
+const ROUND_TIME = 1000 * 30;
+const WAIT_TIME = 1000 * 2;
+const CYCLE_TIME = 1000 / 60;
+const INFO_TIME = 1000 * 8;
 /**
  * Контроллер игры.
  * @extends BaseController
@@ -46,6 +48,7 @@ class GameController extends BaseController {
      */
     async startGame() {
         try {
+            await this.sleep(INFO_TIME);
             await this.startRound();
         } catch (error) {
             ErrorHandler(this.io, this.roomName, 'Ошибка старта игры', error.message);
@@ -58,7 +61,9 @@ class GameController extends BaseController {
      * @returns {Promise<void>}
      */
     async gameDataLoad(socket) {
-        socket.emit('gameLoad', this.playerService.players, this.levelService.levelMap);
+        if (this.roundTimer !== null) {
+            socket.emit('gameLoad', this.playerService.players, this.levelService.levelMap);
+        }
     }
 
     /**
@@ -124,7 +129,7 @@ class GameController extends BaseController {
                 await this.isRoundEnd();
                 this.io.emit('gameUpdate', this.playerService.players, this.levelService.levelMap, this.levelService.specialObjects);
                 this.io.emit('levelScore', this.levelService.levelScore);
-            }, 1000 / 60);
+            }, CYCLE_TIME);
         } catch (error) {
             throw new Error(`Ошибка игрового цикла: ${error.message}`);
         }

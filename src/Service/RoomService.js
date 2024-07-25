@@ -84,7 +84,6 @@ class RoomService {
     async isUserInRoom(roomName, userIp) {
         const users = await this.getUsersInRoom(roomName);
         if (users !== undefined && users.find(user => user.user_ip === userIp)) {
-            console.log(users.find(user => user.user_ip === userIp))
             throw new Error('Пользователь уже присоединился к этой комнате');
         }
     }
